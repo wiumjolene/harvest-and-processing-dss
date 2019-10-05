@@ -11,12 +11,13 @@ def create_options():
     df_dp = setl.demand_plan()
     df_pc = setl.pack_capacity()
     df_he = setl.harvest_estimate()
+    df_lugs = setl.lug_generation()
     list_dp = df_dp['id'].tolist()
     list_he = df_he['id'].tolist()
     list_pc = df_pc['id'].tolist()
     
     ddic_pc = {}
-    ddic_blocks = {}
+    ddic_he = {}
     no_he = []
     no_pc = []
     ddic_options={}
@@ -26,10 +27,19 @@ def create_options():
         dvacat_id = df_dp.vacat_id[d]
         dtime_id = df_dp.time_id[d]
         
-        # find all available blocks for demand 
+        # find all available harvest estimates for demand 
         ddf_he = df_he[df_he['vacat_id']==dvacat_id]
         ddf_he = ddf_he[ddf_he['time_id']==dtime_id].reset_index(drop=True)
-        ddic_blocks.update({ddemand_id: ddf_he['block_id'].tolist()})
+        dlist_he = ddf_he['id'].tolist()
+        
+        # get all the lugs in he
+        ddic_het = {}
+        for he in dlist_he:
+            ddf_lugs = df_lugs[df_lugs['he_id'] == he].reset_index(drop=True)
+            dlist_lugs = ddf_lugs['id'].tolist()
+            ddic_het.update({he: dlist_lugs})
+
+        ddic_he.update({ddemand_id: ddic_het})
         list_he = [x for x in list_he if x not in ddf_he['id'].tolist()]
 
         if len(ddf_he) == 0:
@@ -50,13 +60,13 @@ def create_options():
     print('The following demands = no pack_capacity options: ' + str(no_pc))
     print('The following demands can be served: ' + str(dlist_ready))
     print('')
-    ddic_options.update({'dlist_ready':dlist_ready})
-    ddic_options.update({'ddic_pc':ddic_pc})
-    ddic_options.update({'ddic_blocks':ddic_blocks})
-    ddic_options.update({'no_he':no_he})
-    ddic_options.update({'no_pc':no_pc})    
-    ddic_options.update({'harvest estimate with no ass':list_he})
-    ddic_options.update({'pc with no ass':list_pc})                                                    
+    ddic_options.update({'demands_ready_for_allocation':dlist_ready})
+    ddic_options.update({'demands_pc':ddic_pc})
+    ddic_options.update({'demands_he':ddic_he})
+    ddic_options.update({'demands_no_he':no_he}) # all he for demand with lugs in he
+    ddic_options.update({'demands_no_pc':no_pc})    
+    ddic_options.update({'he_no_ass':list_he})
+    ddic_options.update({'pc_no_ass':list_pc})                                                    
     return(ddic_options)
     
-test = create_options()
+demand_options = create_options()
