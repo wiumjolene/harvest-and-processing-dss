@@ -21,11 +21,16 @@ def create_options():
     no_he = []
     no_pc = []
     ddic_options={}
+    ddic_metadata={}
     
     for d in range(0,len(df_dp)):
         ddemand_id = df_dp.id[d]
         dvacat_id = df_dp.vacat_id[d]
         dtime_id = df_dp.time_id[d]
+        dpack_type_id = df_dp.pack_type_id[d]
+        ddic_metadata.update({ddemand_id: {'vacat_id': dvacat_id,
+                                           'time_id': dtime_id,
+                                           'pack_type_id': dpack_type_id}})
         
         # find all available harvest estimates for demand 
         ddf_he = df_he[df_he['vacat_id']==dvacat_id]
@@ -47,7 +52,7 @@ def create_options():
 
         # find all available pack_capacities for demand    
         ddf_pc = df_pc[df_pc['time_id']==dtime_id]
-        ddf_pc = ddf_pc[ddf_pc['pack_type_id']==dtime_id].reset_index(drop=True)
+        ddf_pc = ddf_pc[ddf_pc['pack_type_id']==dpack_type_id].reset_index(drop=True)
         ddic_pc.update({ddemand_id: ddf_pc['id'].tolist()})
         list_pc = [x for x in list_pc if x not in ddf_pc['id'].tolist()]
         
@@ -66,7 +71,8 @@ def create_options():
     ddic_options.update({'demands_no_he':no_he}) # all he for demand with lugs in he
     ddic_options.update({'demands_no_pc':no_pc})    
     ddic_options.update({'he_no_ass':list_he})
-    ddic_options.update({'pc_no_ass':list_pc})                                                    
+    ddic_options.update({'pc_no_ass':list_pc}) 
+    ddic_options.update({'demands_metadata':ddic_metadata})                                                   
     return(ddic_options)
     
 

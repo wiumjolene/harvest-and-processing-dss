@@ -30,6 +30,14 @@ def pack_capacity():
     df_pc['trucks_raw'] = (df_pc['kg'] * (1 + variables.giveaway))/variables.truck
     return(df_pc)
     
+def pack_capacity_dic():
+    df_pc = pack_capacity()
+    df_pc['kg_remain'] = df_pc['kg']
+    df_pc['id2'] = df_pc['id']
+    df_pc = df_pc.set_index('id2')
+    dic_pc = df_pc.to_dict('index')
+    return(dic_pc)
+    
 def from_to():   
     df_ft = pd.read_excel(r'input_data/source_data.xlsx','f.from_to')
     return(df_ft)
