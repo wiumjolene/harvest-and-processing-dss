@@ -28,14 +28,12 @@ def population(solution_num):
     
 #    ddic_lug_allocation = {}
     ddic_solution = {}
-    dnotes = {}
     llist_usedlugs = []
 #    llist_usedhe = []
     
     for d in dlist_allocate:
         ddic_metadata = demand_options['demands_metadata'][d]
         kg = 0
-        notes = ''
 #        dstdunits = dic_dp[d]['stdunits']
         dkg_raw = dic_dp[d]['kg_raw']
 #        dkg_raw2 = round(dic_dp[d]['kg_raw'],2)  # variable to subrtact allocated he from
@@ -50,7 +48,6 @@ def population(solution_num):
         # allocate lugs to d
         while dkg_raw > 0:
             if len(dlist_he) == 0:
-                notes = 'not enough he'
                 break
                 
             # get a random position in available he estimates and select he
@@ -95,7 +92,6 @@ def population(solution_num):
                             dic_pc[lug_pc]['kg_remain'] =  pckg_remain
                         else:
                             lug_pc = 0
-                            notes = 'not enough pc'
                             break
                         
                         kg_nett = variables.s_unit * (1 - variables.giveaway)
@@ -111,9 +107,8 @@ def population(solution_num):
                     else:
                         break
                     
-        dnotes.update({d:notes})
-    ddic_solution_2 = {solution_num: {'ddic_solution':ddic_solution,
-                                      'dnotes':dnotes}}
-    return(ddic_solution_2)
+    ddf_solution = pd.DataFrame.from_dict(ddic_solution, orient='index')
+    ddf_solution['solution_num'] = solution_num
+    return(ddf_solution)
 
  
