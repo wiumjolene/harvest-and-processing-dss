@@ -26,20 +26,17 @@ def population(solution_num):
     # get list of all demands with pc and he options 
     dlist_allocate = demand_options['demands_ready_for_allocation']
     
-#    ddic_lug_allocation = {}
+    ddic_notes = {}
+    ddic_solution_2 = {}
+    note = ''
     ddic_solution = {}
     llist_usedlugs = []
-#    llist_usedhe = []
     
     for d in dlist_allocate:
+        d=6
         ddic_metadata = demand_options['demands_metadata'][d]
         kg = 0
-#        dstdunits = dic_dp[d]['stdunits']
-        dkg_raw = dic_dp[d]['kg_raw']
-#        dkg_raw2 = round(dic_dp[d]['kg_raw'],2)  # variable to subrtact allocated he from
-        
-        # list of pc's for demand d
-    #    dlist_pc = demand_options['demands_pc'][d]
+        dkg_raw = dic_dp[d]['kg_raw']        
         # list of he's and lugs for demand he
         ddic_he = demand_options['demands_he'][d]
         # get a list of all available he's (without lugs)
@@ -48,6 +45,7 @@ def population(solution_num):
         # allocate lugs to d
         while dkg_raw > 0:
             if len(dlist_he) == 0:
+                note = 'no he available'
                 break
                 
             # get a random position in available he estimates and select he
@@ -79,7 +77,7 @@ def population(solution_num):
                         df_pct = df_pct[df_pct['time_id'] == ddic_metadata['time_id']]
                         df_pct = df_pct[df_pct['km'] < variables.travel_restriction]
                         df_pct = df_pct[df_pct['pack_type_id'] == ddic_metadata['pack_type_id']]
-                        df_pct = df_pct[df_pct['kg_remain'] > variables.s_unit]
+                        df_pct = df_pct[df_pct['kg_remain'] >= variables.s_unit]
                         df_pct = df_pct.sort_values(['km']).reset_index(drop=True)
                         dlist_pc = df_pct['id'].tolist()
                         dlist_pc_km = df_pct['km'].tolist() 
@@ -92,6 +90,7 @@ def population(solution_num):
                             dic_pc[lug_pc]['kg_remain'] =  pckg_remain
                         else:
                             lug_pc = 0
+                            note = 'no pc available'
                             break
                         
                         kg_nett = variables.s_unit * (1 - variables.giveaway)
@@ -105,10 +104,15 @@ def population(solution_num):
                                                  'kg': kg_nett,
                                                  'stdunits': kg_nett/variables.stdunit}})
                     else:
+                        note = 'no more lugs available in he'
                         break
-                    
+    
+        ddic_notes.update({d:note})
+    ddic_solution_2.update({solution_num: {'ddic_solution':ddic_solution,
+                                      'ddic_notes':ddic_notes}})
+
     ddf_solution = pd.DataFrame.from_dict(ddic_solution, orient='index')
     ddf_solution['solution_num'] = solution_num
-    return(ddf_solution)
+    return(ddic_solution_2)
 
  

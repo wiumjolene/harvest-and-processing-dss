@@ -10,7 +10,7 @@ truck = 5 # 1 * truck carries so many kg of produce
 giveaway = 0.05 # % giveaway
 lug = 1 # weight (kg) of a lug
 s_unit = lug
-travel_restriction = 22
+travel_restriction = 100
 
 print('### Assumptions ###')
 print('A lug weights ' + str(lug) + 'Kg,')
