@@ -14,7 +14,7 @@ ddf_solution_p = pd.DataFrame({})
 ddic_solution_a = {}
 for p in range(0,population_size):
     print('-----------------------------')
-    print('Generation solution ' + str(p))
+    print('Generating solution ' + str(p))
     ddic_solution = solution.population(solution_num = p)
     ddic_solution_a.update(ddic_solution)
     ddic_solution_p = ddic_solution[p]['ddic_solution']

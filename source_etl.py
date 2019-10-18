@@ -32,7 +32,7 @@ def pack_capacity():
     
 def pack_capacity_dic():
     df_pc = pack_capacity()
-    df_pc['kg_remain'] = df_pc['kg']
+    df_pc['kg_remain'] = df_pc['kg'] * (1 + variables.giveaway)
     df_pc['id2'] = df_pc['id']
     df_pc = df_pc.set_index('id2')
     dic_pc = df_pc.to_dict('index')

@@ -33,7 +33,6 @@ def population(solution_num):
     llist_usedlugs = []
     
     for d in dlist_allocate:
-        d=6
         ddic_metadata = demand_options['demands_metadata'][d]
         kg = 0
         dkg_raw = dic_dp[d]['kg_raw']        
@@ -43,7 +42,7 @@ def population(solution_num):
         dlist_he = list(ddic_he.keys())
         
         # allocate lugs to d
-        while dkg_raw > 0:
+        while dkg_raw >= 0:
             if len(dlist_he) == 0:
                 note = 'no he available'
                 break
@@ -67,7 +66,7 @@ def population(solution_num):
             # loop through available lugs of he only if lugs are available
             if len(dlist_he_lugs_s) > 0:
                 for l in dlist_he_lugs_s:
-                    if dkg_raw > 0:
+                    if dkg_raw >= 0:
                         dkg_raw = dkg_raw - variables.s_unit
                         kg = kg + variables.s_unit
                         llist_usedlugs.append(l) 
