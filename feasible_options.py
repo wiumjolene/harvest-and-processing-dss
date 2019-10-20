@@ -62,8 +62,8 @@ def create_options():
     dlist_ready = [x for x in list_dp if x not in no_he]
     dlist_ready = [x for x in dlist_ready if x not in no_pc]
 #    print('The following demands can be served: ' + str(dlist_ready))
-#    print('- The following demands = no harvest estimate options: ' + str(no_he))        
-#    print('- The following demands = no pack_capacity options: ' + str(no_pc))
+    print('- The following demands = no harvest estimate options: ' + str(no_he))        
+    print('- The following demands = no pack_capacity options: ' + str(no_pc))
     print('')
     ddic_options.update({'demands_ready_for_allocation':dlist_ready})
     ddic_options.update({'demands_pc':ddic_pc})

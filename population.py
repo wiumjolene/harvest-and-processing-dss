@@ -15,7 +15,7 @@ ddic_solution_a = {}
 for p in range(0,population_size):
     print('-----------------------------')
     print('Generating solution ' + str(p))
-    ddic_solution = solution.population(solution_num = p)
+    ddic_solution = solution.chromosome(solution_num = p)
     ddic_solution_a.update(ddic_solution)
     ddic_solution_p = ddic_solution[p]['ddic_solution']
     ddf_solution = pd.DataFrame.from_dict(ddic_solution_p, orient='index')

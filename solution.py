@@ -9,16 +9,17 @@ import source_etl as setl
 import random
 import variables
 import pandas as pd
+import allocate as aloc
 
-def population(solution_num):
-#    solution_num = 0
-    
+def chromosome(solution_num):
+
     # import relevant tables
     df_dp = setl.demand_plan()
     df_ft = setl.from_to()
     df_he = setl.harvest_estimate()
     dic_dp = df_dp.set_index('id').T.to_dict('dic')
     dic_pc = setl.pack_capacity_dic()
+    adic_chromosome = {}
     
     # create a dictionary of options and issues
     demand_options = fo.create_options()
@@ -42,6 +43,7 @@ def population(solution_num):
         dlist_he = list(ddic_he.keys())
         
         # allocate lugs to d
+        ad_he = {}
         while dkg_raw >= 0:
             if len(dlist_he) == 0:
                 note = 'no he available'
@@ -50,6 +52,7 @@ def population(solution_num):
             # get a random position in available he estimates and select he
             hepos = random.randint(0,len(dlist_he)-1)
             he = dlist_he[hepos]
+            
             # get list of all lugs available in the he
             dlist_he_lugs = ddic_he[he]
             dlist_he.remove(he)  # remove he from list to not reuse it
@@ -64,6 +67,7 @@ def population(solution_num):
             df_ftt = df_ftt.filter(['packhouse_id','km'])
             
             # loop through available lugs of he only if lugs are available
+            ad_he_lug = []
             if len(dlist_he_lugs_s) > 0:
                 for l in dlist_he_lugs_s:
                     if dkg_raw >= 0:
@@ -71,13 +75,7 @@ def population(solution_num):
                         kg = kg + variables.s_unit
                         llist_usedlugs.append(l) 
                         # get all available pc's for lug and sort from closest to furthest
-                        df_pc = pd.DataFrame.from_dict(dic_pc, orient='index')
-                        df_pct = df_pc.merge(df_ftt, on = 'packhouse_id')  # get distance from block
-                        df_pct = df_pct[df_pct['time_id'] == ddic_metadata['time_id']]
-                        df_pct = df_pct[df_pct['km'] < variables.travel_restriction]
-                        df_pct = df_pct[df_pct['pack_type_id'] == ddic_metadata['pack_type_id']]
-                        df_pct = df_pct[df_pct['kg_remain'] >= variables.s_unit]
-                        df_pct = df_pct.sort_values(['km']).reset_index(drop=True)
+                        df_pct = aloc.allocate_pc(dic_pc,df_ftt,ddic_metadata)
                         dlist_pc = df_pct['id'].tolist()
                         dlist_pc_km = df_pct['km'].tolist() 
                         if len(dlist_pc) > 0:
@@ -93,6 +91,8 @@ def population(solution_num):
                             break
                         
                         kg_nett = variables.s_unit * (1 - variables.giveaway)
+                        ad_he_lug.append(l)
+
                         ddic_solution.update({l:{'pack_capacity_id':lug_pc,
                                                  'demand_id': d,
                                                  'harvest_estimate_id':he,
@@ -105,10 +105,15 @@ def population(solution_num):
                     else:
                         note = 'no more lugs available in he'
                         break
+                
+                ad_he.update({he:ad_he_lug})                    
     
         ddic_notes.update({d:note})
+        adic_chromosome.update({d:ad_he})
+        
     ddic_solution_2.update({solution_num: {'ddic_solution':ddic_solution,
-                                      'ddic_notes':ddic_notes}})
+                                      'ddic_notes':ddic_notes,
+                                      'adic_chromosome':adic_chromosome}})
 
     ddf_solution = pd.DataFrame.from_dict(ddic_solution, orient='index')
     ddf_solution['solution_num'] = solution_num
