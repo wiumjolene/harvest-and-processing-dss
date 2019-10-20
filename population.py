@@ -7,23 +7,20 @@ Created on Sat Oct 12 11:00:30 2019
 
 import solution
 import pandas as pd
+import random
 
 population_size = 5
 
-ddf_solution_p = pd.DataFrame({})
-ddic_solution_a = {}
-for p in range(0,population_size):
+pdic_solution = {}
+for p in range(population_size):
     print('-----------------------------')
     print('Generating solution ' + str(p))
-    ddic_solution = solution.chromosome(solution_num = p)
-    ddic_solution_a.update(ddic_solution)
-    ddic_solution_p = ddic_solution[p]['ddic_solution']
-    ddf_solution = pd.DataFrame.from_dict(ddic_solution_p, orient='index')
-    ddf_solution['solution_num'] = p
-    ddf_solution_p = ddf_solution_p.append(ddf_solution)
-    
-ddf_solution_p_result = ddf_solution_p.groupby(['solution_num'])['stdunits','km'].sum().reset_index()
-print('Results: ')
-print(ddf_solution_p_result)
+    cdic_solution = solution.chromosome(solution_num = p)
+    pdic_solution.update(cdic_solution)
 
-ddf_solution_p.to_csv(r'output_data/solution.csv',index = False)
+
+parent1 = random.randint(0,population_size)
+parent2 = random.randint(0,population_size)
+
+chromosome_len = len(pdic_solution[parent1]['cdic_chromosome2']['clist_chromosome2_d'])
+crossover_point = int(round(0.3 * chromosome_len,0))

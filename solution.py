@@ -12,14 +12,12 @@ import pandas as pd
 import allocate as aloc
 
 def chromosome(solution_num):
-
     # import relevant tables
     df_dp = setl.demand_plan()
     df_ft = setl.from_to()
     df_he = setl.harvest_estimate()
     dic_dp = df_dp.set_index('id').T.to_dict('dic')
     dic_pc = setl.pack_capacity_dic()
-    adic_chromosome = {}
     
     # create a dictionary of options and issues
     demand_options = fo.create_options()
@@ -32,6 +30,11 @@ def chromosome(solution_num):
     note = ''
     ddic_solution = {}
     llist_usedlugs = []
+    cdic_chromosome = {}
+    cdic_chromosome2 = {}
+    clist_chromosome2 = []
+    clist_chromosome2_d = []
+    cdic_fitness = {'km':0,'kg':0}
     
     for d in dlist_allocate:
         ddic_metadata = demand_options['demands_metadata'][d]
@@ -43,7 +46,8 @@ def chromosome(solution_num):
         dlist_he = list(ddic_he.keys())
         
         # allocate lugs to d
-        ad_he = {}
+        cd_he = {}
+        cd_he2 = []
         while dkg_raw >= 0:
             if len(dlist_he) == 0:
                 note = 'no he available'
@@ -67,7 +71,7 @@ def chromosome(solution_num):
             df_ftt = df_ftt.filter(['packhouse_id','km'])
             
             # loop through available lugs of he only if lugs are available
-            ad_he_lug = []
+            cd_he_lug = []
             if len(dlist_he_lugs_s) > 0:
                 for l in dlist_he_lugs_s:
                     if dkg_raw >= 0:
@@ -91,7 +95,7 @@ def chromosome(solution_num):
                             break
                         
                         kg_nett = variables.s_unit * (1 - variables.giveaway)
-                        ad_he_lug.append(l)
+                        cd_he_lug.append(l)
 
                         ddic_solution.update({l:{'pack_capacity_id':lug_pc,
                                                  'demand_id': d,
@@ -102,18 +106,31 @@ def chromosome(solution_num):
                                                  'kg_raw': variables.s_unit,
                                                  'kg': kg_nett,
                                                  'stdunits': kg_nett/variables.stdunit}})
+
+                        cdic_fitness['kg'] =  cdic_fitness['kg'] + kg_nett
+                        cdic_fitness['km'] =  cdic_fitness['km'] + lug_km
                     else:
                         note = 'no more lugs available in he'
                         break
                 
-                ad_he.update({he:ad_he_lug})                    
+                cd_he.update({he:cd_he_lug})
+                cd_he2.append(he)
+                 
     
         ddic_notes.update({d:note})
-        adic_chromosome.update({d:ad_he})
+        cdic_chromosome.update({d:cd_he})
+#        cdic_chromosome2.update({d:cd_he2})
+        clist_chromosome2.append(cd_he2)
+        clist_chromosome2_d.append(d)
+        cdic_chromosome2.update({'clist_chromosome2':clist_chromosome2,
+                                 'clist_chromosome2_d':clist_chromosome2_d})
+        
         
     ddic_solution_2.update({solution_num: {'ddic_solution':ddic_solution,
                                       'ddic_notes':ddic_notes,
-                                      'adic_chromosome':adic_chromosome}})
+                                      'cdic_chromosome':cdic_chromosome,
+                                      'cdic_chromosome2':cdic_chromosome2,                                      
+                                      'cdic_fitness':cdic_fitness}})
 
     ddf_solution = pd.DataFrame.from_dict(ddic_solution, orient='index')
     ddf_solution['solution_num'] = solution_num
