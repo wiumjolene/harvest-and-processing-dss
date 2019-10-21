@@ -11,7 +11,7 @@ import variables
 import pandas as pd
 import allocate as aloc
 
-def chromosome(solution_num):
+def chromosome(solution_num, demand_list=0, he_list=0):
     # import relevant tables
     df_dp = setl.demand_plan()
     df_ft = setl.from_to()
@@ -23,11 +23,15 @@ def chromosome(solution_num):
     demand_options = fo.create_options()
     
     # get list of all demands with pc and he options 
-    dlist_allocate = demand_options['demands_ready_for_allocation']
+    if demand_list == 0:
+        dlist_allocate = demand_options['demands_ready_for_allocation']
+    else:
+        dlist_allocate = demand_list
     
     ddic_notes = {}
     ddic_solution_2 = {}
     note = ''
+    d_count = 0
     ddic_solution = {}
     llist_usedlugs = []
     cdic_chromosome = {}
@@ -48,14 +52,22 @@ def chromosome(solution_num):
         # allocate lugs to d
         cd_he = {}
         cd_he2 = []
+        he_count = 0
         while dkg_raw >= 0:
             if len(dlist_he) == 0:
                 note = 'no he available'
                 break
                 
             # get a random position in available he estimates and select he
-            hepos = random.randint(0,len(dlist_he)-1)
-            he = dlist_he[hepos]
+            if he_list == 0:
+                hepos = random.randint(0,len(dlist_he)-1)
+                he = dlist_he[hepos]
+            else:
+                if len(he_list[d_count]) > 0:
+                    he = he_list[d_count][he_count]
+                    he_count = he_count + 1
+                else:
+                    break
             
             # get list of all lugs available in the he
             dlist_he_lugs = ddic_he[he]
@@ -116,15 +128,13 @@ def chromosome(solution_num):
                 cd_he.update({he:cd_he_lug})
                 cd_he2.append(he)
                  
-    
+        d_count = d_count + 1
         ddic_notes.update({d:note})
         cdic_chromosome.update({d:cd_he})
-#        cdic_chromosome2.update({d:cd_he2})
         clist_chromosome2.append(cd_he2)
         clist_chromosome2_d.append(d)
         cdic_chromosome2.update({'clist_chromosome2':clist_chromosome2,
                                  'clist_chromosome2_d':clist_chromosome2_d})
-        
         
     ddic_solution_2.update({solution_num: {'ddic_solution':ddic_solution,
                                       'ddic_notes':ddic_notes,

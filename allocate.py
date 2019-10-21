@@ -7,6 +7,9 @@ Created on Fri Oct 18 14:45:09 2019
 
 import pandas as pd
 import variables
+import feasible_options as fo
+import source_etl as setl
+import random
 
 
 def allocate_pc(dic_pc,df_ftt,ddic_metadata):
@@ -18,3 +21,6 @@ def allocate_pc(dic_pc,df_ftt,ddic_metadata):
     df_pct = df_pct[df_pct['kg_remain'] >= variables.s_unit]
     df_pctf = df_pct.sort_values(['km']).reset_index(drop=True)
     return(df_pctf)
+    
+    
+
