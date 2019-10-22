@@ -23,4 +23,12 @@ def allocate_pc(dic_pc,df_ftt,ddic_metadata):
     return(df_pctf)
     
     
-
+def tournament_select(tour_size,population_size,pdic_solution):
+    highest_fitness = 0
+    for i in range(0,tour_size):
+        option = random.randint(0,(population_size-1))
+        option_fitness = pdic_solution[option]['cdic_fitness']['km']
+        if option_fitness > highest_fitness:
+            highest_fitness == option_fitness
+            parent = option
+    return(parent)
