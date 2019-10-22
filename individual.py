@@ -11,7 +11,7 @@ import variables
 import pandas as pd
 import allocate as aloc
 
-def chromosome(solution_num, demand_list=0, he_list=0):
+def individual(solution_num, demand_list=0, he_list=0):
     # import relevant tables
     df_dp = setl.demand_plan()
     df_ft = setl.from_to()
