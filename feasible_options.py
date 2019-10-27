@@ -64,7 +64,7 @@ def create_options():
 #    print('The following demands can be served: ' + str(dlist_ready))
 #    print('- The following demands = no harvest estimate options: ' + str(no_he))        
 #    print('- The following demands = no pack_capacity options: ' + str(no_pc))
-    print('')
+#    print('')
     ddic_options.update({'demands_ready_for_allocation':dlist_ready})
     ddic_options.update({'demands_pc':ddic_pc})
     ddic_options.update({'demands_he':ddic_he})

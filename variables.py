@@ -16,3 +16,9 @@ print('### Assumptions ###')
 print('A lug weights ' + str(lug) + 'Kg,')
 print(str(truck/lug) + ' lugs fit into a truck,')
 print('One stdunit requires ' + str(round(stdunit * (1+giveaway),1)) + 'Kg of raw produce')
+
+
+population_size = 5
+generations = 5
+
+mutation_rate = 0.2
