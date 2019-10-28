@@ -4,12 +4,13 @@ Created on Sat Oct  5 15:13:08 2019
 
 @author: Jolene
 """
-import feasible_options as fo
-import source_etl as setl
+
 import random
-import variables
+
 import pandas as pd
+
 import allocate as aloc
+import variables
 
 def individual(solution_num, df_dp, df_ft, df_he, dic_pc,
                demand_options, demand_list=0, he_list=0):

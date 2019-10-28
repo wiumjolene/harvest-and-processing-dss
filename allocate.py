@@ -5,12 +5,14 @@ Created on Fri Oct 18 14:45:09 2019
 @author: Jolene
 """
 
-import pandas as pd
-import variables
-import individual as ind
-import allocate as gaf
 import random
 import copy
+
+import pandas as pd
+
+import individual as ind
+import variables
+import allocate as gaf
 
 
 def allocate_pc(dic_pc,df_ftt,ddic_metadata):
@@ -93,30 +95,51 @@ def cross_over(pdic_solution, chrom_order, df_dp_im, df_ft_im, df_he_im,
 ########################################
 def mutation(mutate_individual, id_num, demand_options_m, df_dp_im, df_ft_im, 
              df_he_im, dic_pc):
-    print('---- mutation ----')
+    # make deep copies of dictionaries so as not to update main
     demand_options = copy.deepcopy(demand_options_m)
+    
+    # get mutation individual chromosome and order
     mutation_he = mutate_individual[id_num]['cdic_chromosome2']['clist_chromosome2']
     chrom_order = mutate_individual[id_num]['cdic_chromosome2']['clist_chromosome2_d']
     chrom_len = len(chrom_order)
+    
     #set a mutation point
-#    mut_point = random.randint(0,len(chrom_order)-1)
-    mut_point = int(round(0.8 * chrom_len,0))
-    mut_d = chrom_order[mut_point]
-    mut_current = mutation_he[mut_point][0]
+#    mut_point = random.randint(0,100)/100
+#    mut_point = int(round(mut_point * chrom_len,0))
+    mut_point = random.randint(0, chrom_len - 1)
+    mut_d = chrom_order[mut_point]  # get demand of mutation point
+    try:
+        mut_current = mutation_he[mut_point][0]  # current harvest estimate
+    except:
+        mut_current = 0
+    # get list of he for this demand
     ddic_he = demand_options['demands_he'][mut_d]
     dlist_he = list(ddic_he.keys())
+    # remove current he from list
     dlist_he.remove(mut_current)
-    hepos = random.randint(0,len(dlist_he)-1)
-    he = dlist_he[hepos]
-    mutation_he[mut_point][0] = he
-    # create individual with new gene in encoding
-    mut_dic = ind.individual(solution_num = 0,
-                                      demand_list = chrom_order,
-                                      df_dp = df_dp_im,
-                                      df_ft = df_ft_im,
-                                      df_he = df_he_im,
-                                      dic_pc = dic_pc,
-                                      demand_options = demand_options,
-                                      he_list = mutation_he)
+    # if list is greater than 0, choose a new he
+    if len(dlist_he) > 0:
+        print('---- mutation ----')
+        hepos = random.randint(0,len(dlist_he)-1)
+        he = dlist_he[hepos]
+
+        # update chromosome    
+        mutation_he[mut_point][0] = he
     
+        # create individual with new gene in encoding
+        mut_dic = ind.individual(solution_num = id_num,
+                                          demand_list = chrom_order,
+                                          df_dp = df_dp_im,
+                                          df_ft = df_ft_im,
+                                          df_he = df_he_im,
+                                          dic_pc = dic_pc,
+                                          demand_options = demand_options,
+                                          he_list = mutation_he)
+
+    else:
+        # if no he's in list, use old he
+        print('---- mutation, but used old he due to no alternatives ----')
+        he = mut_current
+        mut_dic = mutate_individual
+        
     return(mut_dic)

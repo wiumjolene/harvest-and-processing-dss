@@ -4,15 +4,18 @@ Created on Sat Oct 12 11:00:30 2019
 
 @author: Jolene
 """
+import random
+import copy
+
+import pandas as pd
+import matplotlib.pyplot as plt
 
 import individual as ind
 import feasible_options as fo
 import variables
 import allocate
-import pandas as pd
-import random
 import source_etl as setl
-import copy
+
 
 demand_options_im = fo.create_options()
 df_dp_im = setl.demand_plan()
@@ -24,8 +27,11 @@ pdic_solution = {}
 p_fitness = {}
 for p in range(variables.population_size):
     print('Generating individual ' + str(p))
+    # make deep copies of dictionaries so as not to update main
     dic_pc_p = copy.deepcopy(dic_pc_im)
     demand_options_p = copy.deepcopy(demand_options_im)
+    
+    # create individual
     cdic_solution = ind.individual(solution_num = p,
                                    df_dp = df_dp_im,
                                    df_ft = df_ft_im,
@@ -33,18 +39,23 @@ for p in range(variables.population_size):
                                    dic_pc = dic_pc_p,
                                    demand_options = demand_options_p)
     
+    # add individual to population
     pdic_solution.update(cdic_solution)
+    
     # update fitness tracker
     p_fitness.update({p:cdic_solution[p]['cdic_fitness']['km']})
 
 id_num = variables.population_size
 chrom_order = pdic_solution[0]['cdic_chromosome2']['clist_chromosome2_d']
 
+fitness_tracker = {}
 for g in range(variables.generations):
+    # make deep copies of dictionaries so as not to update main
     dic_pc_g = copy.deepcopy(dic_pc_im)
     dic_pc_g2 = copy.deepcopy(dic_pc_im)
     dic_pc_g3 = copy.deepcopy(dic_pc_im)
     demand_options_g = copy.deepcopy(demand_options_im)
+    
     # create a random to determine if mutation should happen
     mutation_random = random.randint(0,100)/100
     
@@ -68,7 +79,7 @@ for g in range(variables.generations):
                                      df_he_im = df_he_im,
                                      dic_pc = dic_pc_g3)
         
-        child1 = {id_num: child1_m[0]}
+        child1 = child1_m
         
     else:
         child1 = child1_nb
@@ -94,7 +105,9 @@ for g in range(variables.generations):
     best_indi = p_fitness_df.index[(len(p_fitness_df) - 1)]
     best_fitness = pdic_solution[best_indi]['cdic_fitness']['km']
     worst_fitness = pdic_solution[drop_id1]['cdic_fitness']['km']
-    print(str(best_fitness) + ' - ' + str(worst_fitness))
+    print('generation ' + str(g)
+            + ': best ' + str(best_fitness) 
+            + ' - worst ' +  str(worst_fitness))
     
     # remove weakest individuals
     del p_fitness[drop_id1]
@@ -102,4 +115,25 @@ for g in range(variables.generations):
     del pdic_solution[drop_id1]
     del pdic_solution[drop_id2]    
 
-    
+    fitness_tracker.update({g: [best_fitness, worst_fitness]})
+
+fitness_tracker_df = pd.DataFrame.from_dict(fitness_tracker, orient='index') 
+fitness_tracker_df = fitness_tracker_df.reset_index()
+fitness_tracker_df = fitness_tracker_df.rename(columns={"index": "generation",
+                                                           0: "best fitness",
+                                                           1: "worst fitness"})
+
+fitness_tracker_df.plot(kind = 'scatter', x = 'generation', y = 'best fitness', 
+                        color='green',figsize=(8,6),fontsize = 14)
+plt.title('best fitness')
+plt.show()
+
+fitness_tracker_df.plot(kind = 'scatter', x = 'generation', y = 'worst fitness', 
+                        color='red',figsize=(10,8),fontsize = 14)
+plt.title('worst fitness')
+plt.show()
+
+best_solution = pdic_solution[best_indi]['ddic_solution']
+best_solution_df = pd.DataFrame.from_dict(best_solution, orient='index')
+best_solution_df['solution_num'] = best_indi
+best_solution_df.to_csv(r'output_data/solution.csv',index = False)
