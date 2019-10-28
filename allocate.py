@@ -10,6 +10,7 @@ import variables
 import individual as ind
 import allocate as gaf
 import random
+import copy
 
 
 def allocate_pc(dic_pc,df_ftt,ddic_metadata):
@@ -45,9 +46,10 @@ def tournament_select(tour_size, pdic_solution):
 ########################################
     # cross over functionality #
 ########################################
-def cross_over(pdic_solution,chrom_order):
+def cross_over(pdic_solution, chrom_order, df_dp_im, df_ft_im, df_he_im, 
+               dic_pc, dic_pc2, demand_options_x):
+    
     chrom_len = len(chrom_order)
-#    xover_point = int(round(0.3 * chrom_len,0))
     xover_point = random.randint(0,chrom_len-1)
     
     # select parents with tournament
@@ -65,11 +67,21 @@ def cross_over(pdic_solution,chrom_order):
     # create solution for each child
     child1_dic = ind.individual(solution_num = 0,
                                       demand_list = chrom_order,
-                                      he_list = child1_he)
+                                      df_dp = df_dp_im,
+                                      df_ft = df_ft_im,
+                                      df_he = df_he_im,
+                                      dic_pc = dic_pc,
+                                      he_list = child1_he,
+                                      demand_options = copy.deepcopy(demand_options_x))
     
-    child2_dic = ind.individual(solution_num = 0,
+    child2_dic = ind.individual(solution_num = 0, 
                                       demand_list = chrom_order,
-                                      he_list = child2_he)
+                                      df_dp = df_dp_im,
+                                      df_ft = df_ft_im,
+                                      df_he = df_he_im,
+                                      dic_pc = dic_pc2,
+                                      he_list = child2_he,
+                                      demand_options = copy.deepcopy(demand_options_x))
     
     xover_result = [child1_dic,child2_dic]
 
@@ -79,14 +91,16 @@ def cross_over(pdic_solution,chrom_order):
     # mutation functionality #
     ## mutatuion of child
 ########################################
-def mutation(mutate_individual, id_num, demand_options):
+def mutation(mutate_individual, id_num, demand_options_m, df_dp_im, df_ft_im, 
+             df_he_im, dic_pc):
     print('---- mutation ----')
+    demand_options = copy.deepcopy(demand_options_m)
     mutation_he = mutate_individual[id_num]['cdic_chromosome2']['clist_chromosome2']
     chrom_order = mutate_individual[id_num]['cdic_chromosome2']['clist_chromosome2_d']
-#    chrom_len = len(chrom_order)
+    chrom_len = len(chrom_order)
     #set a mutation point
-    mut_point = random.randint(0,len(chrom_order)-1)
-#    mut_point = int(round(0.8 * chrom_len,0))
+#    mut_point = random.randint(0,len(chrom_order)-1)
+    mut_point = int(round(0.8 * chrom_len,0))
     mut_d = chrom_order[mut_point]
     mut_current = mutation_he[mut_point][0]
     ddic_he = demand_options['demands_he'][mut_d]
@@ -98,6 +112,11 @@ def mutation(mutate_individual, id_num, demand_options):
     # create individual with new gene in encoding
     mut_dic = ind.individual(solution_num = 0,
                                       demand_list = chrom_order,
+                                      df_dp = df_dp_im,
+                                      df_ft = df_ft_im,
+                                      df_he = df_he_im,
+                                      dic_pc = dic_pc,
+                                      demand_options = demand_options,
                                       he_list = mutation_he)
     
     return(mut_dic)

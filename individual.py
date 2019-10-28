@@ -11,16 +11,13 @@ import variables
 import pandas as pd
 import allocate as aloc
 
-def individual(solution_num, demand_list=0, he_list=0):
+def individual(solution_num, df_dp, df_ft, df_he, dic_pc,
+               demand_options, demand_list=0, he_list=0):
     # import relevant tables
-    df_dp = setl.demand_plan()
-    df_ft = setl.from_to()
-    df_he = setl.harvest_estimate()
     dic_dp = df_dp.set_index('id').T.to_dict('dic')
-    dic_pc = setl.pack_capacity_dic()
     
     # create a dictionary of options and issues
-    demand_options = fo.create_options()
+#    demand_options = fo.create_options()
     
     # get list of all demands with pc and he options 
     if demand_list == 0:
