@@ -22,11 +22,14 @@ df_dp_im = setl.demand_plan()
 df_ft_im = setl.from_to()
 df_he_im = setl.harvest_estimate()
 dic_pc_im = setl.pack_capacity_dic()
-
 pdic_solution = {}
 p_fitness = {}
+fitness_tracker = {}
+id_num = variables.population_size
+
+print('### initial population ###')
 for p in range(variables.population_size):
-    print('Generating individual ' + str(p))
+    print('-creating individual ' + str(p))
     # make deep copies of dictionaries so as not to update main
     dic_pc_p = copy.deepcopy(dic_pc_im)
     demand_options_p = copy.deepcopy(demand_options_im)
@@ -45,10 +48,9 @@ for p in range(variables.population_size):
     # update fitness tracker
     p_fitness.update({p:cdic_solution[p]['cdic_fitness']['km']})
 
-id_num = variables.population_size
+print()
+print('### generation ###')
 chrom_order = pdic_solution[0]['cdic_chromosome2']['clist_chromosome2_d']
-
-fitness_tracker = {}
 for g in range(variables.generations):
     # make deep copies of dictionaries so as not to update main
     dic_pc_g = copy.deepcopy(dic_pc_im)
@@ -73,7 +75,7 @@ for g in range(variables.generations):
     # mutate if generation meets mutation criteria
     if mutation_random <= variables.mutation_rate:
         child1_m = allocate.mutation(child1_nb, id_num, 
-                                     demand_options_m = copy.deepcopy(demand_options_im),
+                                     demand_options_m = demand_options_im,
                                      df_dp_im = df_dp_im,
                                      df_ft_im = df_ft_im,
                                      df_he_im = df_he_im,
@@ -105,7 +107,7 @@ for g in range(variables.generations):
     best_indi = p_fitness_df.index[(len(p_fitness_df) - 1)]
     best_fitness = pdic_solution[best_indi]['cdic_fitness']['km']
     worst_fitness = pdic_solution[drop_id1]['cdic_fitness']['km']
-    print('generation ' + str(g)
+    print('-generation ' + str(g)
             + ': best ' + str(best_fitness) 
             + ' - worst ' +  str(worst_fitness))
     
@@ -117,6 +119,7 @@ for g in range(variables.generations):
 
     fitness_tracker.update({g: [best_fitness, worst_fitness]})
 
+# show results
 fitness_tracker_df = pd.DataFrame.from_dict(fitness_tracker, orient='index') 
 fitness_tracker_df = fitness_tracker_df.reset_index()
 fitness_tracker_df = fitness_tracker_df.rename(columns={"index": "generation",
@@ -124,15 +127,16 @@ fitness_tracker_df = fitness_tracker_df.rename(columns={"index": "generation",
                                                            1: "worst fitness"})
 
 fitness_tracker_df.plot(kind = 'scatter', x = 'generation', y = 'best fitness', 
-                        color='green',figsize=(8,6),fontsize = 14)
-plt.title('best fitness')
+                        color='green', figsize=(8,6), fontsize = 14, 
+                        title = 'worst fitness')
 plt.show()
 
 fitness_tracker_df.plot(kind = 'scatter', x = 'generation', y = 'worst fitness', 
-                        color='red',figsize=(10,8),fontsize = 14)
-plt.title('worst fitness')
+                        color='red', figsize=(8,6), fontsize = 14, 
+                        title = 'worst fitness')
 plt.show()
 
+# store best solution
 best_solution = pdic_solution[best_indi]['ddic_solution']
 best_solution_df = pd.DataFrame.from_dict(best_solution, orient='index')
 best_solution_df['solution_num'] = best_indi

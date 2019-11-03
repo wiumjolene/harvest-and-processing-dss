@@ -52,24 +52,29 @@ def individual(solution_num, df_dp, df_ft, df_he, dic_pc,
         cd_he2 = []
         he_count = 0
         while dkg_raw >= 0:
-            if len(dlist_he) == 0:
-                note = 'no he available'
-                break
-                
             # get a random position in available he estimates and select he
             if he_list == 0:
-                hepos = random.randint(0,len(dlist_he)-1)
-                he = dlist_he[hepos]
+                if len(dlist_he) == 0:
+                    note = 'no he available'
+                    break                
+                else:
+                    hepos = random.randint(0,len(dlist_he)-1)
+                    he = dlist_he[hepos]
+                    dlist_he.remove(he)  # remove he from list to not reuse it
+
             else:
-                if len(he_list[d_count]) > 0:
+                if len(he_list[d_count]) > he_count:
                     he = he_list[d_count][he_count]
-                    he_count = he_count + 1
+                    
                 else:
                     break
             
+            he_count = he_count + 1
+            
             # get list of all lugs available in the he
             dlist_he_lugs = ddic_he[he]
-            dlist_he.remove(he)  # remove he from list to not reuse it
+#            print('d: ' + str(d) + '; he: ' + str(he) + '; ' + str(dlist_he))
+            
             #ensure lugs can be packed
             dlist_he_lugs_s = [x for x in dlist_he_lugs if x not in llist_usedlugs]
     

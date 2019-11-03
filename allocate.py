@@ -110,36 +110,43 @@ def mutation(mutate_individual, id_num, demand_options_m, df_dp_im, df_ft_im,
     mut_d = chrom_order[mut_point]  # get demand of mutation point
     try:
         mut_current = mutation_he[mut_point][0]  # current harvest estimate
-    except:
-        mut_current = 0
-    # get list of he for this demand
-    ddic_he = demand_options['demands_he'][mut_d]
-    dlist_he = list(ddic_he.keys())
-    # remove current he from list
-    dlist_he.remove(mut_current)
-    # if list is greater than 0, choose a new he
-    if len(dlist_he) > 0:
-        print('---- mutation ----')
-        hepos = random.randint(0,len(dlist_he)-1)
-        he = dlist_he[hepos]
 
-        # update chromosome    
-        mutation_he[mut_point][0] = he
+        # get list of he for this demand
+        ddic_he = demand_options['demands_he'][mut_d]
+        dlist_he = list(ddic_he.keys())
+        
+#        print('he: ' + str(mut_current) + '; ' + str(dlist_he))
+        
+        
+        # remove current he from list
+        dlist_he.remove(mut_current)  # remove so as not to select same he
+        # if list is greater than 0, choose a new he
+        if len(dlist_he) > 0:
+            print('---- mutation ----')
+            hepos = random.randint(0,len(dlist_he)-1)
+            he = dlist_he[hepos]
     
-        # create individual with new gene in encoding
-        mut_dic = ind.individual(solution_num = id_num,
-                                          demand_list = chrom_order,
-                                          df_dp = df_dp_im,
-                                          df_ft = df_ft_im,
-                                          df_he = df_he_im,
-                                          dic_pc = dic_pc,
-                                          demand_options = demand_options,
-                                          he_list = mutation_he)
+            # update chromosome    
+            mutation_he[mut_point][0] = he
+         
+            # create individual with new gene in encoding
+            mut_dic = ind.individual(solution_num = id_num,
+                                              demand_list = chrom_order,
+                                              df_dp = df_dp_im,
+                                              df_ft = df_ft_im,
+                                              df_he = df_he_im,
+                                              dic_pc = dic_pc,
+                                              demand_options = demand_options,
+                                              he_list = mutation_he)
+    
+        else:
+            # if no he's in list, use old he
+            print('---- mutation, but used old he due to no alternatives ----')
+            he = mut_current
+            mut_dic = mutate_individual
 
-    else:
-        # if no he's in list, use old he
+    except:
         print('---- mutation, but used old he due to no alternatives ----')
-        he = mut_current
         mut_dic = mutate_individual
         
     return(mut_dic)

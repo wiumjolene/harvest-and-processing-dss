@@ -12,13 +12,17 @@ lug = 1 # weight (kg) of a lug
 s_unit = lug
 travel_restriction = 100
 
-print('### Assumptions ###')
-print('A lug weights ' + str(lug) + 'Kg,')
-print(str(truck/lug) + ' lugs fit into a truck,')
-print('One stdunit requires ' + str(round(stdunit * (1+giveaway),1)) + 'Kg of raw produce')
-
-
-population_size = 10
-generations = 15
+population_size = 15
+generations = 50
 
 mutation_rate = 0.2
+
+print('### Assumptions ###')
+print('-A lug weights ' + str(lug) + 'Kg,')
+print('-' + str(truck/lug) + ' lugs fit into a truck,')
+print('-One stdunit requires ' + str(round(stdunit * (1+giveaway),1)) 
+        + 'Kg of raw produce')
+print('-mutation rate: ' + str(mutation_rate))
+print('-population size: ' + str(population_size))
+print('-generations: ' + str(generations))
+print()
