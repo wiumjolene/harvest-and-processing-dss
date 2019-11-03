@@ -13,9 +13,9 @@ s_unit = lug
 travel_restriction = 100
 
 population_size = 15
-generations = 50
+generations = 15
 
-mutation_rate = 0.2
+mutation_rate = 0.05
 
 print('### Assumptions ###')
 print('-A lug weights ' + str(lug) + 'Kg,')
