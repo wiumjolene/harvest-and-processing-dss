@@ -13,7 +13,7 @@ s_unit = lug
 travel_restriction = 100
 
 population_size = 5
-generations = 15
+generations = 8
 
 mutation_rate = 0.05
 

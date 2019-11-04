@@ -34,9 +34,9 @@ def population(demand_options_imgga, df_dp_imgga, df_ft_imgga, df_he_imgga, dic_
     pdic_solution = {}
     p_fitness = {}
     
-    print('### initial population ###')
+#    print('### generating population ###')
     for p in range(variables.population_size):
-        print('-creating individual ' + str(p))
+#        print('-creating individual ' + str(p))
         # make deep copies of dictionaries so as not to update main
         dic_pc_p = copy.deepcopy(dic_pc_im)
         demand_options_p = copy.deepcopy(demand_options_im)
@@ -61,8 +61,10 @@ def population(demand_options_imgga, df_dp_imgga, df_ft_imgga, df_he_imgga, dic_
 
 def genetic_algorithm(dic_solution, fitness, dic_pc_im, demand_options_im,
                       df_dp_im, df_ft_im, df_he_im, ga_num):
-    print()
-    print('### generation ###')
+#    print()
+#    print('### generation ###')
+    pdic_solution = {}
+    p_fitness = {}
           
     pdic_solution = copy.deepcopy(dic_solution)
     p_fitness = copy.deepcopy(fitness)
@@ -74,7 +76,7 @@ def genetic_algorithm(dic_solution, fitness, dic_pc_im, demand_options_im,
         dic_pc_g = copy.deepcopy(dic_pc_im)
         dic_pc_g2 = copy.deepcopy(dic_pc_im)
         dic_pc_g3 = copy.deepcopy(dic_pc_im)
-        demand_options_x = copy.deepcopy(demand_options_im)
+        demand_options_p = copy.deepcopy(demand_options_im)
         
         # create a random to determine if mutation should happen
         mutation_random = random.randint(0,100)/100
@@ -86,14 +88,14 @@ def genetic_algorithm(dic_solution, fitness, dic_pc_im, demand_options_im,
                                             df_he_im = df_he_im,
                                             dic_pc = dic_pc_g,
                                             dic_pc2 = dic_pc_g2,
-                                            demand_options_x = demand_options_x)
+                                            demand_options_x = demand_options_p)
         
         child1_nb = {id_num: child1_nb_gen[0][0]}
         
         # mutate if generation meets mutation criteria
         if mutation_random <= variables.mutation_rate:
             child1_m = allocate.mutation(child1_nb, id_num, 
-                                         demand_options_m = demand_options_im,
+                                         demand_options_m = demand_options_p,
                                          df_dp_im = df_dp_im,
                                          df_ft_im = df_ft_im,
                                          df_he_im = df_he_im,
@@ -118,11 +120,10 @@ def genetic_algorithm(dic_solution, fitness, dic_pc_im, demand_options_im,
         
         # get best kg
         p_fitness_df = pd.DataFrame.from_dict(p_fitness, orient='index')
-#        p_fitness_df = p_fitness_df
         p_fitness_df['kg_rank'] = p_fitness_df[1].rank(method='min')
         
         # find weakest individuals
-        p_fitness_df = p_fitness_df.sort_values(by=['kg_rank',0],ascending=False)  # sort according to km   
+        p_fitness_df = p_fitness_df.sort_values(by=[0],ascending=False)  # sort according to km   
         drop_id1 = p_fitness_df.index[0]
         drop_id2 = p_fitness_df.index[1]
             
@@ -142,7 +143,9 @@ def genetic_algorithm(dic_solution, fitness, dic_pc_im, demand_options_im,
         del p_fitness[drop_id1]
         del p_fitness[drop_id2]    
         del pdic_solution[drop_id1]
-        del pdic_solution[drop_id2]    
+        del pdic_solution[drop_id2] 
+        
+#        print(p_fitness_df)
     
 #        fitness_tracker.update({g: [best_km, worst_km]})
         
