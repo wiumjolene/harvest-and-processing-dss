@@ -57,6 +57,8 @@ ggafitness12_df = ggafitness12_df.sort_values(by=['kg_rank',0],ascending=False).
 
 ggafitness12_df = ggafitness12_df.tail(int(variables.population_size))
 
+check if in
+
 
 
 
