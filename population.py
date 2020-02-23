@@ -1,16 +1,87 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sat Oct  5 15:13:08 2019
+Created on Sun Feb 23 15:20:03 2020
 
 @author: Jolene
 """
 
 import random
+import copy
 
 import pandas as pd
 
 import allocate as aloc
+import source_etl as setl
 import variables
+
+
+def create_options():
+    df_dp = setl.demand_plan()
+    df_pc = setl.pack_capacity()
+    df_he = setl.harvest_estimate()
+    df_lugs = setl.lug_generation()
+    
+    list_dp = df_dp['id'].tolist()
+    list_he = df_he['id'].tolist()
+    list_pc = df_pc['id'].tolist()
+    
+    ddic_pc = {}
+    ddic_he = {}
+    no_he = []
+    no_pc = []
+    ddic_options={}
+    ddic_metadata={}
+    
+    for d in range(0,len(df_dp)):
+        ddemand_id = df_dp.id[d]
+        dvacat_id = df_dp.vacat_id[d]
+        dtime_id = df_dp.time_id[d]
+        dpack_type_id = df_dp.pack_type_id[d]
+        ddic_metadata.update({ddemand_id: {'vacat_id': dvacat_id,
+                                           'time_id': dtime_id,
+                                           'pack_type_id': dpack_type_id}})
+        
+        # find all available harvest estimates for demand 
+        ddf_he = df_he[df_he['vacat_id']==dvacat_id]
+        ddf_he = ddf_he[ddf_he['time_id']==dtime_id].reset_index(drop=True)
+        dlist_he = ddf_he['id'].tolist()
+        
+        # get all the lugs in he
+        ddic_het = {}
+        for he in dlist_he:
+            ddf_lugs = df_lugs[df_lugs['he_id'] == he].reset_index(drop=True)
+            dlist_lugs = ddf_lugs['id'].tolist()
+            ddic_het.update({he: dlist_lugs})
+
+        ddic_he.update({ddemand_id: ddic_het})
+        list_he = [x for x in list_he if x not in ddf_he['id'].tolist()]
+
+        if len(ddf_he) == 0:
+            no_he.append(ddemand_id)
+
+        # find all available pack_capacities for demand    
+        ddf_pc = df_pc[df_pc['time_id']==dtime_id]
+        ddf_pc = ddf_pc[ddf_pc['pack_type_id']==dpack_type_id].reset_index(drop=True)
+        ddic_pc.update({ddemand_id: ddf_pc['id'].tolist()})
+        list_pc = [x for x in list_pc if x not in ddf_pc['id'].tolist()]
+        
+        if len(ddf_pc) == 0:
+            no_pc.append(ddemand_id)
+    
+    dlist_ready = [x for x in list_dp if x not in no_he]
+    dlist_ready = [x for x in dlist_ready if x not in no_pc]
+    
+    ddic_options.update({'demands_ready_for_allocation':dlist_ready})
+    ddic_options.update({'demands_pc':ddic_pc})
+    ddic_options.update({'demands_he':ddic_he})
+    ddic_options.update({'demands_no_he':no_he}) # all he for demand with lugs in he
+    ddic_options.update({'demands_no_pc':no_pc})    
+    ddic_options.update({'he_no_ass':list_he})
+    ddic_options.update({'pc_no_ass':list_pc}) 
+    ddic_options.update({'demands_metadata':ddic_metadata})                                                   
+    return(ddic_options)
+    
+
 
 def individual(solution_num, df_dp, df_ft, df_he, dic_pc,
                demand_options, demand_list=0, he_list=0):
@@ -148,5 +219,46 @@ def individual(solution_num, df_dp, df_ft, df_he, dic_pc,
     ddf_solution = pd.DataFrame.from_dict(ddic_solution, orient='index')
     ddf_solution['solution_num'] = solution_num
     return(ddic_solution_2)
-
- 
+    
+def population(demand_options_imgga, df_dp_imgga, df_ft_imgga, df_he_imgga, dic_pc_imgga):
+    
+    demand_options_im = create_options()
+    df_dp_im = setl.demand_plan()
+    df_ft_im = setl.from_to()
+    df_he_im = setl.harvest_estimate()
+    dic_pc_im = setl.pack_capacity_dic()
+    
+    demand_options_im = copy.deepcopy(demand_options_imgga)
+    df_dp_im = df_dp_imgga
+    df_ft_im = df_ft_imgga
+    df_he_im = df_he_imgga
+    dic_pc_im = copy.deepcopy(dic_pc_imgga)    
+    
+    
+    pdic_solution = {}
+    p_fitness = {}
+    
+#    print('### generating population ###')
+    for p in range(variables.population_size):
+#        print('-creating individual ' + str(p))
+        # make deep copies of dictionaries so as not to update main
+        dic_pc_p = copy.deepcopy(dic_pc_im)
+        demand_options_p = copy.deepcopy(demand_options_im)
+        
+        # create individual
+        cdic_solution = individual(solution_num = p,
+                                       df_dp = df_dp_im,
+                                       df_ft = df_ft_im,
+                                       df_he = df_he_im,
+                                       dic_pc = dic_pc_p,
+                                       demand_options = demand_options_p)
+        
+        # add individual to population
+        pdic_solution.update(cdic_solution)
+        
+        # update fitness tracker
+        p_fitness.update({p:[cdic_solution[p]['cdic_fitness']['km'],
+                             cdic_solution[p]['cdic_fitness']['kg']]})
+    population = {'pdic_solution':pdic_solution,
+                  'p_fitness':p_fitness}
+    return(population)

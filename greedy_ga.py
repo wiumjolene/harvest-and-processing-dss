@@ -5,20 +5,21 @@ Created on Sun Nov  3 08:28:37 2019
 @author: Jolene
 """
 
-import genetic_algorithm as ga
-import feasible_options as fo
+from population import population
+from genetic_algorithm import genetic_algorithm
+from population import create_options
 import source_etl as setl
 import pandas as pd
 import variables
 
-demand_options_imgga = fo.create_options()
+demand_options_imgga = create_options()
 df_dp_imgga = setl.demand_plan()
 df_ft_imgga = setl.from_to()
 df_he_imgga = setl.harvest_estimate()
 dic_pc_imgga = setl.pack_capacity_dic()
 
 def greedy_ga(ggapopulation0,ggapopulation1):  
-    ggd0 = ga.genetic_algorithm(dic_solution = ggapopulation0['pdic_solution'], 
+    ggd0 = genetic_algorithm(dic_solution = ggapopulation0['pdic_solution'], 
                          fitness = ggapopulation0['p_fitness'], 
                          dic_pc_im = dic_pc_imgga, 
                          demand_options_im = demand_options_imgga,
@@ -27,7 +28,7 @@ def greedy_ga(ggapopulation0,ggapopulation1):
                          df_he_im = df_he_imgga, 
                          ga_num = 0)
     
-    ggd1 = ga.genetic_algorithm(dic_solution = ggapopulation1['pdic_solution'], 
+    ggd1 = genetic_algorithm(dic_solution = ggapopulation1['pdic_solution'], 
                          fitness = ggapopulation1['p_fitness'], 
                          dic_pc_im = dic_pc_imgga, 
                          demand_options_im = demand_options_imgga,
@@ -72,25 +73,25 @@ def greedy_ga(ggapopulation0,ggapopulation1):
     return(new_pop)
     
 
-ggapopulation0 = ga.population(demand_options_imgga, 
+ggapopulation0 = population(demand_options_imgga, 
                               df_dp_imgga, 
                               df_ft_imgga, 
                               df_he_imgga, 
                               dic_pc_imgga)
 
-ggapopulation1 = ga.population(demand_options_imgga, 
+ggapopulation1 = population(demand_options_imgga, 
                               df_dp_imgga, 
                               df_ft_imgga, 
                               df_he_imgga, 
                               dic_pc_imgga)
 
-ggapopulation2 = ga.population(demand_options_imgga, 
+ggapopulation2 = population(demand_options_imgga, 
                               df_dp_imgga, 
                               df_ft_imgga, 
                               df_he_imgga, 
                               dic_pc_imgga)
 
-ggapopulation3 = ga.population(demand_options_imgga, 
+ggapopulation3 = population(demand_options_imgga, 
                               df_dp_imgga, 
                               df_ft_imgga, 
                               df_he_imgga, 

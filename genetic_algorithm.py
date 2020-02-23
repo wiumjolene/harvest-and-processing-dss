@@ -10,59 +10,23 @@ import copy
 import pandas as pd
 import matplotlib.pyplot as plt
 
-import individual as ind
-import feasible_options as fo
+import population as pop
+#import feasible_options as fo
 import variables
 import allocate
 import source_etl as setl
 
-def population(demand_options_imgga, df_dp_imgga, df_ft_imgga, df_he_imgga, dic_pc_imgga):
-    
-    demand_options_im = fo.create_options()
-    df_dp_im = setl.demand_plan()
-    df_ft_im = setl.from_to()
-    df_he_im = setl.harvest_estimate()
-    dic_pc_im = setl.pack_capacity_dic()
-    
-    demand_options_im = copy.deepcopy(demand_options_imgga)
-    df_dp_im = df_dp_imgga
-    df_ft_im = df_ft_imgga
-    df_he_im = df_he_imgga
-    dic_pc_im = copy.deepcopy(dic_pc_imgga)    
-    
-    
-    pdic_solution = {}
-    p_fitness = {}
-    
-#    print('### generating population ###')
-    for p in range(variables.population_size):
-#        print('-creating individual ' + str(p))
-        # make deep copies of dictionaries so as not to update main
-        dic_pc_p = copy.deepcopy(dic_pc_im)
-        demand_options_p = copy.deepcopy(demand_options_im)
-        
-        # create individual
-        cdic_solution = ind.individual(solution_num = p,
-                                       df_dp = df_dp_im,
-                                       df_ft = df_ft_im,
-                                       df_he = df_he_im,
-                                       dic_pc = dic_pc_p,
-                                       demand_options = demand_options_p)
-        
-        # add individual to population
-        pdic_solution.update(cdic_solution)
-        
-        # update fitness tracker
-        p_fitness.update({p:[cdic_solution[p]['cdic_fitness']['km'],
-                             cdic_solution[p]['cdic_fitness']['kg']]})
-    population = {'pdic_solution':pdic_solution,
-                  'p_fitness':p_fitness}
-    return(population)
+demand_options_imgga = pop.create_options()
+df_dp_imgga = setl.demand_plan()
+df_ft_imgga = setl.from_to()
+df_he_imgga = setl.harvest_estimate()
+dic_pc_imgga = setl.pack_capacity_dic()
+
+
+
 
 def genetic_algorithm(dic_solution, fitness, dic_pc_im, demand_options_im,
                       df_dp_im, df_ft_im, df_he_im, ga_num):
-#    print()
-#    print('### generation ###')
     pdic_solution = {}
     p_fitness = {}
           
@@ -144,12 +108,24 @@ def genetic_algorithm(dic_solution, fitness, dic_pc_im, demand_options_im,
         del p_fitness[drop_id2]    
         del pdic_solution[drop_id1]
         del pdic_solution[drop_id2] 
-        
-#        print(p_fitness_df)
     
-#        fitness_tracker.update({g: [best_km, worst_km]})
         
     ga_dic = {ga_num: {'p_fitness':p_fitness,
                        'pdic_solution': pdic_solution}}
     return(ga_dic)        
 
+
+ggapopulation0 = pop.population(demand_options_imgga, 
+                              df_dp_imgga, 
+                              df_ft_imgga, 
+                              df_he_imgga, 
+                              dic_pc_imgga)
+
+ggd0 = genetic_algorithm(dic_solution = ggapopulation0['pdic_solution'], 
+                             fitness = ggapopulation0['p_fitness'], 
+                             dic_pc_im = dic_pc_imgga, 
+                             demand_options_im = demand_options_imgga,
+                             df_dp_im = df_dp_imgga, 
+                             df_ft_im = df_ft_imgga, 
+                             df_he_im = df_he_imgga, 
+                             ga_num = 0)
