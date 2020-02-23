@@ -10,9 +10,10 @@ import copy
 
 import pandas as pd
 
-import individual as ind
+import population as pop
+#import individual as ind
 import variables
-import allocate as gaf
+#import allocate as gaf
 
 
 def allocate_pc(dic_pc,df_ftt,ddic_metadata):
@@ -55,8 +56,8 @@ def cross_over(pdic_solution, chrom_order, df_dp_im, df_ft_im, df_he_im,
     xover_point = random.randint(0,chrom_len-1)
     
     # select parents with tournament
-    parent1 = gaf.tournament_select(3,pdic_solution)
-    parent2 = gaf.tournament_select(3,pdic_solution)
+    parent1 = tournament_select(3,pdic_solution)
+    parent2 = tournament_select(3,pdic_solution)
     
     # get encoding for two parents
     parent1_he = pdic_solution[parent1]['cdic_chromosome2']['clist_chromosome2']
@@ -67,7 +68,7 @@ def cross_over(pdic_solution, chrom_order, df_dp_im, df_ft_im, df_he_im,
     child2_he = parent2_he[0:xover_point] + parent1_he[xover_point:chrom_len]
     
     # create solution for each child
-    child1_dic = ind.individual(solution_num = 0,
+    child1_dic = pop.individual(solution_num = 0,
                                       demand_list = chrom_order,
                                       df_dp = df_dp_im,
                                       df_ft = df_ft_im,
@@ -76,7 +77,7 @@ def cross_over(pdic_solution, chrom_order, df_dp_im, df_ft_im, df_he_im,
                                       he_list = child1_he,
                                       demand_options = copy.deepcopy(demand_options_x))
     
-    child2_dic = ind.individual(solution_num = 0, 
+    child2_dic = pop.individual(solution_num = 0, 
                                       demand_list = chrom_order,
                                       df_dp = df_dp_im,
                                       df_ft = df_ft_im,
@@ -104,8 +105,6 @@ def mutation(mutate_individual, id_num, demand_options_m, df_dp_im, df_ft_im,
     chrom_len = len(chrom_order)
     
     #set a mutation point
-#    mut_point = random.randint(0,100)/100
-#    mut_point = int(round(mut_point * chrom_len,0))
     mut_point = random.randint(0, chrom_len - 1)
     mut_d = chrom_order[mut_point]  # get demand of mutation point
     try:
@@ -115,11 +114,9 @@ def mutation(mutate_individual, id_num, demand_options_m, df_dp_im, df_ft_im,
         ddic_he = demand_options['demands_he'][mut_d]
         dlist_he = list(ddic_he.keys())
         
-#        print('he: ' + str(mut_current) + '; ' + str(dlist_he))
-        
-        
         # remove current he from list
         dlist_he.remove(mut_current)  # remove so as not to select same he
+        
         # if list is greater than 0, choose a new he
         if len(dlist_he) > 0:
             print('---- mutation ----')
@@ -130,7 +127,7 @@ def mutation(mutate_individual, id_num, demand_options_m, df_dp_im, df_ft_im,
             mutation_he[mut_point][0] = he
          
             # create individual with new gene in encoding
-            mut_dic = ind.individual(solution_num = id_num,
+            mut_dic = pop.individual(solution_num = id_num,
                                               demand_list = chrom_order,
                                               df_dp = df_dp_im,
                                               df_ft = df_ft_im,
