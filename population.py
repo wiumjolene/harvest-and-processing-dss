@@ -15,11 +15,16 @@ import source_etl as setl
 import variables
 
 
-def create_options():
-    df_dp = setl.demand_plan()
-    df_pc = setl.pack_capacity()
-    df_he = setl.harvest_estimate()
-    df_lugs = setl.lug_generation()
+def create_options(df_dp_co,df_pc_co,df_he_co,df_lugs_co):
+#    df_dp = setl.demand_plan()
+#    df_pc = setl.pack_capacity()
+#    df_he = setl.harvest_estimate()
+#    df_lugs = setl.lug_generation()
+
+    df_dp = df_dp_co.reset_index(drop=True)
+    df_pc = df_pc_co.reset_index(drop=True)
+    df_he = df_he_co.reset_index(drop=True)
+    df_lugs = df_lugs_co.reset_index(drop=True)
     
     list_dp = df_dp['id'].tolist()
     list_he = df_he['id'].tolist()
@@ -221,17 +226,11 @@ def individual(solution_num, df_dp, df_ft, df_he, dic_pc,
     return(ddic_solution_2)
     
 def population(demand_options_imgga, df_dp_imgga, df_ft_imgga, df_he_imgga, dic_pc_imgga):
-    
-    demand_options_im = create_options()
-    df_dp_im = setl.demand_plan()
-    df_ft_im = setl.from_to()
-    df_he_im = setl.harvest_estimate()
-    dic_pc_im = setl.pack_capacity_dic()
-    
+        
     demand_options_im = copy.deepcopy(demand_options_imgga)
-    df_dp_im = df_dp_imgga
-    df_ft_im = df_ft_imgga
-    df_he_im = df_he_imgga
+    df_dp_im = df_dp_imgga.reset_index(drop=True)
+    df_ft_im = df_ft_imgga.reset_index(drop=True)
+    df_he_im = df_he_imgga.reset_index(drop=True)
     dic_pc_im = copy.deepcopy(dic_pc_imgga)    
     
     

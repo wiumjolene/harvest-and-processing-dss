@@ -12,11 +12,17 @@ import source_etl as setl
 import pandas as pd
 import variables
 
-demand_options_imgga = create_options()
+
+
 df_dp_imgga = setl.demand_plan()
 df_ft_imgga = setl.from_to()
 df_he_imgga = setl.harvest_estimate()
 dic_pc_imgga = setl.pack_capacity_dic()
+df_pc_imgga = setl.pack_capacity()
+df_lugs_imgga = setl.lug_generation()
+demand_options_imgga = create_options(df_dp_imgga, df_pc_imgga,
+                                          df_he_imgga, df_lugs_imgga)
+
 
 def greedy_ga(ggapopulation0,ggapopulation1):  
     ggd0 = genetic_algorithm(dic_solution = ggapopulation0['pdic_solution'], 
