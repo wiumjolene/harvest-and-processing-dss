@@ -11,7 +11,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 import population as pop
-#import feasible_options as fo
 import variables
 import allocate
 import source_etl as setl
@@ -24,7 +23,6 @@ df_pc_imgga = setl.pack_capacity()
 df_lugs_imgga = setl.lug_generation()
 demand_options_imgga = pop.create_options(df_dp_imgga, df_pc_imgga,
                                           df_he_imgga, df_lugs_imgga)
-
 
 
 def genetic_algorithm(dic_solution, fitness, dic_pc_im, demand_options_im,
@@ -122,6 +120,7 @@ ggapopulation0 = pop.population(demand_options_imgga,
                               df_ft_imgga, 
                               df_he_imgga, 
                               dic_pc_imgga)
+
 
 ggd0 = genetic_algorithm(dic_solution = ggapopulation0['pdic_solution'], 
                              fitness = ggapopulation0['p_fitness'], 
