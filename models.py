@@ -9,12 +9,13 @@ from __future__ import print_function
 
 import mysql.connector
 from mysql.connector import errorcode
-from connect import mydb as cnx
+from connect import mydb as cnx_phd
 
 DB_NAME = 'dss'
 
-TABLES = {}
-TABLES['f_from_to'] = (
+CREATE_TABLES = {}
+FROM_TO = {}
+CREATE_TABLES['f_from_to'] = (
     "CREATE TABLE f_from_to ("
     "  id int(11) NOT NULL AUTO_INCREMENT,"
     "  block_id int(11),"    
@@ -22,8 +23,9 @@ TABLES['f_from_to'] = (
     "  km decimal(11,2),"     
     "  PRIMARY KEY (id)"
     ") ENGINE=InnoDB")
+FROM_TO['f_from_to'] = [0,'f_from_to']
 
-TABLES['f_pack_capacity'] = (
+CREATE_TABLES['f_pack_capacity'] = (
     "CREATE TABLE f_pack_capacity ("
     "  id int(11) NOT NULL AUTO_INCREMENT,"   
     "  packhouse_id int(11),"  
@@ -32,8 +34,9 @@ TABLES['f_pack_capacity'] = (
     "  kg decimal(11,2),"     
     "  PRIMARY KEY (id)"
     ") ENGINE=InnoDB")
+FROM_TO['f_pack_capacity'] = [0,'f_pack_capacity']
 
-TABLES['f_demand_plan'] = (
+CREATE_TABLES['f_demand_plan'] = (
     "CREATE TABLE f_demand_plan ("
     "  id int(11) NOT NULL AUTO_INCREMENT,"   
     "  client_id int(11),"  
@@ -44,8 +47,9 @@ TABLES['f_demand_plan'] = (
     "  stdunits decimal(11,2),"     
     "  PRIMARY KEY (id)"
     ") ENGINE=InnoDB")
+FROM_TO['f_demand_plan'] = [0,'f_demand_plan']
 
-TABLES['f_harvest_estimate'] = (
+CREATE_TABLES['f_harvest_estimate'] = (
     "CREATE TABLE f_harvest_estimate ("
     "  id int(11) NOT NULL AUTO_INCREMENT,"   
     "  va_id int(11),"  
@@ -54,8 +58,9 @@ TABLES['f_harvest_estimate'] = (
     "  kg_raw decimal(11,2),"     
     "  PRIMARY KEY (id)"
     ") ENGINE=InnoDB")
+FROM_TO['f_harvest_estimate'] = [0,'f_harvest_estimate']
 
-TABLES['dim_block'] = (
+CREATE_TABLES['dim_block'] = (
     "CREATE TABLE dim_block ("
     "  id int(11) NOT NULL AUTO_INCREMENT,"   
     "  name varchar(14),"
@@ -65,24 +70,27 @@ TABLES['dim_block'] = (
     "  latitude decimal(11,2)," 
     "  PRIMARY KEY (id)"
     ") ENGINE=InnoDB")
+FROM_TO['dim_block'] = [0,'dim_block']
 
-TABLES['dim_va'] = (
+CREATE_TABLES['dim_va'] = (
     "CREATE TABLE dim_va ("
     "  id int(11) NOT NULL AUTO_INCREMENT,"   
     "  name varchar(14),"
-    "  long_name varchar(14),"
-    "  vacat_id int(11),"        
+    "  long_name varchar(50),"
+    "  vacat_id varchar(2),"        
     "  PRIMARY KEY (id)"
     ") ENGINE=InnoDB")
+FROM_TO['dim_va'] = ['dim_va.sql','dim_va']
 
-TABLES['dim_vacat'] = (
+CREATE_TABLES['dim_vacat'] = (
     "CREATE TABLE dim_vacat ("
     "  id int(11) NOT NULL AUTO_INCREMENT,"   
     "  name varchar(14),"      
     "  PRIMARY KEY (id)"
     ") ENGINE=InnoDB")
+FROM_TO['dim_vacat'] = [0,'dim_vacat']
 
-TABLES['dim_packhouse'] = (
+CREATE_TABLES['dim_packhouse'] = (
     "CREATE TABLE dim_packhouse ("
     "  id int(11) NOT NULL AUTO_INCREMENT,"   
     "  name varchar(14),"  
@@ -93,23 +101,26 @@ TABLES['dim_packhouse'] = (
     "  latitude decimal(11,2)," 
     "  PRIMARY KEY (id)"
     ") ENGINE=InnoDB")
+FROM_TO['dim_packhouse'] = [0,'dim_packhouse']
 
-TABLES['dim_client'] = (
+CREATE_TABLES['dim_client'] = (
     "CREATE TABLE dim_client ("
     "  id int(11) NOT NULL AUTO_INCREMENT,"   
     "  name varchar(14)," 
     "  country varchar(14),"      
     "  PRIMARY KEY (id)"
     ") ENGINE=InnoDB")
+FROM_TO['dim_client'] = [0,'dim_client']
 
-TABLES['dim_pack_type'] = (
+CREATE_TABLES['dim_pack_type'] = (
     "CREATE TABLE dim_pack_type ("
     "  id int(11) NOT NULL AUTO_INCREMENT,"   
     "  name varchar(14),"  
     "  PRIMARY KEY (id)"
     ") ENGINE=InnoDB")
+FROM_TO['dim_pack_type'] = [0,'dim_pack_type']
 
-TABLES['dim_time'] = (
+CREATE_TABLES['dim_time'] = (
     "CREATE TABLE dim_time ("
     "  id int(11) NOT NULL AUTO_INCREMENT,"   
     "  day date,"  
@@ -118,8 +129,15 @@ TABLES['dim_time'] = (
     "  yearweek varchar(14),"
     "  PRIMARY KEY (id)"
     ") ENGINE=InnoDB")
+FROM_TO['dim_time'] = [0,'dim_time']
 
-cursor = cnx.cursor()
+TABLES = {'CREATE_TABLES': CREATE_TABLES,
+          'FROM_TO': FROM_TO}
+x = TABLES
+
+
+
+cursor = cnx_phd.cursor()
 
 def create_database(cursor):
     try:
@@ -136,14 +154,14 @@ except mysql.connector.Error as err:
     if err.errno == errorcode.ER_BAD_DB_ERROR:
         create_database(cursor)
         print("Database {} created successfully.".format(DB_NAME))
-        cnx.database = DB_NAME
+        cnx_phd.database = DB_NAME
     else:
         print(err)
         exit(1)
         
         
-for table_name in TABLES:
-    table_description = TABLES[table_name]
+for table_name in TABLES['CREATE_TABLES']:
+    table_description = TABLES['CREATE_TABLES'][table_name]
     try:
         print("Creating table {}: ".format(table_name), end='')
         cursor.execute(table_description)
@@ -155,5 +173,13 @@ for table_name in TABLES:
     else:
         print("OK")
 
+
+
 cursor.close()
-cnx.close()
+cnx_phd.close()
+
+
+
+
+
+        

@@ -35,4 +35,9 @@ mydb = mysql.connector.connect(
   passwd=passwd
 )
 
-#mycursor = mydb.cursor()
+open_file=open(connect + '\\password4','r')
+file_lines=open_file.readlines()
+sunW = file_lines[0].strip()  # First Line
+spwW = file_lines[1].strip()  # Second Line
+
+engine_central = create_engine('mysql://' + sunW + ':' + spwW + '@10.16.20.5:3306/pt_admin1718')

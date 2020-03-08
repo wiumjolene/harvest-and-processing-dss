@@ -14,4 +14,3 @@ WHERE
     AND commodity = 'GR';
     
     
-     --   AND (LEFT(demand_arrivalweek, 2) > 18);
