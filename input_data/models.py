@@ -30,13 +30,15 @@ CREATE_TABLES['f_pack_capacity'] = (
     "CREATE TABLE f_pack_capacity ("
     "  id int(11) NOT NULL AUTO_INCREMENT,"   
     "  packhouse_id int(11),"  
-    "  pack_type_id int(11),"  
+    "  pack_type_id int(11),"
+    "  packweek varchar(14),"
     "  time_id int(11),"      
     "  kg decimal(11,2)," 
+    "  stdunits decimal(11,2),"
     "  add_datetime datetime,"    
     "  PRIMARY KEY (id)"
     ") ENGINE=InnoDB")
-FROM_TO['f_pack_capacity'] = [0,'f_pack_capacity']
+FROM_TO['f_pack_capacity'] = ['f_pack_capacity.sql','f_pack_capacity']
 
 CREATE_TABLES['f_demand_plan'] = (
     "CREATE TABLE f_demand_plan ("
@@ -58,23 +60,24 @@ CREATE_TABLES['f_harvest_estimate'] = (
     "CREATE TABLE f_harvest_estimate ("
     "  id int(11) NOT NULL AUTO_INCREMENT,"   
     "  va_id int(11),"  
-    "  block_id int(11),"   
+    "  block_id int(11)," 
+    "  packweek varchar(14),"
     "  time_id int(11),"      
     "  kg_raw decimal(11,2)," 
     "  add_datetime datetime,"    
     "  PRIMARY KEY (id)"
     ") ENGINE=InnoDB")
-FROM_TO['f_harvest_estimate'] = [0,'f_harvest_estimate']
+FROM_TO['f_harvest_estimate'] = ['f_harvest_estimate.sql','f_harvest_estimate']
 
 CREATE_TABLES['dim_block'] = (
     "CREATE TABLE dim_block ("
     "  id int(11) NOT NULL AUTO_INCREMENT,"   
     "  name varchar(14),"
     "  long_name varchar(50),"
-    "  ha decimal(11,2)," 
+    "  ha decimal(11,4)," 
     "  fc_id int(11),"       
-    "  longitude decimal(11,2),"    
-    "  latitude decimal(11,2)," 
+    "  longitude decimal(9,6),"    
+    "  latitude decimal(8,6)," 
     "  add_datetime datetime,"
     "  PRIMARY KEY (id)"
     ") ENGINE=InnoDB")
@@ -150,8 +153,9 @@ CREATE_TABLES['dim_time'] = (
     "  id int(11) NOT NULL AUTO_INCREMENT,"   
     "  day date,"  
     "  weeknum int(11),"
-    "  season int(11),"
     "  yearweek varchar(14),"
+    "  week varchar(14),"
+    "  season int(11),"
     "  add_datetime datetime,"
     "  PRIMARY KEY (id)"
     ") ENGINE=InnoDB")

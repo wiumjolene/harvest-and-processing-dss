@@ -1,17 +1,17 @@
 -- SET @startdate = '2018-01-10';
 SELECT 
     c.number + 1 AS id,
-    ('2018-01-10' + INTERVAL c.number DAY) AS day,
-    WEEK(('2018-01-10' + INTERVAL c.number DAY),
-        7) AS weeknum,
-    YEARWEEK(('2018-01-10' + INTERVAL c.number DAY), 7) AS yearweek,
+    ('2019-01-10' + INTERVAL c.number DAY) AS day,
+    WEEK(('2019-01-10' + INTERVAL c.number DAY), 7) AS weeknum,
+    YEARWEEK(('2019-01-10' + INTERVAL c.number DAY), 7) AS yearweek,
+    CONCAT(LEFT(RIGHT(YEARWEEK(('2019-01-10' + INTERVAL c.number DAY), 7),4),2),'-',RIGHT(YEARWEEK(('2019-01-10' + INTERVAL c.number DAY), 7),2)) AS week,
     CASE
         WHEN
-            WEEK(('2018-01-10' + INTERVAL c.number DAY),
+            WEEK(('2019-01-10' + INTERVAL c.number DAY),
                 7) > 30
         THEN
-            YEAR('2018-01-10' + INTERVAL c.number DAY) + 1
-        ELSE YEAR('2018-01-10' + INTERVAL c.number DAY)
+            YEAR('2019-01-10' + INTERVAL c.number DAY) + 1
+        ELSE YEAR('2019-01-10' + INTERVAL c.number DAY)
     END AS season
 FROM
     (SELECT 

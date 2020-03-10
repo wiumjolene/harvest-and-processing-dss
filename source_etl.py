@@ -7,17 +7,21 @@ Created on Fri Oct  4 09:58:11 2019
 
 import pandas as pd
 import variables
+from connect import engine_phd
 
 def demand_plan():   
-    df_dp = pd.read_excel(r'input_data/source_data.xlsx','f.demand_plan')
+#    df_dp = pd.read_excel(r'input_data/source_data.xlsx','f.demand_plan')
+    df_dp = pd.read_sql('SELECT * FROM dss.f_demand_plan;',engine_phd)
     df_dp['kg_raw'] = df_dp['stdunits'] * variables.stdunit * (1 + variables.giveaway)
     df_dp = df_dp.sort_values(by=['time_id', 'priority']).reset_index(drop=True)
     df_dp['trucks_raw'] = df_dp['kg_raw'] /variables.truck
     return(df_dp)
 
 def harvest_estimate():   
-    df_he = pd.read_excel(r'input_data/source_data.xlsx','f.harvest_estimate')
-    df_va = pd.read_excel(r'input_data/source_data.xlsx','dim.va',index_col ='id',usecols='A,D')
+#    df_he = pd.read_excel(r'input_data/source_data.xlsx','f.harvest_estimate')
+    df_he = pd.read_sql('SELECT * FROM dss.f_harvest_estimate;',engine_phd)
+#    df_va = pd.read_excel(r'input_data/source_data.xlsx','dim.va',index_col ='id',usecols='A,D')
+    df_va = pd.read_sql('SELECT * FROM dss.dim_va;',engine_phd)
     df_he = df_he.merge(df_va ,how='left', left_on = 'va_id', right_index=True)
     df_he['stdunits'] = (df_he['kg_raw'] * (1 - variables.giveaway)) / variables.stdunit
     df_he['trucks_raw'] = df_he['kg_raw'] / variables.truck
@@ -25,7 +29,8 @@ def harvest_estimate():
     return(df_he)
 
 def pack_capacity():   
-    df_pc = pd.read_excel(r'input_data/source_data.xlsx','f.pack_capacity')
+#    df_pc = pd.read_excel(r'input_data/source_data.xlsx','f.pack_capacity')
+    df_pc = pd.read_sql('SELECT * FROM dss.f_pack_capacity;',engine_phd)
     df_pc['stdunits'] = df_pc['kg'] / variables.stdunit
     df_pc['trucks_raw'] = (df_pc['kg'] * (1 + variables.giveaway))/variables.truck
     return(df_pc)
@@ -39,7 +44,8 @@ def pack_capacity_dic():
     return(dic_pc)
     
 def from_to():   
-    df_ft = pd.read_excel(r'input_data/source_data.xlsx','f.from_to')
+#    df_ft = pd.read_excel(r'input_data/source_data.xlsx','f.from_to')
+    df_ft = pd.read_sql('SELECT * FROM dss.f_from_to;',engine_phd)
     return(df_ft)
     
 def lug_generation():   

@@ -11,7 +11,7 @@ SELECT
     CASE WHEN d.priority = '-' THEN 0 ELSE d.priority END as priority,
 	d.demand_arrivalweek as arrivalweek,
     cd.transitdays,
-	d.qty_standardctns AS stdunits
+	ROUND(d.qty_standardctns,2) AS stdunits
 FROM
     pt_admin1718.vview_0091_demand_union_planned_for_grapes d
     LEFT JOIN pt_admin1718.tk ON d.targetmarket = tk.no
