@@ -62,18 +62,18 @@ print('')
 for table in TABLES['FROM_TO']:
 #    print(table)
     if TABLES['FROM_TO'][table][0] != 0:
-        open_file=open('input_data\\sql\\'+table+'.sql','r')
+        open_file=open('sql\\'+table+'.sql','r')
         sql = open_file.read()
         open_file.close()
         
         table_central = pd.read_sql(sql,engine_central)
         table_phd = pd.read_sql('select * from '+table+';',engine_phd)
         if table == 'dim_block':
-            coo = pd.read_excel('input_data\\oc_site.xlsx', 'pu')
+            coo = pd.read_excel('oc_site.xlsx', 'pu')
             table_central = pd.merge(table_central, coo, how='left', on='id')
 
         if table == 'dim_packhouse':
-            coo = pd.read_excel('input_data\\venue.xlsx', 'venue_metadata')
+            coo = pd.read_excel('venue.xlsx', 'venue_metadata')
             table_central = pd.merge(table_central, coo, how='left', on='name')
         
         df1_i = table_central.set_index(['id'])

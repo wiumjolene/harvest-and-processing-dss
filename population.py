@@ -40,7 +40,7 @@ def create_options(df_dp_co,df_pc_co,df_he_co,df_lugs_co):
     for d in range(0,len(df_dp)):
         ddemand_id = df_dp.id[d]
         dvacat_id = df_dp.vacat_id[d]
-        dtime_id = df_dp.time_id[d]
+        dtime_id = int(df_dp.time_id[d])
         dpack_type_id = df_dp.pack_type_id[d]
         ddic_metadata.update({ddemand_id: {'vacat_id': dvacat_id,
                                            'time_id': dtime_id,

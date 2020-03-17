@@ -19,7 +19,7 @@ FROM
     LEFT JOIN pt_admin1718.clientdemands cd ON d.demandid = cd.recordno
 WHERE
     d.recordtype = 'DEMAND'
-    AND d.demand_arrivalweek > '20-08'
+    AND d.demand_arrivalweek > '19-30'
     AND d.commodity = 'GR'
     AND tk.no <> 'AF';
     

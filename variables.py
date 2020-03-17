@@ -5,12 +5,18 @@ Created on Fri Oct  4 10:18:12 2019
 @author: Jolene
 """
 
-stdunit = 1.5 # each stdunit is so many kg of produce
-truck = 5 # 1 * truck carries so many kg of produce
+stdunit = 4.5 # each stdunit is so many kg of produce
+truck = 300 # 1 * truck carries so many kg of produce
 giveaway = 0.05 # % giveaway
-lug = 1 # weight (kg) of a lug
-s_unit = lug
-travel_restriction = 100
+lug = 11 # weight (kg) of a lug
+s_unit = truck
+
+if s_unit == truck:
+    lug = truck
+else:
+    lug = lug
+
+travel_restriction = 4000
 
 population_size = 5
 generations = 8
