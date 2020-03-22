@@ -7,6 +7,7 @@ Created on Sun Mar  8 06:57:20 2020
 #from __future__ import print_function
 import pandas as pd
 import datetime
+import variables
 from connect import engine_central
 from connect import engine_phd
 from models import TABLES
@@ -79,7 +80,6 @@ for table in TABLES['FROM_TO']:
         df1_i = table_central.set_index(['id'])
         df2_i = table_phd.set_index(['id'])
         df_diff = df1_i.join(df2_i,how='outer',rsuffix='UPDATE').fillna(0)
-        #df_diff = (df_diff['Num'] - df_diff['Num_'])
         
         table_add = df_diff.reset_index(drop = False)
         rem_cols = [col for col in table_add.columns if 'UPDATE' in col]
@@ -94,3 +94,46 @@ for table in TABLES['FROM_TO']:
             
         else:
             print('no new updates to ' + table)
+
+df_he = pd.read_sql('select * from dss.f_harvest_estimate;',engine_phd)
+df_lugs = pd.DataFrame({})
+columns = ['he_id','block_id','va_id','vacat_id','time_id','kg']
+for i in range(0,len(df_he)):
+    he_id = df_he.id[i]
+    numlugs = df_he.lugs_raw[i]
+    block = df_he.block_id[i]
+    va = df_he.va_id[i]
+    vacat = df_he.vacat_id[i]
+    time = df_he.time_id[i]
+    data = [[he_id,block,va,vacat,time,variables.lug]] * int(numlugs)
+    df_lugst = pd.DataFrame(data = data, columns = columns)
+    df_lugs = df_lugs.append(df_lugst).reset_index(drop=True)
+df_lugs['id'] = df_lugs.index + 1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

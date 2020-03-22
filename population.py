@@ -13,6 +13,7 @@ import pandas as pd
 import allocate as aloc
 import source_etl as setl
 import variables
+from connect import engine_phd
 
 
 def create_options(df_dp_co,df_pc_co,df_he_co,df_lugs_co):
@@ -36,6 +37,8 @@ def create_options(df_dp_co,df_pc_co,df_he_co,df_lugs_co):
     no_pc = []
     ddic_options={}
     ddic_metadata={}
+    df_demand_lug = pd.DataFrame({})
+    df_demand_pc = pd.DataFrame({})
     
     for d in range(0,len(df_dp)):
         ddemand_id = df_dp.id[d]
@@ -57,6 +60,8 @@ def create_options(df_dp_co,df_pc_co,df_he_co,df_lugs_co):
             ddf_lugs = df_lugs[df_lugs['he_id'] == he].reset_index(drop=True)
             dlist_lugs = ddf_lugs['id'].tolist()
             ddic_het.update({he: dlist_lugs})
+            ddf_lugs['demand_id'] = ddemand_id
+            df_demand_lug = df_demand_lug.append(ddf_lugs).reset_index(drop=True)
 
         ddic_he.update({ddemand_id: ddic_het})
         list_he = [x for x in list_he if x not in ddf_he['id'].tolist()]
@@ -69,6 +74,8 @@ def create_options(df_dp_co,df_pc_co,df_he_co,df_lugs_co):
         ddf_pc = ddf_pc[ddf_pc['pack_type_id']==dpack_type_id].reset_index(drop=True)
         ddic_pc.update({ddemand_id: ddf_pc['id'].tolist()})
         list_pc = [x for x in list_pc if x not in ddf_pc['id'].tolist()]
+        ddf_pc['demand_id'] = ddemand_id
+        df_demand_pc = df_demand_pc.append(ddf_pc).reset_index(drop=True)
         
         if len(ddf_pc) == 0:
             no_pc.append(ddemand_id)
@@ -83,7 +90,10 @@ def create_options(df_dp_co,df_pc_co,df_he_co,df_lugs_co):
     ddic_options.update({'demands_no_pc':no_pc})    
     ddic_options.update({'he_no_ass':list_he})
     ddic_options.update({'pc_no_ass':list_pc}) 
-    ddic_options.update({'demands_metadata':ddic_metadata})                                                   
+    ddic_options.update({'demands_metadata':ddic_metadata})  
+
+    df_demand_lug.to_sql('do_demand_lugs',engine_phd,if_exists='replace',index=False)
+    df_demand_pc.to_sql('do_demand_pc',engine_phd,if_exists='replace',index=False)                                                  
     return(ddic_options)
     
 

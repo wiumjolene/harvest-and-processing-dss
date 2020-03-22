@@ -132,13 +132,9 @@ ggd0 = genetic_algorithm(dic_solution = ggapopulation0['pdic_solution'],
                              df_he_im = df_he_imgga, 
                              ga_num = 0)
 
-best = 19
-best_solution = ggd0[0]['pdic_solution'][best]['ddic_solution']
+
+best_solution = ggd0[0]['pdic_solution'][max(ggd0[0]['pdic_solution'])]['ddic_solution']
 best_solution_df = pd.DataFrame.from_dict(best_solution, orient='index')
-best_solution_df['solution_num'] = best
+best_solution_df['solution_num'] = max(ggd0[0]['pdic_solution'])
 best_solution_df.to_csv(r'output_data/solution.csv',index = False)
-
-with open(r'output_data/solution_json.json', 'w') as fp:
-    json.dump(ggd0, fp)
-
 

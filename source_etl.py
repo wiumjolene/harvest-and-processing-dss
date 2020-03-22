@@ -20,7 +20,7 @@ def demand_plan():
             w.id AS arrival_time_id,
             fdp.stdunits,
             fdp.transitdays,
-            w.id - fdp.transitdays as time_id
+            w.id - (ceiling(fdp.transitdays/7) * 7) as time_id
         FROM
             dss.f_demand_plan fdp
                 LEFT JOIN
@@ -33,9 +33,13 @@ def demand_plan():
     return(df_dp)
 
 def harvest_estimate(): 
-    s= """SELECT  he.id, he.va_id, he.block_id, w.id AS time_id, he.kg_raw
-        FROM dss.f_harvest_estimate he
-        LEFT JOIN dim_week w ON he.packweek = w.week;"""
+    s= """SELECT 
+            he.id, he.va_id, he.block_id, w.id AS time_id, he.kg_raw
+        FROM
+            dss.f_harvest_estimate he
+                LEFT JOIN dim_week w ON he.packweek = w.week
+        WHERE
+            he.block_id in (43, 5, 6 ,1, 35, 47, 45, 46);"""
     df_he = pd.read_sql(s,engine_phd)
     df_va = pd.read_sql('SELECT * FROM dss.dim_va;',engine_phd,index_col ='id')
     df_he = df_he.merge(df_va ,how='left', left_on = 'va_id', right_index=True)
@@ -56,7 +60,8 @@ def pack_capacity():
         dss.f_pack_capacity pc
             LEFT JOIN
         dim_week w ON pc.packweek = w.week
-        WHERE w.id > 0;"""
+        WHERE w.id > 0
+        AND pc.packhouse_id in (41, 5, 4, 3);"""
     df_pc = pd.read_sql(s,engine_phd)
     df_pc['stdunits'] = df_pc['kg'] / variables.stdunit
     df_pc['trucks_raw'] = (df_pc['kg'] * (1 + variables.giveaway))/variables.truck
@@ -91,4 +96,5 @@ def lug_generation():
         df_lugst = pd.DataFrame(data = data, columns = columns)
         df_lugs = df_lugs.append(df_lugst).reset_index(drop=True)
     df_lugs['id'] = df_lugs.index + 1
+#    df_lugs.to_sql('f_lugs',engine_phd,if_exists='replace',index=False)
     return(df_lugs)
