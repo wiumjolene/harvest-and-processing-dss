@@ -7,6 +7,7 @@ Created on Sun Feb 23 15:20:03 2020
 
 import random
 import copy
+import datetime
 
 import pandas as pd
 
@@ -17,10 +18,10 @@ from connect import engine_phd
 
 
 def create_options(df_dp_co,df_pc_co,df_he_co,df_lugs_co):
-#    df_dp = setl.demand_plan()
-#    df_pc = setl.pack_capacity()
-#    df_he = setl.harvest_estimate()
-#    df_lugs = setl.lug_generation()
+    df_dp = setl.demand_plan()
+    df_pc = setl.pack_capacity()
+    df_he = setl.harvest_estimate()
+    df_lugs = setl.lug_generation()
 
     df_dp = df_dp_co.reset_index(drop=True)
     df_pc = df_pc_co.reset_index(drop=True)
@@ -39,6 +40,8 @@ def create_options(df_dp_co,df_pc_co,df_he_co,df_lugs_co):
     ddic_metadata={}
     df_demand_lug = pd.DataFrame({})
     df_demand_pc = pd.DataFrame({})
+    
+    print('start do: ' + str(datetime.datetime.now()))
     
     for d in range(0,len(df_dp)):
         ddemand_id = df_dp.id[d]
@@ -93,7 +96,8 @@ def create_options(df_dp_co,df_pc_co,df_he_co,df_lugs_co):
     ddic_options.update({'demands_metadata':ddic_metadata})  
 
     df_demand_lug.to_sql('do_demand_lugs',engine_phd,if_exists='replace',index=False)
-    df_demand_pc.to_sql('do_demand_pc',engine_phd,if_exists='replace',index=False)                                                  
+    df_demand_pc.to_sql('do_demand_pc',engine_phd,if_exists='replace',index=False) 
+    print('finish do: ' + str(datetime.datetime.now()))                                                 
     return(ddic_options)
     
 
@@ -102,9 +106,6 @@ def individual(solution_num, df_dp, df_ft, df_he, dic_pc,
                demand_options, demand_list=0, he_list=0):
     # import relevant tables
     dic_dp = df_dp.set_index('id').T.to_dict('dic')
-    
-    # create a dictionary of options and issues
-#    demand_options = fo.create_options()
     
     # get list of all demands with pc and he options 
     if demand_list == 0:
@@ -159,7 +160,6 @@ def individual(solution_num, df_dp, df_ft, df_he, dic_pc,
             
             # get list of all lugs available in the he
             dlist_he_lugs = ddic_he[he]
-#            print('d: ' + str(d) + '; he: ' + str(he) + '; ' + str(dlist_he))
             
             #ensure lugs can be packed
             dlist_he_lugs_s = [x for x in dlist_he_lugs if x not in llist_usedlugs]
@@ -247,6 +247,8 @@ def population(demand_options_imgga, df_dp_imgga, df_ft_imgga, df_he_imgga, dic_
     pdic_solution = {}
     p_fitness = {}
     
+    print('start pop: ' + str(datetime.datetime.now()))
+    
 #    print('### generating population ###')
     for p in range(variables.population_size):
 #        print('-creating individual ' + str(p))
@@ -270,4 +272,5 @@ def population(demand_options_imgga, df_dp_imgga, df_ft_imgga, df_he_imgga, dic_
                              cdic_solution[p]['cdic_fitness']['kg']]})
     population = {'pdic_solution':pdic_solution,
                   'p_fitness':p_fitness}
+    print('finish pop: ' + str(datetime.datetime.now()))
     return(population)

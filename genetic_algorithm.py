@@ -99,10 +99,10 @@ def genetic_algorithm(dic_solution, fitness, dic_pc_im, demand_options_im,
         best_kg = pdic_solution[best_indi]['cdic_fitness']['kg']
         
         
-        print('-generation ' + str(g)
-                + ': best ' + str(best_km) 
-                + ' - worst ' +  str(worst_km)
-                + ', kg: ' +  str(best_kg))
+        print('-generation ' + str(int(g))
+                + ': best ' + str(int(best_km)) 
+                + ' - worst ' +  str(int(worst_km))
+                + ', kg: ' +  str(int(best_kg)))
         
         # remove weakest individuals
         del p_fitness[drop_id1]

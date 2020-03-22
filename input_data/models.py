@@ -69,6 +69,20 @@ CREATE_TABLES['f_harvest_estimate'] = (
     ") ENGINE=InnoDB")
 FROM_TO['f_harvest_estimate'] = ['f_harvest_estimate.sql','f_harvest_estimate']
 
+CREATE_TABLES['f_lugs'] = (
+    "CREATE TABLE f_lugs ("
+    "  id int(11) NOT NULL AUTO_INCREMENT," 
+    "  he_id int(11),"  
+    "  va_id int(11)," 
+    "  vacat_id int(11),"
+    "  block_id int(11)," 
+    "  time_id int(11),"      
+    "  kg decimal(11,2)," 
+    "  add_datetime datetime,"    
+    "  PRIMARY KEY (id)"
+    ") ENGINE=InnoDB")
+FROM_TO['f_lugs'] = [0,'f_lugs']
+
 CREATE_TABLES['dim_block'] = (
     "CREATE TABLE dim_block ("
     "  id int(11) NOT NULL AUTO_INCREMENT,"   

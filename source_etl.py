@@ -25,7 +25,9 @@ def demand_plan():
             dss.f_demand_plan fdp
                 LEFT JOIN
             dim_week w ON fdp.arrivalweek = w.week
-        WHERE w.id > 0"""
+        WHERE w.id - (ceiling(fdp.transitdays/7) * 7) >= 347
+        AND w.id - (ceiling(fdp.transitdays/7) * 7) <= 363
+        AND client_id in (1,3,7,8,12,20,9)"""
     df_dp = pd.read_sql(s,engine_phd)
     df_dp['kg_raw'] = df_dp['stdunits'] * variables.stdunit * (1 + variables.giveaway)
     df_dp = df_dp.sort_values(by=['time_id', 'priority']).reset_index(drop=True)
@@ -39,7 +41,10 @@ def harvest_estimate():
             dss.f_harvest_estimate he
                 LEFT JOIN dim_week w ON he.packweek = w.week
         WHERE
-            he.block_id in (43, 5, 6 ,1, 35, 47, 45, 46);"""
+            he.block_id in (43, 5, 6 ,1, 35, 47, 45, 46)
+            AND kg_raw > 0
+            AND w.id >= 347
+            AND w.id <= 363;"""
     df_he = pd.read_sql(s,engine_phd)
     df_va = pd.read_sql('SELECT * FROM dss.dim_va;',engine_phd,index_col ='id')
     df_he = df_he.merge(df_va ,how='left', left_on = 'va_id', right_index=True)
@@ -60,7 +65,8 @@ def pack_capacity():
         dss.f_pack_capacity pc
             LEFT JOIN
         dim_week w ON pc.packweek = w.week
-        WHERE w.id > 0
+        WHERE w.id > 347
+        AND w.id < 363
         AND pc.packhouse_id in (41, 5, 4, 3);"""
     df_pc = pd.read_sql(s,engine_phd)
     df_pc['stdunits'] = df_pc['kg'] / variables.stdunit
@@ -82,19 +88,10 @@ def from_to():
     
 def lug_generation():   
     """transform harvest estimate into lists of lugs"""
-    df_he = harvest_estimate()
-    df_lugs = pd.DataFrame({})
-    columns = ['he_id','block_id','va_id','vacat_id','time_id','kg']
-    for i in range(0,len(df_he)):
-        he_id = df_he.id[i]
-        numlugs = df_he.lugs_raw[i]
-        block = df_he.block_id[i]
-        va = df_he.va_id[i]
-        vacat = df_he.vacat_id[i]
-        time = df_he.time_id[i]
-        data = [[he_id,block,va,vacat,time,variables.lug]] * int(numlugs)
-        df_lugst = pd.DataFrame(data = data, columns = columns)
-        df_lugs = df_lugs.append(df_lugst).reset_index(drop=True)
-    df_lugs['id'] = df_lugs.index + 1
-#    df_lugs.to_sql('f_lugs',engine_phd,if_exists='replace',index=False)
+    s = """SELECT id, he_id,block_id,va_id,vacat_id,time_id,kg 
+        FROM dss.f_lugs
+        WHERE time_id >= 347
+        AND time_id <= 363
+    ;"""
+    df_lugs = pd.read_sql(s,engine_phd)
     return(df_lugs)

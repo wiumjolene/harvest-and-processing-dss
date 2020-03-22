@@ -10,8 +10,8 @@ import datetime
 import variables
 from connect import engine_central
 from connect import engine_phd
-from models import TABLES
-from models import DB_NAME
+from input_data.models import TABLES
+from input_data.models import DB_NAME
 
 import mysql.connector
 from mysql.connector import errorcode
@@ -52,9 +52,6 @@ for table_name in TABLES['CREATE_TABLES']:
             print(err.msg)
     else:
         print("OK")
-
-
-
 cursor.close()
 cnx_phd.close()
 
@@ -95,7 +92,25 @@ for table in TABLES['FROM_TO']:
         else:
             print('no new updates to ' + table)
 
-df_he = pd.read_sql('select * from dss.f_harvest_estimate;',engine_phd)
+
+lugs_sql = """
+SELECT 
+    he.id, he.va_id, he.block_id, w.id AS time_id, he.kg_raw
+FROM
+    dss.f_harvest_estimate he
+        LEFT JOIN
+    dim_week w ON he.packweek = w.week
+WHERE
+    he.block_id IN (43 , 5, 6, 1, 35, 47, 45, 46)
+        AND kg_raw > 0;
+"""
+
+df_he = pd.read_sql(lugs_sql,engine_phd)
+df_va = pd.read_sql('SELECT * FROM dss.dim_va;',engine_phd,index_col ='id')
+df_he = df_he.merge(df_va ,how='left', left_on = 'va_id', right_index=True)
+df_he['stdunits'] = (df_he['kg_raw'] * (1 - variables.giveaway)) / variables.stdunit
+df_he['trucks_raw'] = df_he['kg_raw'] / variables.truck
+df_he['lugs_raw'] = df_he['kg_raw'] / variables.lug
 df_lugs = pd.DataFrame({})
 columns = ['he_id','block_id','va_id','vacat_id','time_id','kg']
 for i in range(0,len(df_he)):
@@ -109,31 +124,5 @@ for i in range(0,len(df_he)):
     df_lugst = pd.DataFrame(data = data, columns = columns)
     df_lugs = df_lugs.append(df_lugst).reset_index(drop=True)
 df_lugs['id'] = df_lugs.index + 1
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+df_lugs.to_sql('f_lugs',engine_phd,if_exists='append',index=False)
 
