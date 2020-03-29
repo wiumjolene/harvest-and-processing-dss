@@ -72,37 +72,37 @@ def genetic_algorithm(dic_solution, fitness, dic_pc_im, demand_options_im,
             child1 = child1_nb
     
         pdic_solution.update(child1)
-        p_fitness.update({id_num:[child1[id_num]['cdic_fitness']['km'],
-                                  child1[id_num]['cdic_fitness']['kg']]})
+        p_fitness.update({id_num:[child1[id_num]['cdic_fitness']['obj1'],
+                                  child1[id_num]['cdic_fitness']['obj2']]})
         id_num = id_num + 1
     
         # create new child 2
         child2 = {id_num: child1_nb_gen[1][0]}
         pdic_solution.update(child2)
-        p_fitness.update({id_num:[child2[id_num]['cdic_fitness']['km'],
-                                  child2[id_num]['cdic_fitness']['kg']]})
+        p_fitness.update({id_num:[child2[id_num]['cdic_fitness']['obj1'],
+                                  child2[id_num]['cdic_fitness']['obj2']]})
         id_num = id_num + 1
         
         # get best kg
         p_fitness_df = pd.DataFrame.from_dict(p_fitness, orient='index')
-        p_fitness_df['kg_rank'] = p_fitness_df[1].rank(method='min')
+        p_fitness_df['obj1_rank'] = p_fitness_df[0].rank(method='min')
         
         # find weakest individuals
-        p_fitness_df = p_fitness_df.sort_values(by=[0],ascending=False)  # sort according to km   
+        p_fitness_df = p_fitness_df.sort_values(by=[0],ascending=False)  # sort according to obj1_rank   
         drop_id1 = p_fitness_df.index[0]
         drop_id2 = p_fitness_df.index[1]
             
         # best fitness
         best_indi = p_fitness_df.index[(len(p_fitness_df) - 1)]
-        best_km = pdic_solution[best_indi]['cdic_fitness']['km']
-        worst_km = pdic_solution[drop_id1]['cdic_fitness']['km']
-        best_kg = pdic_solution[best_indi]['cdic_fitness']['kg']
+        best_obj1 = pdic_solution[best_indi]['cdic_fitness']['obj1']
+        worst_obj1 = pdic_solution[drop_id1]['cdic_fitness']['obj1']
+        best_obj2 = pdic_solution[best_indi]['cdic_fitness']['obj2']
         
         
         print('-generation ' + str(int(g))
-                + ': best ' + str(int(best_km)) 
-                + ' - worst ' +  str(int(worst_km))
-                + ', kg: ' +  str(int(best_kg)))
+                + ': best ' + str(int(best_obj1)) 
+                + ' - worst ' +  str(int(worst_obj1))
+                + ', kg: ' +  str(int(best_obj2)))
         
         # remove weakest individuals
         del p_fitness[drop_id1]
@@ -116,15 +116,15 @@ def genetic_algorithm(dic_solution, fitness, dic_pc_im, demand_options_im,
     return(ga_dic)        
 
 
-ggapopulation0 = pop.population(demand_options_imgga, 
+ggapopulation = pop.population(demand_options_imgga, 
                               df_dp_imgga, 
                               df_ft_imgga, 
                               df_he_imgga, 
                               dic_pc_imgga)
 
 
-ggd0 = genetic_algorithm(dic_solution = ggapopulation0['pdic_solution'], 
-                             fitness = ggapopulation0['p_fitness'], 
+ggd = genetic_algorithm(dic_solution = ggapopulation['pdic_solution'], 
+                             fitness = ggapopulation['p_fitness'], 
                              dic_pc_im = dic_pc_imgga, 
                              demand_options_im = demand_options_imgga,
                              df_dp_im = df_dp_imgga, 
@@ -133,8 +133,7 @@ ggd0 = genetic_algorithm(dic_solution = ggapopulation0['pdic_solution'],
                              ga_num = 0)
 
 
-best_solution = ggd0[0]['pdic_solution'][max(ggd0[0]['pdic_solution'])]['ddic_solution']
+best_solution = ggd[0]['pdic_solution'][max(ggd[0]['pdic_solution'])]['ddic_solution']
 best_solution_df = pd.DataFrame.from_dict(best_solution, orient='index')
-best_solution_df['solution_num'] = max(ggd0[0]['pdic_solution'])
+best_solution_df['solution_num'] = max(ggd[0]['pdic_solution'])
 best_solution_df.to_csv(r'output_data/solution.csv',index = False)
-

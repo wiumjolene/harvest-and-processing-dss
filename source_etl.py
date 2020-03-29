@@ -26,8 +26,8 @@ def demand_plan():
                 LEFT JOIN
             dim_week w ON fdp.arrivalweek = w.week
         WHERE w.id - (ceiling(fdp.transitdays/7) * 7) >= 347
-        AND w.id - (ceiling(fdp.transitdays/7) * 7) <= 363
-        AND client_id in (1,3,7,8,12,20,9)"""
+        AND w.id - (ceiling(fdp.transitdays/7) * 7) <= 361
+        AND client_id in (1,7,8,12,20,9)"""
     df_dp = pd.read_sql(s,engine_phd)
     df_dp['kg_raw'] = df_dp['stdunits'] * variables.stdunit * (1 + variables.giveaway)
     df_dp = df_dp.sort_values(by=['time_id', 'priority']).reset_index(drop=True)
@@ -44,7 +44,7 @@ def harvest_estimate():
             he.block_id in (43, 5, 6 ,1, 35, 47, 45, 46)
             AND kg_raw > 0
             AND w.id >= 347
-            AND w.id <= 363;"""
+            AND w.id <= 361;"""
     df_he = pd.read_sql(s,engine_phd)
     df_va = pd.read_sql('SELECT * FROM dss.dim_va;',engine_phd,index_col ='id')
     df_he = df_he.merge(df_va ,how='left', left_on = 'va_id', right_index=True)
@@ -66,7 +66,7 @@ def pack_capacity():
             LEFT JOIN
         dim_week w ON pc.packweek = w.week
         WHERE w.id > 347
-        AND w.id < 363
+        AND w.id < 361
         AND pc.packhouse_id in (41, 5, 4, 3);"""
     df_pc = pd.read_sql(s,engine_phd)
     df_pc['stdunits'] = df_pc['kg'] / variables.stdunit

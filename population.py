@@ -123,12 +123,14 @@ def individual(solution_num, df_dp, df_ft, df_he, dic_pc,
     cdic_chromosome2 = {}
     clist_chromosome2 = []
     clist_chromosome2_d = []
-    cdic_fitness = {'km':0,'kg':0}
+    cdic_fitness = {'km':0,'kg':0, 'obj1': 0, 'obj2': 0}
     
+    absolute_diff = 0
     for d in dlist_allocate:
         ddic_metadata = demand_options['demands_metadata'][d]
         kg = 0
-        dkg_raw = dic_dp[d]['kg_raw']        
+        dkg_raw = dic_dp[d]['kg_raw']
+
         # list of he's and lugs for demand he
         ddic_he = demand_options['demands_he'][d]
         # get a list of all available he's (without lugs)
@@ -167,6 +169,10 @@ def individual(solution_num, df_dp, df_ft, df_he, dic_pc,
             # get closest pc for he from available pc's
             df_het = df_he[df_he['id'] == he].reset_index(drop=True)
             block_id = df_het.block_id[0]
+            
+            # variables to determine speed  -> add calculate the number of hours spent on 
+            va_id = df_het.va_id[0]
+            pack_type_id = ddic_metadata['pack_type_id']
             
             df_ftt = df_ft[df_ft['block_id'] == block_id].reset_index(drop=True)
             df_ftt = df_ftt.filter(['packhouse_id','km'])
@@ -216,7 +222,8 @@ def individual(solution_num, df_dp, df_ft, df_he, dic_pc,
                 
                 cd_he.update({he:cd_he_lug})
                 cd_he2.append(he)
-                 
+        
+        absolute_diff = absolute_diff + (abs(dic_dp[d]['kg_raw'] - dkg_raw))
         d_count = d_count + 1
         ddic_notes.update({d:note})
         cdic_chromosome.update({d:cd_he})
@@ -225,6 +232,7 @@ def individual(solution_num, df_dp, df_ft, df_he, dic_pc,
         cdic_chromosome2.update({'clist_chromosome2':clist_chromosome2,
                                  'clist_chromosome2_d':clist_chromosome2_d})
         
+    cdic_fitness['obj1'] = absolute_diff
     ddic_solution_2.update({solution_num: {'ddic_solution':ddic_solution,
                                       'ddic_notes':ddic_notes,
                                       'cdic_chromosome':cdic_chromosome,
