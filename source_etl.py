@@ -41,10 +41,10 @@ def harvest_estimate():
             dss.f_harvest_estimate he
                 LEFT JOIN dim_week w ON he.packweek = w.week
         WHERE
-            he.block_id in (43, 5, 6 ,1, 35, 47, 45, 46)
-            AND kg_raw > 0
+            kg_raw > 0
             AND w.id >= 347
             AND w.id <= 361;"""
+#            he.block_id in (43, 5, 6 ,1, 35, 47, 45, 46)
     df_he = pd.read_sql(s,engine_phd)
     df_va = pd.read_sql('SELECT * FROM dss.dim_va;',engine_phd,index_col ='id')
     df_he = df_he.merge(df_va ,how='left', left_on = 'va_id', right_index=True)
@@ -95,3 +95,34 @@ def lug_generation():
     ;"""
     df_lugs = pd.read_sql(s,engine_phd)
     return(df_lugs)
+
+
+def speed():
+    s = """SELECT * FROM dss.f_speed;"""
+    df_speed = pd.read_sql(s,engine_phd)
+    
+    dic_speed = {}
+    packhouses = df_speed.filter(['packhouse_id']).drop_duplicates()
+    packhouses = packhouses['packhouse_id'].tolist()
+    for p in packhouses:
+        
+        df_speed1 = df_speed[df_speed['packhouse_id']==p].reset_index(drop=True)
+        packtypes = df_speed1.filter(['packtype_id']).drop_duplicates()
+        packtypes = packtypes['packtype_id'].tolist()
+        
+        dic_packtypes = {}
+        for pt in packtypes:
+        
+            df_speed2 = df_speed1[df_speed1['packtype_id']==pt].reset_index(drop=True)
+            vas = df_speed2.filter(['va_id']).drop_duplicates()
+            vas = vas['va_id'].tolist()   
+            
+            dic_vas = {}
+            for va in vas:
+                df_speed3 = df_speed2[df_speed2['va_id']==va].reset_index(drop=True)
+                speed = df_speed3.speed[0]
+                
+                dic_vas.update({va: speed})
+            dic_packtypes.update({pt:dic_vas})
+        dic_speed.update({p:dic_packtypes})
+    return(dic_speed)

@@ -101,8 +101,7 @@ FROM
         LEFT JOIN
     dim_week w ON he.packweek = w.week
 WHERE
-    he.block_id IN (43 , 5, 6, 1, 35, 47, 45, 46)
-        AND kg_raw > 0;
+kg_raw > 0;
 """
 
 df_he = pd.read_sql(lugs_sql,engine_phd)
@@ -124,5 +123,5 @@ for i in range(0,len(df_he)):
     df_lugst = pd.DataFrame(data = data, columns = columns)
     df_lugs = df_lugs.append(df_lugst).reset_index(drop=True)
 df_lugs['id'] = df_lugs.index + 1
-df_lugs.to_sql('f_lugs',engine_phd,if_exists='append',index=False)
+df_lugs.to_sql('f_lugs',engine_phd,if_exists='replace',index=False)
 

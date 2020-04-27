@@ -10,6 +10,9 @@ truck = 300 # 1 * truck carries so many kg of produce
 giveaway = 0.05 # % giveaway
 lug = 11 # weight (kg) of a lug
 s_unit = truck
+zar_workhour = 20
+zar_km = 3.16
+
 
 if s_unit == truck:
     lug = truck
@@ -18,7 +21,7 @@ else:
 
 travel_restriction = 4000
 
-population_size = 2
+population_size = 30
 generations = 3
 
 mutation_rate = 0.05

@@ -50,7 +50,7 @@ def tournament_select(tour_size, pdic_solution):
     # cross over functionality #
 ########################################
 def cross_over(pdic_solution, chrom_order, df_dp_im, df_ft_im, df_he_im, 
-               dic_pc, dic_pc2, demand_options_x):
+               dic_pc, dic_pc2, dic_speed, demand_options_x):
     
     chrom_len = len(chrom_order)
     xover_point = random.randint(0,chrom_len-1)
@@ -75,6 +75,7 @@ def cross_over(pdic_solution, chrom_order, df_dp_im, df_ft_im, df_he_im,
                                       df_he = df_he_im,
                                       dic_pc = dic_pc,
                                       he_list = child1_he,
+                                      dic_speed = dic_speed,
                                       demand_options = copy.deepcopy(demand_options_x))
     
     child2_dic = pop.individual(solution_num = 0, 
@@ -84,6 +85,7 @@ def cross_over(pdic_solution, chrom_order, df_dp_im, df_ft_im, df_he_im,
                                       df_he = df_he_im,
                                       dic_pc = dic_pc2,
                                       he_list = child2_he,
+                                      dic_speed = dic_speed,
                                       demand_options = copy.deepcopy(demand_options_x))
     
     xover_result = [child1_dic,child2_dic]
@@ -95,7 +97,7 @@ def cross_over(pdic_solution, chrom_order, df_dp_im, df_ft_im, df_he_im,
     ## mutatuion of child
 ########################################
 def mutation(mutate_individual, id_num, demand_options_m, df_dp_im, df_ft_im, 
-             df_he_im, dic_pc):
+             df_he_im, dic_pc, dic_speed):
     # make deep copies of dictionaries so as not to update main
     demand_options = copy.deepcopy(demand_options_m)
     
@@ -134,6 +136,7 @@ def mutation(mutate_individual, id_num, demand_options_m, df_dp_im, df_ft_im,
                                               df_he = df_he_im,
                                               dic_pc = dic_pc,
                                               demand_options = demand_options,
+                                              dic_speed = dic_speed,
                                               he_list = mutation_he)
     
         else:

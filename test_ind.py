@@ -24,6 +24,7 @@ dic_pc = setl.pack_capacity_dic()
 df_pc_imgga = setl.pack_capacity()
 df_lugs_imgga = setl.lug_generation()
 demand_options = pop.create_options(df_dp, df_pc_imgga, df_he, df_lugs_imgga)
+dic_speed = setl.speed()
 
 solution_num = 0
 
@@ -48,12 +49,14 @@ cdic_chromosome = {}
 cdic_chromosome2 = {}
 clist_chromosome2 = []
 clist_chromosome2_d = []
-cdic_fitness = {'km':0,'kg':0}
+cdic_fitness = {'km':0,'kg':0, 'obj1': 0, 'obj2': 0}
 
+absolute_diff = 0
 for d in dlist_allocate:
     ddic_metadata = demand_options['demands_metadata'][d]
     kg = 0
-    dkg_raw = dic_dp[d]['kg_raw']        
+    dkg_raw = dic_dp[d]['kg_raw']
+
     # list of he's and lugs for demand he
     ddic_he = demand_options['demands_he'][d]
     # get a list of all available he's (without lugs)
@@ -93,6 +96,10 @@ for d in dlist_allocate:
         df_het = df_he[df_he['id'] == he].reset_index(drop=True)
         block_id = df_het.block_id[0]
         
+        # variables to determine speed  -> add calculate the number of hours spent on 
+        va_id = df_het.va_id[0]
+        packtype_id = ddic_metadata['pack_type_id']
+        
         df_ftt = df_ft[df_ft['block_id'] == block_id].reset_index(drop=True)
         df_ftt = df_ftt.filter(['packhouse_id','km'])
         
@@ -106,12 +113,15 @@ for d in dlist_allocate:
                     llist_usedlugs.append(l) 
                     # get all available pc's for lug and sort from closest to furthest
                     df_pct = aloc.allocate_pc(dic_pc,df_ftt,ddic_metadata)
-                    dlist_pc = df_pct['id'].tolist()
-                    dlist_pc_km = df_pct['km'].tolist() 
-                    if len(dlist_pc) > 0:
+#                    dlist_pc = df_pct['id'].tolist()
+#                    dlist_pc_km = df_pct['km'].tolist() 
+#                    if len(dlist_pc) > 0:
+                    if len(df_pct) > 0:
                         # allocate closest pc to block
-                        lug_pc = int(dlist_pc[0])
-                        lug_km = dlist_pc_km[0]
+                        lug_pc = df_pct.id[0]
+                        packhouse_id = df_pct.packhouse_id[0]
+                        lug_km = df_pct.kg[0]
+                        
                         # subtract kg from pc capacity for day  
                         pckg_remain = dic_pc[lug_pc]['kg_remain'] - variables.s_unit
                         dic_pc[lug_pc]['kg_remain'] =  pckg_remain
@@ -121,27 +131,38 @@ for d in dlist_allocate:
                         break
                     
                     kg_nett = variables.s_unit * (1 - variables.giveaway)
+                    stdunits = kg_nett/variables.stdunit
+                    try:
+                        speed = dic_speed[packhouse_id][packtype_id][va_id]
+                    except:
+                        speed = 12
                     cd_he_lug.append(l)
 
                     ddic_solution.update({l:{'pack_capacity_id':lug_pc,
                                              'demand_id': d,
                                              'harvest_estimate_id':he,
                                              'demand_id': d,
+                                             'va_id':va_id,
+                                             'packtype_id':packtype_id,
+                                             'packhouse_id':packhouse_id,
                                              'lug_id':l,
                                              'km': lug_km,
                                              'kg_raw': variables.s_unit,
                                              'kg': kg_nett,
-                                             'stdunits': kg_nett/variables.stdunit}})
+                                             'stdunits': stdunits}})
 
                     cdic_fitness['kg'] =  cdic_fitness['kg'] + kg_nett
                     cdic_fitness['km'] =  cdic_fitness['km'] + lug_km
+                    cdic_fitness['obj2'] =  cdic_fitness['obj2'] + (stdunits * speed)
                 else:
                     note = 'no more lugs available in he'
                     break
             
             cd_he.update({he:cd_he_lug})
             cd_he2.append(he)
-             
+    
+    
+    absolute_diff = absolute_diff + (abs(dic_dp[d]['kg_raw'] - kg)) 
     d_count = d_count + 1
     ddic_notes.update({d:note})
     cdic_chromosome.update({d:cd_he})
@@ -150,6 +171,8 @@ for d in dlist_allocate:
     cdic_chromosome2.update({'clist_chromosome2':clist_chromosome2,
                              'clist_chromosome2_d':clist_chromosome2_d})
     
+       
+cdic_fitness['obj1'] = absolute_diff
 ddic_solution_2.update({solution_num: {'ddic_solution':ddic_solution,
                                   'ddic_notes':ddic_notes,
                                   'cdic_chromosome':cdic_chromosome,

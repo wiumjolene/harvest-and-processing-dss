@@ -103,7 +103,7 @@ def create_options(df_dp_co,df_pc_co,df_he_co,df_lugs_co):
 
 
 def individual(solution_num, df_dp, df_ft, df_he, dic_pc,
-               demand_options, demand_list=0, he_list=0):
+               demand_options, dic_speed, demand_list=0, he_list=0):
     # import relevant tables
     dic_dp = df_dp.set_index('id').T.to_dict('dic')
     
@@ -123,7 +123,8 @@ def individual(solution_num, df_dp, df_ft, df_he, dic_pc,
     cdic_chromosome2 = {}
     clist_chromosome2 = []
     clist_chromosome2_d = []
-    cdic_fitness = {'km':0,'kg':0, 'obj1': 0, 'obj2': 0}
+    cdic_fitness = {'km':0,'kg':0, 'obj1': 0, 'obj2': 0, 'stdunits': 0,
+                    'workhours': 0}
     
     absolute_diff = 0
     for d in dlist_allocate:
@@ -172,7 +173,7 @@ def individual(solution_num, df_dp, df_ft, df_he, dic_pc,
             
             # variables to determine speed  -> add calculate the number of hours spent on 
             va_id = df_het.va_id[0]
-            pack_type_id = ddic_metadata['pack_type_id']
+            packtype_id = ddic_metadata['pack_type_id']
             
             df_ftt = df_ft[df_ft['block_id'] == block_id].reset_index(drop=True)
             df_ftt = df_ftt.filter(['packhouse_id','km'])
@@ -187,12 +188,11 @@ def individual(solution_num, df_dp, df_ft, df_he, dic_pc,
                         llist_usedlugs.append(l) 
                         # get all available pc's for lug and sort from closest to furthest
                         df_pct = aloc.allocate_pc(dic_pc,df_ftt,ddic_metadata)
-                        dlist_pc = df_pct['id'].tolist()
-                        dlist_pc_km = df_pct['km'].tolist() 
-                        if len(dlist_pc) > 0:
+                        if len(df_pct) > 0:
                             # allocate closest pc to block
-                            lug_pc = int(dlist_pc[0])
-                            lug_km = dlist_pc_km[0]
+                            lug_pc = df_pct.id[0]
+                            packhouse_id = df_pct.packhouse_id[0]
+                            lug_km = df_pct.km[0]
                             # subtract kg from pc capacity for day  
                             pckg_remain = dic_pc[lug_pc]['kg_remain'] - variables.s_unit
                             dic_pc[lug_pc]['kg_remain'] =  pckg_remain
@@ -202,13 +202,23 @@ def individual(solution_num, df_dp, df_ft, df_he, dic_pc,
                             break
                         
                         kg_nett = variables.s_unit * (1 - variables.giveaway)
+                        stdunits = kg_nett/variables.stdunit
+                        try:
+                            speed = dic_speed[packhouse_id][packtype_id][va_id]
+                        except:
+                            speed = 12
                         cd_he_lug.append(l)
 
                         ddic_solution.update({l:{'pack_capacity_id':lug_pc,
                                                  'demand_id': d,
                                                  'harvest_estimate_id':he,
                                                  'demand_id': d,
+                                                 'va_id':va_id,
+                                                 'packtype_id':packtype_id,
+                                                 'packhouse_id':packhouse_id,
                                                  'lug_id':l,
+                                                 'speed':speed,
+                                                 'workhours': (stdunits * speed)/60,
                                                  'km': lug_km,
                                                  'kg_raw': variables.s_unit,
                                                  'kg': kg_nett,
@@ -216,6 +226,9 @@ def individual(solution_num, df_dp, df_ft, df_he, dic_pc,
 
                         cdic_fitness['kg'] =  cdic_fitness['kg'] + kg_nett
                         cdic_fitness['km'] =  cdic_fitness['km'] + lug_km
+                        cdic_fitness['stdunits'] =  cdic_fitness['stdunits'] + stdunits
+                        cdic_fitness['workhours'] =  cdic_fitness['workhours'] + ((stdunits * speed)/60)
+                        
                     else:
                         note = 'no more lugs available in he'
                         break
@@ -223,7 +236,7 @@ def individual(solution_num, df_dp, df_ft, df_he, dic_pc,
                 cd_he.update({he:cd_he_lug})
                 cd_he2.append(he)
         
-        absolute_diff = absolute_diff + (abs(dic_dp[d]['kg_raw'] - dkg_raw))
+        absolute_diff = absolute_diff + (abs(dic_dp[d]['kg_raw'] - kg))
         d_count = d_count + 1
         ddic_notes.update({d:note})
         cdic_chromosome.update({d:cd_he})
@@ -233,6 +246,8 @@ def individual(solution_num, df_dp, df_ft, df_he, dic_pc,
                                  'clist_chromosome2_d':clist_chromosome2_d})
         
     cdic_fitness['obj1'] = absolute_diff
+    cdic_fitness['obj2'] =  (cdic_fitness['workhours'] * variables.zar_workhour) 
+                            
     ddic_solution_2.update({solution_num: {'ddic_solution':ddic_solution,
                                       'ddic_notes':ddic_notes,
                                       'cdic_chromosome':cdic_chromosome,
@@ -243,14 +258,15 @@ def individual(solution_num, df_dp, df_ft, df_he, dic_pc,
     ddf_solution['solution_num'] = solution_num
     return(ddic_solution_2)
     
-def population(demand_options_imgga, df_dp_imgga, df_ft_imgga, df_he_imgga, dic_pc_imgga):
+    
+def population(demand_options_imgga, df_dp_imgga, df_ft_imgga, 
+               df_he_imgga, dic_pc_imgga, dic_speed):
         
     demand_options_im = copy.deepcopy(demand_options_imgga)
     df_dp_im = df_dp_imgga.reset_index(drop=True)
     df_ft_im = df_ft_imgga.reset_index(drop=True)
     df_he_im = df_he_imgga.reset_index(drop=True)
     dic_pc_im = copy.deepcopy(dic_pc_imgga)    
-    
     
     pdic_solution = {}
     p_fitness = {}
@@ -270,14 +286,20 @@ def population(demand_options_imgga, df_dp_imgga, df_ft_imgga, df_he_imgga, dic_
                                        df_ft = df_ft_im,
                                        df_he = df_he_im,
                                        dic_pc = dic_pc_p,
+                                       dic_speed = dic_speed,
                                        demand_options = demand_options_p)
         
         # add individual to population
         pdic_solution.update(cdic_solution)
         
         # update fitness tracker
-        p_fitness.update({p:[cdic_solution[p]['cdic_fitness']['km'],
-                             cdic_solution[p]['cdic_fitness']['kg']]})
+        p_fitness.update({p:[cdic_solution[p]['cdic_fitness']['obj1'],
+                             cdic_solution[p]['cdic_fitness']['obj2'],
+                             cdic_solution[p]['cdic_fitness']['kg'],
+                             cdic_solution[p]['cdic_fitness']['stdunits'],
+                             cdic_solution[p]['cdic_fitness']['km'],
+                             cdic_solution[p]['cdic_fitness']['workhours']]})
+    
     population = {'pdic_solution':pdic_solution,
                   'p_fitness':p_fitness}
     print('finish pop: ' + str(datetime.datetime.now()))

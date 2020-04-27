@@ -22,6 +22,7 @@ df_he_imgga = setl.harvest_estimate()
 dic_pc_imgga = setl.pack_capacity_dic()
 df_pc_imgga = setl.pack_capacity()
 df_lugs_imgga = setl.lug_generation()
+dic_speed = setl.speed()
 demand_options_imgga = pop.create_options(df_dp_imgga, df_pc_imgga,
                                           df_he_imgga, df_lugs_imgga)
 
@@ -53,6 +54,7 @@ def genetic_algorithm(dic_solution, fitness, dic_pc_im, demand_options_im,
                                             df_he_im = df_he_im,
                                             dic_pc = dic_pc_g,
                                             dic_pc2 = dic_pc_g2,
+                                            dic_speed = dic_speed,
                                             demand_options_x = demand_options_p)
         
         child1_nb = {id_num: child1_nb_gen[0][0]}
@@ -64,7 +66,8 @@ def genetic_algorithm(dic_solution, fitness, dic_pc_im, demand_options_im,
                                          df_dp_im = df_dp_im,
                                          df_ft_im = df_ft_im,
                                          df_he_im = df_he_im,
-                                         dic_pc = dic_pc_g3)
+                                         dic_pc = dic_pc_g3,
+                                         dic_speed = dic_speed)
             
             child1 = child1_m
             
@@ -73,14 +76,26 @@ def genetic_algorithm(dic_solution, fitness, dic_pc_im, demand_options_im,
     
         pdic_solution.update(child1)
         p_fitness.update({id_num:[child1[id_num]['cdic_fitness']['obj1'],
-                                  child1[id_num]['cdic_fitness']['obj2']]})
+                             child1[id_num]['cdic_fitness']['obj2'],
+                             child1[id_num]['cdic_fitness']['kg'],
+                             child1[id_num]['cdic_fitness']['stdunits'],
+                             child1[id_num]['cdic_fitness']['km'],
+                             child1[id_num]['cdic_fitness']['workhours']]})
+    
+    
         id_num = id_num + 1
     
         # create new child 2
         child2 = {id_num: child1_nb_gen[1][0]}
         pdic_solution.update(child2)
+
         p_fitness.update({id_num:[child2[id_num]['cdic_fitness']['obj1'],
-                                  child2[id_num]['cdic_fitness']['obj2']]})
+                             child2[id_num]['cdic_fitness']['obj2'],
+                             child2[id_num]['cdic_fitness']['kg'],
+                             child2[id_num]['cdic_fitness']['stdunits'],
+                             child2[id_num]['cdic_fitness']['km'],
+                             child2[id_num]['cdic_fitness']['workhours']]})
+
         id_num = id_num + 1
         
         # get best kg
@@ -88,7 +103,7 @@ def genetic_algorithm(dic_solution, fitness, dic_pc_im, demand_options_im,
         p_fitness_df['obj1_rank'] = p_fitness_df[0].rank(method='min')
         
         # find weakest individuals
-        p_fitness_df = p_fitness_df.sort_values(by=[0],ascending=False)  # sort according to obj1_rank   
+        p_fitness_df = p_fitness_df.sort_values(by=[2],ascending=True)  # sort according to obj1_rank   
         drop_id1 = p_fitness_df.index[0]
         drop_id2 = p_fitness_df.index[1]
             
@@ -102,7 +117,7 @@ def genetic_algorithm(dic_solution, fitness, dic_pc_im, demand_options_im,
         print('-generation ' + str(int(g))
                 + ': best ' + str(int(best_obj1)) 
                 + ' - worst ' +  str(int(worst_obj1))
-                + ', kg: ' +  str(int(best_obj2)))
+                + ', time: ' +  str(int(best_obj2)))
         
         # remove weakest individuals
         del p_fitness[drop_id1]
@@ -120,7 +135,8 @@ ggapopulation = pop.population(demand_options_imgga,
                               df_dp_imgga, 
                               df_ft_imgga, 
                               df_he_imgga, 
-                              dic_pc_imgga)
+                              dic_pc_imgga,
+                              dic_speed)
 
 
 ggd = genetic_algorithm(dic_solution = ggapopulation['pdic_solution'], 
@@ -132,8 +148,16 @@ ggd = genetic_algorithm(dic_solution = ggapopulation['pdic_solution'],
                              df_he_im = df_he_imgga, 
                              ga_num = 0)
 
-
+bs = max(ggd[0]['pdic_solution'])
 best_solution = ggd[0]['pdic_solution'][max(ggd[0]['pdic_solution'])]['ddic_solution']
 best_solution_df = pd.DataFrame.from_dict(best_solution, orient='index')
 best_solution_df['solution_num'] = max(ggd[0]['pdic_solution'])
 best_solution_df.to_csv(r'output_data/solution.csv',index = False)
+
+psur_df = pd.DataFrame.from_dict(ggd[0]['p_fitness'], orient='index')
+pop_df2 = pd.DataFrame.from_dict(ggapopulation['p_fitness'], orient='index')
+
+fitness = pd.merge(pop_df2,psur_df, how='outer')
+#fitness = pop_df2.append(psur_df)
+fitness = fitness.rename(columns={0: 'obj1',1:'obj2',2:'kg',3:'stdunits',4:'km',5:'workhours'})
+fitness.to_csv(r'output_data/pop_fitness.csv',index_label = 'id')
