@@ -74,58 +74,71 @@ def genetic_algorithm(dic_solution, fitness, dic_pc_im, demand_options_im,
         else:
             child1 = child1_nb
     
-        pdic_solution.update(child1)
-        p_fitness.update({id_num:[child1[id_num]['cdic_fitness']['obj1'],
-                             child1[id_num]['cdic_fitness']['obj2'],
-                             child1[id_num]['cdic_fitness']['kg'],
-                             child1[id_num]['cdic_fitness']['stdunits'],
-                             child1[id_num]['cdic_fitness']['km'],
-                             child1[id_num]['cdic_fitness']['workhours']]})
+        
+        # check child1 fitness to assess if it is an improvement
+        p_fitness_df = pd.DataFrame.from_dict(p_fitness, orient='index')
+        p_fitness_df.loc[(p_fitness_df[0] >= child1[id_num]['cdic_fitness']['obj1']), 'c1obj1eval'] = 1
+        p_fitness_df.loc[(p_fitness_df[1] >= child1[id_num]['cdic_fitness']['obj2']), 'c1obj2eval'] = 1
+        p_fitness_df['c1eval'] = p_fitness_df['c1obj1eval'] + p_fitness_df['c1obj2eval']
+        p_fitness_df = p_fitness_df[p_fitness_df['c1eval'] > 0]
+
+
+
+        
+        print(p_fitness_df)
+        
+        # if it is an improvement in 1 or more objectives, keep and replace with a less suitable
+        if len(p_fitness_df) > 0:
+            p_fitness_df = p_fitness_df.sort_values(by=['c1eval'],ascending=False).reset_index(drop=False)
+            drop_id1 = p_fitness_df.index[0]
+            del p_fitness[drop_id1]
+            del pdic_solution[drop_id1]        
+        
+            pdic_solution.update(child1)
+            p_fitness.update({id_num:[child1[id_num]['cdic_fitness']['obj1'],
+                                 child1[id_num]['cdic_fitness']['obj2'],
+                                 child1[id_num]['cdic_fitness']['kg'],
+                                 child1[id_num]['cdic_fitness']['stdunits'],
+                                 child1[id_num]['cdic_fitness']['km'],
+                                 child1[id_num]['cdic_fitness']['workhours']]})
     
     
         id_num = id_num + 1
     
         # create new child 2
         child2 = {id_num: child1_nb_gen[1][0]}
-        pdic_solution.update(child2)
-
-        p_fitness.update({id_num:[child2[id_num]['cdic_fitness']['obj1'],
-                             child2[id_num]['cdic_fitness']['obj2'],
-                             child2[id_num]['cdic_fitness']['kg'],
-                             child2[id_num]['cdic_fitness']['stdunits'],
-                             child2[id_num]['cdic_fitness']['km'],
-                             child2[id_num]['cdic_fitness']['workhours']]})
+        
+        # check child2 fitness to assess if it is an improvemnet
+        p_fitness_df2 = pd.DataFrame.from_dict(p_fitness, orient='index')
+        p_fitness_df2.loc[(p_fitness_df2[0] >= child2[id_num]['cdic_fitness']['obj1']), 'c2obj1eval'] = 1
+        p_fitness_df2.loc[(p_fitness_df2[1] >= child2[id_num]['cdic_fitness']['obj2']), 'c2obj2eval'] = 1
+        p_fitness_df2['c2eval'] = p_fitness_df2['c2obj1eval'] + p_fitness_df2['c2obj2eval']
+        p_fitness_df2 = p_fitness_df2[p_fitness_df2['c2eval'] > 0]
+        
+        
+        
+        # if it is an improvement in 1 or more objectives, keep and replace with a less suitable
+        if len(p_fitness_df2) > 0:
+            p_fitness_df2 = p_fitness_df2.sort_values(by=['c2eval'],ascending=False).reset_index(drop=False)
+            drop_id2 = p_fitness_df2.index[0]
+            print(p_fitness_df2)
+            print('drop_id = ' + str(drop_id2))
+            del p_fitness[drop_id2]
+            del pdic_solution[drop_id2]
+        
+            pdic_solution.update(child2)
+            p_fitness.update({id_num:[child2[id_num]['cdic_fitness']['obj1'],
+                                 child2[id_num]['cdic_fitness']['obj2'],
+                                 child2[id_num]['cdic_fitness']['kg'],
+                                 child2[id_num]['cdic_fitness']['stdunits'],
+                                 child2[id_num]['cdic_fitness']['km'],
+                                 child2[id_num]['cdic_fitness']['workhours']]})
 
         id_num = id_num + 1
+               
         
-        # get best kg
-        p_fitness_df = pd.DataFrame.from_dict(p_fitness, orient='index')
-        p_fitness_df['obj1_rank'] = p_fitness_df[0].rank(method='min')
-        
-        # find weakest individuals
-        p_fitness_df = p_fitness_df.sort_values(by=[2],ascending=True)  # sort according to obj1_rank   
-        drop_id1 = p_fitness_df.index[0]
-        drop_id2 = p_fitness_df.index[1]
-            
-        # best fitness
-        best_indi = p_fitness_df.index[(len(p_fitness_df) - 1)]
-        best_obj1 = pdic_solution[best_indi]['cdic_fitness']['obj1']
-        worst_obj1 = pdic_solution[drop_id1]['cdic_fitness']['obj1']
-        best_obj2 = pdic_solution[best_indi]['cdic_fitness']['obj2']
-        
-        
-        print('-generation ' + str(int(g))
-                + ': best ' + str(int(best_obj1)) 
-                + ' - worst ' +  str(int(worst_obj1))
-                + ', time: ' +  str(int(best_obj2)))
-        
-        # remove weakest individuals
-        del p_fitness[drop_id1]
-        del p_fitness[drop_id2]    
-        del pdic_solution[drop_id1]
-        del pdic_solution[drop_id2] 
+        print('-generation ' + str(int(g)))
     
-        
     ga_dic = {ga_num: {'p_fitness':p_fitness,
                        'pdic_solution': pdic_solution}}
     return(ga_dic)        
@@ -139,6 +152,7 @@ ggapopulation = pop.population(demand_options_imgga,
                               dic_speed)
 
 
+
 ggd = genetic_algorithm(dic_solution = ggapopulation['pdic_solution'], 
                              fitness = ggapopulation['p_fitness'], 
                              dic_pc_im = dic_pc_imgga, 
@@ -147,6 +161,7 @@ ggd = genetic_algorithm(dic_solution = ggapopulation['pdic_solution'],
                              df_ft_im = df_ft_imgga, 
                              df_he_im = df_he_imgga, 
                              ga_num = 0)
+
 
 bs = max(ggd[0]['pdic_solution'])
 best_solution = ggd[0]['pdic_solution'][max(ggd[0]['pdic_solution'])]['ddic_solution']
@@ -160,4 +175,5 @@ pop_df2 = pd.DataFrame.from_dict(ggapopulation['p_fitness'], orient='index')
 fitness = pd.merge(pop_df2,psur_df, how='outer')
 #fitness = pop_df2.append(psur_df)
 fitness = fitness.rename(columns={0: 'obj1',1:'obj2',2:'kg',3:'stdunits',4:'km',5:'workhours'})
+
 fitness.to_csv(r'output_data/pop_fitness.csv',index_label = 'id')
