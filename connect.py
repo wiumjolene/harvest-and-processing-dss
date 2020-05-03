@@ -44,9 +44,9 @@ if os.getenv('COMPUTERNAME') == 'DESKTOP-7LVDBO0':
         
 else:
 #    connect = r'~/phd/connect'
-    connect = os.path.join(os.path.expanduser('~'), 'phd', 'connect')
+    connect = os.path.join(os.path.expanduser('~'), 'phd', 'connect','password3')
 
-    open_file=open(connect + '\\password3','r')
+    open_file=open(connect,'r')
     file_lines=open_file.readlines()
     sun = file_lines[0].strip()  # First Line
     spw = file_lines[1].strip()  # Second Line
