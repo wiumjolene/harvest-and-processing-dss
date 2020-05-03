@@ -13,7 +13,7 @@ import os
 if os.getenv('COMPUTERNAME') == 'DESKTOP-7LVDBO0':
     connect = r'C:\sumitins\connect'
 else:
-    connect = r''
+    connect = r'~/phd/connect'
 
 open_file=open(connect + '\\password3','r')
 file_lines=open_file.readlines()

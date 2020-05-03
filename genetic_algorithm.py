@@ -8,13 +8,12 @@ import random
 import copy
 
 import pandas as pd
-import matplotlib.pyplot as plt
-import json
 
 import population as pop
 import variables
 import allocate
 import source_etl as setl
+from connect import engine_phd
 
 df_dp_imgga = setl.demand_plan()
 df_ft_imgga = setl.from_to()
@@ -85,12 +84,12 @@ def genetic_algorithm(dic_solution, fitness, dic_pc_im, demand_options_im,
 
 
         
-        print(p_fitness_df)
+#        print(p_fitness_df)
         
         # if it is an improvement in 1 or more objectives, keep and replace with a less suitable
         if len(p_fitness_df) > 0:
             p_fitness_df = p_fitness_df.sort_values(by=['c1eval'],ascending=False).reset_index(drop=False)
-            drop_id1 = p_fitness_df.index[0]
+            drop_id1 = p_fitness_df['index'][0]
             del p_fitness[drop_id1]
             del pdic_solution[drop_id1]        
         
@@ -120,8 +119,8 @@ def genetic_algorithm(dic_solution, fitness, dic_pc_im, demand_options_im,
         # if it is an improvement in 1 or more objectives, keep and replace with a less suitable
         if len(p_fitness_df2) > 0:
             p_fitness_df2 = p_fitness_df2.sort_values(by=['c2eval'],ascending=False).reset_index(drop=False)
-            drop_id2 = p_fitness_df2.index[0]
-            print(p_fitness_df2)
+            drop_id2 = p_fitness_df2['index'][0]
+#            print(p_fitness_df2)
             print('drop_id = ' + str(drop_id2))
             del p_fitness[drop_id2]
             del pdic_solution[drop_id2]
@@ -167,7 +166,7 @@ bs = max(ggd[0]['pdic_solution'])
 best_solution = ggd[0]['pdic_solution'][max(ggd[0]['pdic_solution'])]['ddic_solution']
 best_solution_df = pd.DataFrame.from_dict(best_solution, orient='index')
 best_solution_df['solution_num'] = max(ggd[0]['pdic_solution'])
-best_solution_df.to_csv(r'output_data/solution.csv',index = False)
+best_solution_df.to_sql('sol_solution',engine_phd,index = False)
 
 psur_df = pd.DataFrame.from_dict(ggd[0]['p_fitness'], orient='index')
 pop_df2 = pd.DataFrame.from_dict(ggapopulation['p_fitness'], orient='index')
@@ -176,4 +175,4 @@ fitness = pd.merge(pop_df2,psur_df, how='outer')
 #fitness = pop_df2.append(psur_df)
 fitness = fitness.rename(columns={0: 'obj1',1:'obj2',2:'kg',3:'stdunits',4:'km',5:'workhours'})
 
-fitness.to_csv(r'output_data/pop_fitness.csv',index_label = 'id')
+fitness.to_sql('sol_pop_fitness',engine_phd,index_label = 'id')

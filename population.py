@@ -104,6 +104,7 @@ def create_options(df_dp_co,df_pc_co,df_he_co,df_lugs_co):
 
 def individual(solution_num, df_dp, df_ft, df_he, dic_pc,
                demand_options, dic_speed, demand_list=0, he_list=0):
+#    print('starting ind: ' + str(datetime.datetime.now()))
     # import relevant tables
     dic_dp = df_dp.set_index('id').T.to_dict('dic')
     
