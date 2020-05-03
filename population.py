@@ -165,8 +165,12 @@ def individual(solution_num, df_dp, df_ft, df_he, dic_pc,
             # get list of all lugs available in the he
             dlist_he_lugs = ddic_he[he]
             
+#            c1 = datetime.datetime.now()
             #ensure lugs can be packed
             dlist_he_lugs_s = [x for x in dlist_he_lugs if x not in llist_usedlugs]
+            
+#            c2 = datetime.datetime.now()
+#            print('check 1: ' + str(c2-c1))
     
             # get closest pc for he from available pc's
             df_het = df_he[df_he['id'] == he].reset_index(drop=True)
@@ -182,6 +186,7 @@ def individual(solution_num, df_dp, df_ft, df_he, dic_pc,
             # loop through available lugs of he only if lugs are available
             cd_he_lug = []
             if len(dlist_he_lugs_s) > 0:
+#                c1 = datetime.datetime.now()
                 for l in dlist_he_lugs_s:
                     if dkg_raw >= 0:
                         dkg_raw = dkg_raw - variables.s_unit
@@ -233,6 +238,10 @@ def individual(solution_num, df_dp, df_ft, df_he, dic_pc,
                     else:
                         note = 'no more lugs available in he'
                         break
+                    
+                c2 = datetime.datetime.now()
+#                print('check 2: ' + str(c2-c1))
+#                print()
                 
                 cd_he.update({he:cd_he_lug})
                 cd_he2.append(he)

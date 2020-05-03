@@ -44,7 +44,7 @@ def genetic_algorithm(dic_solution, fitness, dic_pc_im, demand_options_im,
         demand_options_p = copy.deepcopy(demand_options_im)
         
         # create a random to determine if mutation should happen
-        mutation_random = random.randint(0,100)/100
+        mutation_random = random.randint(0,100)
         
         # create new child 1
         child1_nb_gen = allocate.cross_over(pdic_solution, chrom_order,
@@ -80,12 +80,7 @@ def genetic_algorithm(dic_solution, fitness, dic_pc_im, demand_options_im,
         p_fitness_df.loc[(p_fitness_df[1] >= child1[id_num]['cdic_fitness']['obj2']), 'c1obj2eval'] = 1
         p_fitness_df['c1eval'] = p_fitness_df['c1obj1eval'] + p_fitness_df['c1obj2eval']
         p_fitness_df = p_fitness_df[p_fitness_df['c1eval'] > 0]
-
-
-
-        
-#        print(p_fitness_df)
-        
+       
         # if it is an improvement in 1 or more objectives, keep and replace with a less suitable
         if len(p_fitness_df) > 0:
             p_fitness_df = p_fitness_df.sort_values(by=['c1eval'],ascending=False).reset_index(drop=False)
@@ -169,10 +164,11 @@ best_solution_df['solution_num'] = max(ggd[0]['pdic_solution'])
 best_solution_df.to_sql('sol_solution',engine_phd,index = False)
 
 psur_df = pd.DataFrame.from_dict(ggd[0]['p_fitness'], orient='index')
+psur_df['s_source'] = 'generation'
 pop_df2 = pd.DataFrame.from_dict(ggapopulation['p_fitness'], orient='index')
+pop_df2['s_source'] = 'population'
 
 fitness = pd.merge(pop_df2,psur_df, how='outer')
-#fitness = pop_df2.append(psur_df)
 fitness = fitness.rename(columns={0: 'obj1',1:'obj2',2:'kg',3:'stdunits',4:'km',5:'workhours'})
 
 fitness.to_sql('sol_pop_fitness',engine_phd,index_label = 'id')

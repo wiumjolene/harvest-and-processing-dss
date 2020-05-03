@@ -24,7 +24,7 @@ travel_restriction = 4000
 population_size = 3
 generations = 5
 
-mutation_rate = 0.05
+mutation_rate = 5
 
 print('### Assumptions ###')
 print('-A lug weights ' + str(lug) + 'Kg,')
