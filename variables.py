@@ -21,8 +21,8 @@ else:
 
 travel_restriction = 4000
 
-population_size = 3
-generations = 5
+population_size = 40
+generations = 40
 
 mutation_rate = 5
 
