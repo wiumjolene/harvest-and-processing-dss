@@ -161,7 +161,7 @@ bs = max(ggd[0]['pdic_solution'])
 best_solution = ggd[0]['pdic_solution'][max(ggd[0]['pdic_solution'])]['ddic_solution']
 best_solution_df = pd.DataFrame.from_dict(best_solution, orient='index')
 best_solution_df['solution_num'] = max(ggd[0]['pdic_solution'])
-best_solution_df.to_sql('sol_solution',engine_phd,index = False)
+best_solution_df.to_sql('sol_solution',engine_phd,if_exists='replace',index=False)
 
 psur_df = pd.DataFrame.from_dict(ggd[0]['p_fitness'], orient='index')
 psur_df['s_source'] = 'generation'
@@ -171,4 +171,4 @@ pop_df2['s_source'] = 'population'
 fitness = pd.merge(pop_df2,psur_df, how='outer')
 fitness = fitness.rename(columns={0: 'obj1',1:'obj2',2:'kg',3:'stdunits',4:'km',5:'workhours'})
 
-fitness.to_sql('sol_pop_fitness',engine_phd,index_label = 'id')
+fitness.to_sql('sol_pop_fitness',engine_phd,index_label = 'id',if_exists='replace')
