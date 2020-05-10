@@ -19,9 +19,9 @@ if s_unit == truck:
 else:
     lug = lug
 
-travel_restriction = 4000
+travel_restriction = 400
 
-population_size = 40
+population_size = 20
 generations = 40
 
 mutation_rate = 5

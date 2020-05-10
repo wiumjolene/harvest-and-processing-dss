@@ -10,7 +10,7 @@ import random
 
 import pandas as pd
 import matplotlib.pyplot as plt
-
+import datetime
 
 import population as pop
 import variables
@@ -51,6 +51,7 @@ clist_chromosome2 = []
 clist_chromosome2_d = []
 cdic_fitness = {'km':0,'kg':0, 'obj1': 0, 'obj2': 0}
 
+start_ind = datetime.datetime.now()
 absolute_diff = 0
 for d in dlist_allocate:
     ddic_metadata = demand_options['demands_metadata'][d]
@@ -59,13 +60,14 @@ for d in dlist_allocate:
 
     # list of he's and lugs for demand he
     ddic_he = demand_options['demands_he'][d]
+    
     # get a list of all available he's (without lugs)
     dlist_he = list(ddic_he.keys())
     
-    # allocate lugs to d
     cd_he = {}
     cd_he2 = []
     he_count = 0
+    # allocate lugs to d
     while dkg_raw >= 0:
         # get a random position in available he estimates and select he
         if he_list == 0:
@@ -87,10 +89,12 @@ for d in dlist_allocate:
         he_count = he_count + 1
         
         # get list of all lugs available in the he
-        dlist_he_lugs = ddic_he[he]
+#        dlist_he_lugs = ddic_he[he]
         
+        """replace this step by removing lug from immutable list instead"""
         #ensure lugs can be packed
-        dlist_he_lugs_s = [x for x in dlist_he_lugs if x not in llist_usedlugs]
+        dlist_he_lugs_s = ddic_he[he]
+#        dlist_he_lugs_s = [x for x in dlist_he_lugs if x not in llist_usedlugs]
 
         # get closest pc for he from available pc's
         df_het = df_he[df_he['id'] == he].reset_index(drop=True)
@@ -110,12 +114,12 @@ for d in dlist_allocate:
                 if dkg_raw >= 0:
                     dkg_raw = dkg_raw - variables.s_unit
                     kg = kg + variables.s_unit
-                    llist_usedlugs.append(l) 
+                    demand_options['demands_he'][d][he].remove(l)
+#                    llist_usedlugs.append(l) 
+                    
                     # get all available pc's for lug and sort from closest to furthest
                     df_pct = aloc.allocate_pc(dic_pc,df_ftt,ddic_metadata)
-#                    dlist_pc = df_pct['id'].tolist()
-#                    dlist_pc_km = df_pct['km'].tolist() 
-#                    if len(dlist_pc) > 0:
+
                     if len(df_pct) > 0:
                         # allocate closest pc to block
                         lug_pc = df_pct.id[0]
@@ -123,8 +127,8 @@ for d in dlist_allocate:
                         lug_km = df_pct.kg[0]
                         
                         # subtract kg from pc capacity for day  
-                        pckg_remain = dic_pc[lug_pc]['kg_remain'] - variables.s_unit
-                        dic_pc[lug_pc]['kg_remain'] =  pckg_remain
+#                        pckg_remain = dic_pc[lug_pc]['kg_remain'] - variables.s_unit
+                        dic_pc[lug_pc]['kg_remain'] =  dic_pc[lug_pc]['kg_remain'] - variables.s_unit
                     else:
                         lug_pc = 0
                         note = 'no pc available'
@@ -132,6 +136,7 @@ for d in dlist_allocate:
                     
                     kg_nett = variables.s_unit * (1 - variables.giveaway)
                     stdunits = kg_nett/variables.stdunit
+                    
                     try:
                         speed = dic_speed[packhouse_id][packtype_id][va_id]
                     except:
@@ -181,3 +186,6 @@ ddic_solution_2.update({solution_num: {'ddic_solution':ddic_solution,
 
 ddf_solution = pd.DataFrame.from_dict(ddic_solution, orient='index')
 ddf_solution['solution_num'] = solution_num
+
+end_ind = datetime.datetime.now()
+print('time to create 1 ind: ' + str(end_ind - start_ind))

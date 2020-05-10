@@ -104,7 +104,6 @@ def create_options(df_dp_co,df_pc_co,df_he_co,df_lugs_co):
 
 def individual(solution_num, df_dp, df_ft, df_he, dic_pc,
                demand_options, dic_speed, demand_list=0, he_list=0):
-#    print('starting ind: ' + str(datetime.datetime.now()))
     # import relevant tables
     dic_dp = df_dp.set_index('id').T.to_dict('dic')
     
@@ -163,11 +162,12 @@ def individual(solution_num, df_dp, df_ft, df_he, dic_pc,
             he_count = he_count + 1
             
             # get list of all lugs available in the he
-            dlist_he_lugs = ddic_he[he]
+#            dlist_he_lugs = ddic_he[he]
             
 #            c1 = datetime.datetime.now()
             #ensure lugs can be packed
-            dlist_he_lugs_s = [x for x in dlist_he_lugs if x not in llist_usedlugs]
+            dlist_he_lugs_s = ddic_he[he]
+#            dlist_he_lugs_s = [x for x in dlist_he_lugs if x not in llist_usedlugs]
             
 #            c2 = datetime.datetime.now()
 #            print('check 1: ' + str(c2-c1))
@@ -191,7 +191,9 @@ def individual(solution_num, df_dp, df_ft, df_he, dic_pc,
                     if dkg_raw >= 0:
                         dkg_raw = dkg_raw - variables.s_unit
                         kg = kg + variables.s_unit
-                        llist_usedlugs.append(l) 
+                        demand_options['demands_he'][d][he].remove(l)
+#                        llist_usedlugs.append(l) 
+                        
                         # get all available pc's for lug and sort from closest to furthest
                         df_pct = aloc.allocate_pc(dic_pc,df_ftt,ddic_metadata)
                         if len(df_pct) > 0:
