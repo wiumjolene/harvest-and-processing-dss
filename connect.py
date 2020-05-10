@@ -14,13 +14,13 @@ if os.getenv('COMPUTERNAME') == 'DESKTOP-7LVDBO0':
     connect = r'C:\sumitins\connect'
     
     
-    open_file=open(connect + '\\password3','r')
+    open_file=open(connect + '\\password8','r')
     file_lines=open_file.readlines()
     sun = file_lines[0].strip()  # First Line
     spw = file_lines[1].strip()  # Second Line
     
-    host="127.0.0.1"
-    port="3307"
+    host="159.65.247.178"
+    port="3306"
     user=sun
     passwd=spw
     database="dss"

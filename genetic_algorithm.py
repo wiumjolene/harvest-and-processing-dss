@@ -33,7 +33,8 @@ def genetic_algorithm(dic_solution, fitness, dic_pc_im, demand_options_im,
           
     pdic_solution = copy.deepcopy(dic_solution)
     p_fitness = copy.deepcopy(fitness)
-    id_num = max(list(pdic_solution.keys())) + 1
+#    id_num = max(list(pdic_solution.keys())) + 1
+    id_num = variables.population_size + 1
     chrom_order = pdic_solution[0]['cdic_chromosome2']['clist_chromosome2_d']
     
     for g in range(variables.generations):
@@ -157,11 +158,6 @@ ggd = genetic_algorithm(dic_solution = ggapopulation['pdic_solution'],
                              ga_num = 0)
 
 
-bs = max(ggd[0]['pdic_solution'])
-best_solution = ggd[0]['pdic_solution'][max(ggd[0]['pdic_solution'])]['ddic_solution']
-best_solution_df = pd.DataFrame.from_dict(best_solution, orient='index')
-best_solution_df['solution_num'] = max(ggd[0]['pdic_solution'])
-best_solution_df.to_sql('sol_solution',engine_phd,if_exists='replace',index=False)
 
 psur_df = pd.DataFrame.from_dict(ggd[0]['p_fitness'], orient='index')
 psur_df['s_source'] = 'generation'

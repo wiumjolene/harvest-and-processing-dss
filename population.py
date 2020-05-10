@@ -118,7 +118,6 @@ def individual(solution_num, df_dp, df_ft, df_he, dic_pc,
     note = ''
     d_count = 0
     ddic_solution = {}
-    llist_usedlugs = []
     cdic_chromosome = {}
     cdic_chromosome2 = {}
     clist_chromosome2 = []
@@ -161,16 +160,8 @@ def individual(solution_num, df_dp, df_ft, df_he, dic_pc,
             
             he_count = he_count + 1
             
-            # get list of all lugs available in the he
-#            dlist_he_lugs = ddic_he[he]
-            
-#            c1 = datetime.datetime.now()
             #ensure lugs can be packed
             dlist_he_lugs_s = ddic_he[he]
-#            dlist_he_lugs_s = [x for x in dlist_he_lugs if x not in llist_usedlugs]
-            
-#            c2 = datetime.datetime.now()
-#            print('check 1: ' + str(c2-c1))
     
             # get closest pc for he from available pc's
             df_het = df_he[df_he['id'] == he].reset_index(drop=True)
@@ -191,8 +182,7 @@ def individual(solution_num, df_dp, df_ft, df_he, dic_pc,
                     if dkg_raw >= 0:
                         dkg_raw = dkg_raw - variables.s_unit
                         kg = kg + variables.s_unit
-                        demand_options['demands_he'][d][he].remove(l)
-#                        llist_usedlugs.append(l) 
+                        demand_options['demands_he'][d][he].remove(l) 
                         
                         # get all available pc's for lug and sort from closest to furthest
                         df_pct = aloc.allocate_pc(dic_pc,df_ftt,ddic_metadata)
@@ -241,7 +231,6 @@ def individual(solution_num, df_dp, df_ft, df_he, dic_pc,
                         note = 'no more lugs available in he'
                         break
                     
-                c2 = datetime.datetime.now()
 #                print('check 2: ' + str(c2-c1))
 #                print()
                 
@@ -258,7 +247,7 @@ def individual(solution_num, df_dp, df_ft, df_he, dic_pc,
                                  'clist_chromosome2_d':clist_chromosome2_d})
         
     cdic_fitness['obj1'] = absolute_diff
-    cdic_fitness['obj2'] =  (cdic_fitness['workhours'] * variables.zar_workhour) 
+    cdic_fitness['obj2'] =  (cdic_fitness['workhours'] * variables.zar_workhour)
                             
     ddic_solution_2.update({solution_num: {'ddic_solution':ddic_solution,
                                       'ddic_notes':ddic_notes,
@@ -268,6 +257,8 @@ def individual(solution_num, df_dp, df_ft, df_he, dic_pc,
 
     ddf_solution = pd.DataFrame.from_dict(ddic_solution, orient='index')
     ddf_solution['solution_num'] = solution_num
+    ddf_solution['s_datetime'] = datetime.datetime.now()
+    ddf_solution.to_sql('sol_solution',engine_phd,if_exists='append',index=False)
     return(ddic_solution_2)
     
     
