@@ -117,7 +117,7 @@ def genetic_algorithm(dic_solution, fitness, dic_pc_im, demand_options_im,
             p_fitness_df2 = p_fitness_df2.sort_values(by=['c2eval'],ascending=False).reset_index(drop=False)
             drop_id2 = p_fitness_df2['index'][0]
 #            print(p_fitness_df2)
-            print('drop_id = ' + str(drop_id2))
+#            print('drop_id = ' + str(drop_id2))
             del p_fitness[drop_id2]
             del pdic_solution[drop_id2]
         
@@ -162,7 +162,7 @@ ggd = genetic_algorithm(dic_solution = ggapopulation['pdic_solution'],
 psur_df = pd.DataFrame.from_dict(ggd[0]['p_fitness'], orient='index')
 psur_df['s_source'] = 'generation'
 pop_df2 = pd.DataFrame.from_dict(ggapopulation['p_fitness'], orient='index')
-pop_df2['s_source'] = 'population'
+#pop_df2['s_source'] = 'population'
 
 fitness = pd.merge(pop_df2,psur_df, how='outer')
 fitness = fitness.rename(columns={0: 'obj1',1:'obj2',2:'kg',3:'stdunits',4:'km',5:'workhours'})

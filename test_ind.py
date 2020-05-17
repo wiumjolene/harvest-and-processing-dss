@@ -112,7 +112,6 @@ for d in dlist_allocate:
         he_kg_allocated = he_kg_raw - dic_he[he]['kg_raw_remain']
         
         cd_he_lug = []    
-        kg = kg + variables.s_unit  
         # loop through pc until you allocate all he
         while he_kg_allocated > 0:
             if dkg_raw >= 0:
@@ -140,6 +139,7 @@ for d in dlist_allocate:
                     note = 'no pc available'
                     break
                 
+                kg = kg + he_pc_allocated
                 kg_nett = he_pc_allocated * (1 - variables.giveaway)
                 stdunits = kg_nett/variables.stdunit
                 

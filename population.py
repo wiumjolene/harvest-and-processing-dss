@@ -109,6 +109,8 @@ def individual(solution_num, df_dp, df_ft, df_he, dic_pc,
                demand_options, dic_speed, demand_list=0, he_list=0):
     # import relevant tables
     dic_dp = df_dp.set_index('id').T.to_dict('dic')
+    df_he['kg_raw_remain'] = df_he['kg_raw']
+    dic_he = df_he.set_index('id').T.to_dict('dic')
     
     # get list of all demands with pc and he options 
     if demand_list == 0:
@@ -129,15 +131,13 @@ def individual(solution_num, df_dp, df_ft, df_he, dic_pc,
                     'workhours': 0}
     
     absolute_diff = 0
+    l = 0
     for d in dlist_allocate:
-        ddic_metadata = demand_options['demands_metadata'][d]
         kg = 0
-        dkg_raw = dic_dp[d]['kg_raw']
-
-        # list of he's and lugs for demand he
-        ddic_he = demand_options['demands_he'][d]
+        dkg_raw = demand_options['demands_metadata'][d]['kg_raw']
+    
         # get a list of all available he's (without lugs)
-        dlist_he = list(ddic_he.keys())
+        dlist_he = list(demand_options['demands_he'][d].keys())
         
         # allocate lugs to d
         cd_he = {}
@@ -153,7 +153,7 @@ def individual(solution_num, df_dp, df_ft, df_he, dic_pc,
                     hepos = random.randint(0,len(dlist_he)-1)
                     he = dlist_he[hepos]
                     dlist_he.remove(he)  # remove he from list to not reuse it
-
+    
             else:
                 if len(he_list[d_count]) > he_count:
                     he = he_list[d_count][he_count]
@@ -162,80 +162,95 @@ def individual(solution_num, df_dp, df_ft, df_he, dic_pc,
                     break
             
             he_count = he_count + 1
-            
-            #ensure lugs can be packed
-            dlist_he_lugs_s = ddic_he[he]
     
             # get closest pc for he from available pc's
-            df_het = df_he[df_he['id'] == he].reset_index(drop=True)
-            block_id = df_het.block_id[0]
+            block_id = dic_he[he]['block_id']
             
             # variables to determine speed  -> add calculate the number of hours spent on 
-            va_id = df_het.va_id[0]
-            packtype_id = ddic_metadata['pack_type_id']
+            va_id = dic_he[he]['va_id']
+            packtype_id = demand_options['demands_metadata'][d]['pack_type_id']
             
             df_ftt = df_ft[df_ft['block_id'] == block_id].reset_index(drop=True)
             df_ftt = df_ftt.filter(['packhouse_id','km'])
             
-            # loop through available lugs of he only if lugs are available
-            cd_he_lug = []
-            if len(dlist_he_lugs_s) > 0:
-#                c1 = datetime.datetime.now()
-                for l in dlist_he_lugs_s:
-                    if dkg_raw >= 0:
-                        dkg_raw = dkg_raw - variables.s_unit
-                        kg = kg + variables.s_unit
-                        demand_options['demands_he'][d][he].remove(l) 
+        
+            he_kg_raw = dic_he[he]['kg_raw_remain']
+            
+            if dic_he[he]['kg_raw_remain'] > dkg_raw:
+                # subtract demand from he
+                dic_he[he]['kg_raw_remain'] = dic_he[he]['kg_raw_remain'] - dkg_raw
+                dkg_raw = 0
+                
+            else:
+                # subtract he from demand
+                dkg_raw = dkg_raw - dic_he[he]['kg_raw_remain']
+                dic_he[he]['kg_raw_remain'] = 0
+                
+            he_kg_allocated = he_kg_raw - dic_he[he]['kg_raw_remain']
+            
+            cd_he_lug = []    
+            # loop through pc until you allocate all he
+            while he_kg_allocated > 0:
+                if dkg_raw >= 0:
+                    # get all available pc's for lug and sort from closest to furthest
+                    df_pct = aloc.allocate_pc(dic_pc,df_ftt,demand_options['demands_metadata'][d])
+                    if len(df_pct) > 0:
+                        # allocate closest pc to block
+                        dhe_pc = df_pct.id[0]
+                        packhouse_id = df_pct.packhouse_id[0]
+                        lug_km = df_pct.km[0]
                         
-                        # get all available pc's for lug and sort from closest to furthest
-                        df_pct = aloc.allocate_pc(dic_pc,df_ftt,ddic_metadata)
-                        if len(df_pct) > 0:
-                            # allocate closest pc to block
-                            lug_pc = df_pct.id[0]
-                            packhouse_id = df_pct.packhouse_id[0]
-                            lug_km = df_pct.km[0]
-                            # subtract kg from pc capacity for day  
-                            pckg_remain = dic_pc[lug_pc]['kg_remain'] - variables.s_unit
-                            dic_pc[lug_pc]['kg_remain'] =  pckg_remain
+                        he_pc_1 = dic_pc[dhe_pc]['kg_remain']
+                        if dic_pc[dhe_pc]['kg_remain'] > he_kg_allocated:
+                            dic_pc[dhe_pc]['kg_remain'] = dic_pc[dhe_pc]['kg_remain'] - he_kg_allocated
+                            he_kg_allocated = 0
                         else:
-                            lug_pc = 0
-                            note = 'no pc available'
-                            break
+                            he_kg_allocated = he_kg_allocated - dic_pc[dhe_pc]['kg_remain']
+                            dic_pc[dhe_pc]['kg_remain'] = 0
                         
-                        kg_nett = variables.s_unit * (1 - variables.giveaway)
-                        stdunits = kg_nett/variables.stdunit
-                        try:
-                            speed = dic_speed[packhouse_id][packtype_id][va_id]
-                        except:
-                            speed = 12
-                        cd_he_lug.append(l)
-
-                        ddic_solution.update({l:{'pack_capacity_id':lug_pc,
-                                                 'demand_id': d,
-                                                 'harvest_estimate_id':he,
-                                                 'demand_id': d,
-                                                 'va_id':va_id,
-                                                 'packtype_id':packtype_id,
-                                                 'packhouse_id':packhouse_id,
-                                                 'lug_id':l,
-                                                 'speed':speed,
-                                                 'workhours': (stdunits * speed)/60,
-                                                 'km': lug_km,
-                                                 'kg_raw': variables.s_unit,
-                                                 'kg': kg_nett,
-                                                 'stdunits': kg_nett/variables.stdunit}})
-
-                        cdic_fitness['kg'] =  cdic_fitness['kg'] + kg_nett
-                        cdic_fitness['km'] =  cdic_fitness['km'] + lug_km
-                        cdic_fitness['stdunits'] =  cdic_fitness['stdunits'] + stdunits
-                        cdic_fitness['workhours'] =  cdic_fitness['workhours'] + ((stdunits * speed)/60)
+                        he_pc_allocated = he_pc_1 - dic_pc[dhe_pc]['kg_remain']
                         
                     else:
-                        note = 'no more lugs available in he'
+                        dhe_pc = 0
+                        he_pc_allocated = 0
+                        note = 'no pc available'
                         break
                     
-#                print('check 2: ' + str(c2-c1))
-#                print()
+                    kg = kg + he_pc_allocated
+                    kg_nett = he_pc_allocated * (1 - variables.giveaway)
+                    stdunits = kg_nett/variables.stdunit
+                    
+                    try:
+                        speed = dic_speed[packhouse_id][packtype_id][va_id]
+                    except:
+                        speed = 12
+                        
+                    l = l + 1
+                    cd_he_lug.append(l)
+                    ddic_solution.update({l:{'pack_capacity_id':dhe_pc,
+                                             'demand_id': d,
+                                             'harvest_estimate_id':he,
+                                             'demand_id': d,
+                                             'va_id':va_id,
+                                             'packtype_id':packtype_id,
+                                             'packhouse_id':packhouse_id,
+                                             'lug_id':l,
+                                             'speed':speed,
+                                             'workhours': (stdunits * speed)/60,
+                                             'km': lug_km,
+                                             'kg_raw': he_pc_allocated,
+                                             'kg': kg_nett,
+                                             'stdunits': kg_nett/variables.stdunit}})
+    
+                    cdic_fitness['kg'] =  cdic_fitness['kg'] + kg_nett
+                    cdic_fitness['km'] =  cdic_fitness['km'] + lug_km
+                    cdic_fitness['stdunits'] =  cdic_fitness['stdunits'] + stdunits
+                    cdic_fitness['workhours'] =  cdic_fitness['workhours'] + ((stdunits * speed)/60)
+                        
+                else:
+                    note = 'no more lugs available in he'
+                    break
+                
                 
                 cd_he.update({he:cd_he_lug})
                 cd_he2.append(he)
@@ -257,10 +272,11 @@ def individual(solution_num, df_dp, df_ft, df_he, dic_pc,
                                       'cdic_chromosome':cdic_chromosome,
                                       'cdic_chromosome2':cdic_chromosome2,                                      
                                       'cdic_fitness':cdic_fitness}})
-
+    
     ddf_solution = pd.DataFrame.from_dict(ddic_solution, orient='index')
     ddf_solution['solution_num'] = solution_num
     ddf_solution['s_datetime'] = datetime.datetime.now()
+
     ddf_solution.to_sql('sol_solution',engine_phd,if_exists='append',index=False)
     return(ddic_solution_2)
     
