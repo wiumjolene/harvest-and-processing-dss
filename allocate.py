@@ -22,7 +22,7 @@ def allocate_pc(dic_pc,df_ftt,ddic_metadata):
     df_pct = df_pct[df_pct['time_id'] == ddic_metadata['time_id']]
     df_pct = df_pct[df_pct['km'] < variables.travel_restriction]
     df_pct = df_pct[df_pct['pack_type_id'] == ddic_metadata['pack_type_id']]
-    df_pct = df_pct[df_pct['kg_remain'] >= variables.s_unit]
+    df_pct = df_pct[df_pct['kg_remain'] >= variables.min_hepc]
     df_pctf = df_pct.sort_values(['km']).reset_index(drop=True)
     return(df_pctf)
     

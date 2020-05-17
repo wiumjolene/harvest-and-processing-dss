@@ -6,12 +6,13 @@ Created on Fri Oct  4 10:18:12 2019
 """
 
 stdunit = 4.5 # each stdunit is so many kg of produce
-truck = 300 # 1 * truck carries so many kg of produce
+truck = 1500 # 1 * truck carries so many kg of produce
 giveaway = 0.05 # % giveaway
 lug = 11 # weight (kg) of a lug
 s_unit = truck
 zar_workhour = 20
 zar_km = 3.16
+min_hepc = 800 # minumum % that should be allocated from a specific he to a packhouse
 
 
 if s_unit == truck:

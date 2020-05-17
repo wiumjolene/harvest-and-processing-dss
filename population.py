@@ -41,16 +41,18 @@ def create_options(df_dp_co,df_pc_co,df_he_co,df_lugs_co):
     df_demand_lug = pd.DataFrame({})
     df_demand_pc = pd.DataFrame({})
     
-    print('start do: ' + str(datetime.datetime.now()))
+    start_do = datetime.datetime.now()
     
     for d in range(0,len(df_dp)):
         ddemand_id = df_dp.id[d]
         dvacat_id = df_dp.vacat_id[d]
         dtime_id = int(df_dp.time_id[d])
         dpack_type_id = df_dp.pack_type_id[d]
+        dkg_raw = df_dp.kg_raw[d]
         ddic_metadata.update({ddemand_id: {'vacat_id': dvacat_id,
                                            'time_id': dtime_id,
-                                           'pack_type_id': dpack_type_id}})
+                                           'pack_type_id': dpack_type_id,
+                                           'kg_raw':dkg_raw}})
         
         # find all available harvest estimates for demand 
         ddf_he = df_he[df_he['vacat_id']==dvacat_id]
@@ -97,7 +99,8 @@ def create_options(df_dp_co,df_pc_co,df_he_co,df_lugs_co):
 
     df_demand_lug.to_sql('do_demand_lugs',engine_phd,if_exists='replace',index=False)
     df_demand_pc.to_sql('do_demand_pc',engine_phd,if_exists='replace',index=False) 
-    print('finish do: ' + str(datetime.datetime.now()))                                                 
+#    print('finish do: ' + str(datetime.datetime.now()))    
+    print('time to do: ' + str(datetime.datetime.now() - start_do))                                             
     return(ddic_options)
     
 
