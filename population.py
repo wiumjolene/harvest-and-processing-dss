@@ -14,19 +14,18 @@ import pandas as pd
 import allocate as aloc
 import source_etl as setl
 import variables
-from connect import engine_phd
 
 
-def create_options(df_dp_co,df_pc_co,df_he_co,df_lugs_co):
+def create_options(df_dp_co,df_pc_co,df_he_co):
     df_dp = setl.demand_plan()
     df_pc = setl.pack_capacity()
     df_he = setl.harvest_estimate()
-    df_lugs = setl.lug_generation()
+#    df_lugs = setl.lug_generation()
 
     df_dp = df_dp_co.reset_index(drop=True)
     df_pc = df_pc_co.reset_index(drop=True)
     df_he = df_he_co.reset_index(drop=True)
-    df_lugs = df_lugs_co.reset_index(drop=True)
+#    df_lugs = df_lugs_co.reset_index(drop=True)
     
     list_dp = df_dp['id'].tolist()
     list_he = df_he['id'].tolist()
@@ -38,8 +37,8 @@ def create_options(df_dp_co,df_pc_co,df_he_co,df_lugs_co):
     no_pc = []
     ddic_options={}
     ddic_metadata={}
-    df_demand_lug = pd.DataFrame({})
-    df_demand_pc = pd.DataFrame({})
+#    df_demand_lug = pd.DataFrame({})
+#    df_demand_pc = pd.DataFrame({})
     
     start_do = datetime.datetime.now()
     
@@ -62,11 +61,11 @@ def create_options(df_dp_co,df_pc_co,df_he_co,df_lugs_co):
         # get all the lugs in he
         ddic_het = {}
         for he in dlist_he:
-            ddf_lugs = df_lugs[df_lugs['he_id'] == he].reset_index(drop=True)
-            dlist_lugs = ddf_lugs['id'].tolist()
-            ddic_het.update({he: dlist_lugs})
-            ddf_lugs['demand_id'] = ddemand_id
-            df_demand_lug = df_demand_lug.append(ddf_lugs).reset_index(drop=True)
+#            ddf_lugs = df_lugs[df_lugs['he_id'] == he].reset_index(drop=True)
+#            dlist_lugs = ddf_lugs['id'].tolist()
+            ddic_het.update({he: [1]})
+#            ddf_lugs['demand_id'] = ddemand_id
+#            df_demand_lug = df_demand_lug.append(ddf_lugs).reset_index(drop=True)
 
         ddic_he.update({ddemand_id: ddic_het})
         list_he = [x for x in list_he if x not in ddf_he['id'].tolist()]
@@ -80,7 +79,7 @@ def create_options(df_dp_co,df_pc_co,df_he_co,df_lugs_co):
         ddic_pc.update({ddemand_id: ddf_pc['id'].tolist()})
         list_pc = [x for x in list_pc if x not in ddf_pc['id'].tolist()]
         ddf_pc['demand_id'] = ddemand_id
-        df_demand_pc = df_demand_pc.append(ddf_pc).reset_index(drop=True)
+#        df_demand_pc = df_demand_pc.append(ddf_pc).reset_index(drop=True)
         
         if len(ddf_pc) == 0:
             no_pc.append(ddemand_id)
@@ -97,8 +96,8 @@ def create_options(df_dp_co,df_pc_co,df_he_co,df_lugs_co):
     ddic_options.update({'pc_no_ass':list_pc}) 
     ddic_options.update({'demands_metadata':ddic_metadata})  
 
-    df_demand_lug.to_sql('do_demand_lugs',engine_phd,if_exists='replace',index=False)
-    df_demand_pc.to_sql('do_demand_pc',engine_phd,if_exists='replace',index=False) 
+#    df_demand_lug.to_sql('do_demand_lugs',engine_phd,if_exists='replace',index=False)
+#    df_demand_pc.to_sql('do_demand_pc',engine_phd,if_exists='replace',index=False) 
 #    print('finish do: ' + str(datetime.datetime.now()))    
     print('time to do: ' + str(datetime.datetime.now() - start_do))                                             
     return(ddic_options)

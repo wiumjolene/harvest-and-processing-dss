@@ -20,10 +20,10 @@ df_ft_imgga = setl.from_to()
 df_he_imgga = setl.harvest_estimate()
 dic_pc_imgga = setl.pack_capacity_dic()
 df_pc_imgga = setl.pack_capacity()
-df_lugs_imgga = setl.lug_generation()
+#df_lugs_imgga = setl.lug_generation()
 dic_speed = setl.speed()
 demand_options_imgga = pop.create_options(df_dp_imgga, df_pc_imgga,
-                                          df_he_imgga, df_lugs_imgga)
+                                          df_he_imgga)
 
 
 def genetic_algorithm(dic_solution, fitness, dic_pc_im, demand_options_im,
