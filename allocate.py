@@ -11,9 +11,7 @@ import copy
 import pandas as pd
 
 import population as pop
-#import individual as ind
 import variables
-#import allocate as gaf
 
 
 def allocate_pc(dic_pc,df_ftt,ddic_metadata):

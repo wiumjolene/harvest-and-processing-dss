@@ -246,6 +246,7 @@ def individual(solution_num, df_dp, df_ft, df_he, dic_pc,
                     cdic_fitness['km'] =  cdic_fitness['km'] + lug_km
                     cdic_fitness['stdunits'] =  cdic_fitness['stdunits'] + stdunits
                     cdic_fitness['workhours'] =  cdic_fitness['workhours'] + ((stdunits * speed)/60)
+                    cdic_fitness['solution_num'] =  solution_num
                         
                 else:
                     note = 'no more lugs available in he'
@@ -264,6 +265,7 @@ def individual(solution_num, df_dp, df_ft, df_he, dic_pc,
         cdic_chromosome2.update({'clist_chromosome2':clist_chromosome2,
                                  'clist_chromosome2_d':clist_chromosome2_d})
         
+    cdic_fitness['solution_num'] = solution_num
     cdic_fitness['obj1'] = absolute_diff
     cdic_fitness['obj2'] =  (cdic_fitness['workhours'] * variables.zar_workhour)
                             
@@ -273,11 +275,6 @@ def individual(solution_num, df_dp, df_ft, df_he, dic_pc,
                                       'cdic_chromosome2':cdic_chromosome2,                                      
                                       'cdic_fitness':cdic_fitness}})
     
-    ddf_solution = pd.DataFrame.from_dict(ddic_solution, orient='index')
-    ddf_solution['solution_num'] = solution_num
-    ddf_solution['s_datetime'] = datetime.datetime.now()
-
-    ddf_solution.to_sql('sol_solution',engine_phd,if_exists='append',index=False)
     return(ddic_solution_2)
     
     
@@ -320,7 +317,8 @@ def population(demand_options_imgga, df_dp_imgga, df_ft_imgga,
                              cdic_solution[p]['cdic_fitness']['kg'],
                              cdic_solution[p]['cdic_fitness']['stdunits'],
                              cdic_solution[p]['cdic_fitness']['km'],
-                             cdic_solution[p]['cdic_fitness']['workhours']]})
+                             cdic_solution[p]['cdic_fitness']['workhours'],
+                             cdic_solution[p]['cdic_fitness']['solution_num']]})
     
     population = {'pdic_solution':pdic_solution,
                   'p_fitness':p_fitness}

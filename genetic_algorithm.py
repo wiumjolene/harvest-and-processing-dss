@@ -95,7 +95,8 @@ def genetic_algorithm(dic_solution, fitness, dic_pc_im, demand_options_im,
                                  child1[id_num]['cdic_fitness']['kg'],
                                  child1[id_num]['cdic_fitness']['stdunits'],
                                  child1[id_num]['cdic_fitness']['km'],
-                                 child1[id_num]['cdic_fitness']['workhours']]})
+                                 child1[id_num]['cdic_fitness']['workhours'],
+                                 id_num]})
     
     
         id_num = id_num + 1
@@ -127,7 +128,8 @@ def genetic_algorithm(dic_solution, fitness, dic_pc_im, demand_options_im,
                                  child2[id_num]['cdic_fitness']['kg'],
                                  child2[id_num]['cdic_fitness']['stdunits'],
                                  child2[id_num]['cdic_fitness']['km'],
-                                 child2[id_num]['cdic_fitness']['workhours']]})
+                                 child2[id_num]['cdic_fitness']['workhours'],
+                                 id_num]})
 
         id_num = id_num + 1
                
@@ -162,9 +164,20 @@ ggd = genetic_algorithm(dic_solution = ggapopulation['pdic_solution'],
 psur_df = pd.DataFrame.from_dict(ggd[0]['p_fitness'], orient='index')
 psur_df['s_source'] = 'generation'
 pop_df2 = pd.DataFrame.from_dict(ggapopulation['p_fitness'], orient='index')
-#pop_df2['s_source'] = 'population'
+pop_df2['s_source'] = 'population'
 
-fitness = pd.merge(pop_df2,psur_df, how='outer')
-fitness = fitness.rename(columns={0: 'obj1',1:'obj2',2:'kg',3:'stdunits',4:'km',5:'workhours'})
+fitness = pd.concat([pop_df2,psur_df]).reset_index(drop=False)
+fitness = fitness.rename(columns={0: 'obj1',1:'obj2',2:'kg',3:'stdunits',4:'km',5:'workhours','index':'solution_num'})
 
 fitness.to_sql('sol_pop_fitness',engine_phd,index_label = 'id',if_exists='replace')
+
+
+pdic_solution_ids = ggd[0]['pdic_solution']
+pdic_solution_ids = list(ggd[0]['pdic_solution'].keys())
+solution_df = pd.DataFrame({})
+for k in pdic_solution_ids:
+    solution = pd.DataFrame.from_dict(ggd[0]['pdic_solution'][k]['ddic_solution'], orient='index')
+    solution['solution_num'] = k
+    solution_df = pd.concat([solution_df,solution]).reset_index(drop=True)
+
+solution_df.to_sql('sol_solution',engine_phd,index_label = 'id',if_exists='replace')    
