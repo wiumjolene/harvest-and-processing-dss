@@ -43,6 +43,8 @@ class DatabaseModelsClass:
 
                 valid_response = True
             except:
+                continue
+        
         return data_set
 
     def insert_table(self, data, table_name, schema, if_exists, index=False):
