@@ -4,7 +4,7 @@ setup(
     name='src',
     packages=find_packages(),
     version='0.1.0',
-    description='PhD models for Jolene Wium. PhD student  at the University of STellenbosch',
+    description='PhD models for Jolene Wium. PhD student  at the University of Stellenbosch',
     author='Jolene Wium',
     license='MIT',
 )

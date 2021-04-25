@@ -1,7 +1,7 @@
 Jolene PhD
 ==============================
 
-PhD models for Jolene Wium. PhD student  at the University of STellenbosch
+PhD models for Jolene Wium. PhD student  at the University of Stellenbosch
 
 Project Organization
 ------------
