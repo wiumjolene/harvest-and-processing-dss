@@ -39,7 +39,7 @@ for d in range(0,len(df_dp)):
     # Check if demand has a harvest estimate and pack capacity
     if len(dlist_he) > 0 and len(dlist_pc) > 0:
         ready = 1
-        dlist_ready.append(d)
+        dlist_ready.append(ddemand_id)
 
     else:
         ready = 0
