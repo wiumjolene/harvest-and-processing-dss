@@ -4,6 +4,7 @@ import os
 import pickle
 import sys
 
+import pandas as pd
 from src.utils import config
 from src.utils.connect import DatabaseModelsClass
 
@@ -22,6 +23,8 @@ class CreateOptions:
         self.logger.info('- make_options')
         ddic_pc = {}
         ddic_he = {}
+        ddf_he =pd.DataFrame()
+        ddf_pc =pd.DataFrame()
         ddic_metadata={}
         dlist_ready = []
 
@@ -34,15 +37,19 @@ class CreateOptions:
             dkg = df_dp.kg[d]
 
             # Find all available harvest estimates for demand 
-            ddf_he = df_he[df_he['vacat_id']==dvacat_id]
-            ddf_he = ddf_he[ddf_he['time_id']==dtime_id]
-            dlist_he = ddf_he.index.tolist()
+            ddf_het = df_he[df_he['vacat_id']==dvacat_id]
+            ddf_het = ddf_het[ddf_het['time_id']==dtime_id]
+            ddf_het['demand_id'] = ddemand_id
+            ddf_he = pd.concat([ddf_he, ddf_het]).reset_index(drop=True)
+            dlist_he = ddf_he.id.tolist()
             ddic_he.update({ddemand_id: dlist_he})
 
             # find all available pack_capacities for demand    
-            ddf_pc = df_pc[df_pc['time_id']==dtime_id]
-            ddf_pc = ddf_pc[ddf_pc['pack_type_id']==dpack_type_id]
-            dlist_pc = ddf_pc.index.tolist()
+            ddf_pct = df_pc[df_pc['time_id']==dtime_id]
+            ddf_pct = ddf_pct[ddf_pct['pack_type_id']==dpack_type_id]
+            ddf_pct['demand_id'] = ddemand_id
+            ddf_pc = pd.concat([ddf_pc, ddf_pct]).reset_index(drop=True)
+            dlist_pc = ddf_pct.index.tolist()
             ddic_pc.update({ddemand_id: dlist_pc})
 
             # Check if demand has a harvest estimate and pack capacity
@@ -60,20 +67,22 @@ class CreateOptions:
                                             'kg':dkg,
                                             'ready': ready}})
 
-        # Save nb datasets to interim for use in algorithms
-        outfile = open('data/interim/ddic_metadata','wb')
+        # Save nb datasets to processed for use in algorithms
+        outfile = open('data/processed/ddic_metadata','wb')
         pickle.dump(ddic_metadata,outfile)
         outfile.close()
 
-        outfile = open('data/interim/ddic_he','wb')
-        pickle.dump(ddic_he,outfile)
-        outfile.close()
+        ddf_he.to_pickle('data/processed/ddf_he')
+        #outfile = open('data/processed/ddic_he','wb')
+        #pickle.dump(ddic_he,outfile)
+        #outfile.close()
 
-        outfile = open('data/interim/ddic_pc','wb')
-        pickle.dump(ddic_pc,outfile)
-        outfile.close()
+        ddf_pc.to_pickle('data/processed/ddf_pc')
+        #outfile = open('data/processed/ddic_pc','wb')
+        #pickle.dump(ddic_pc,outfile)
+        #outfile.close()
 
-        outfile = open('data/interim/dlist_ready','wb')
+        outfile = open('data/processed/dlist_ready','wb')
         pickle.dump(dlist_ready,outfile)
         outfile.close()
 
@@ -120,13 +129,14 @@ class CreateOptions:
 
         df_he = self.database_instance.select_query(query_str=s)
         df_he = df_he.set_index('id')
+        df_he['id'] = df_he.index
         df_he['stdunits'] = (df_he['kg'] * (1-config.GIVEAWAY))/config.STDUNIT
-        df_he['trucks_raw'] = df_he['kg'] / config.TRUCK
-        df_he['lugs_raw'] = df_he['kg'] / config.LUG
+        #df_he['trucks_raw'] = df_he['kg'] / config.TRUCK
+        #df_he['lugs_raw'] = df_he['kg'] / config.LUG
         df_he['kg_rem'] = df_he['kg']
 
         he_dic = df_he.to_dict(orient='index')
-        outfile = open('data/interim/he_dic','wb')
+        outfile = open('data/processed/he_dic','wb')
         pickle.dump(he_dic,outfile)
         outfile.close()
         return df_he
@@ -151,12 +161,13 @@ class CreateOptions:
 
         df_pc = self.database_instance.select_query(query_str=s)
         df_pc = df_pc.set_index('id')
+        df_pc['id'] = df_pc.index
         df_pc['stdunits'] = df_pc['kg'] / config.STDUNIT
-        df_pc['trucks_raw'] = (df_pc['kg'] * (1 + config.GIVEAWAY))/config.TRUCK
+        #df_pc['trucks_raw'] = (df_pc['kg'] * (1 + config.GIVEAWAY))/config.TRUCK
         df_pc['kg_rem'] = df_pc['kg']
         
         pc_dic = df_pc.to_dict(orient='index')
-        outfile = open('data/interim/pc_dic','wb')
+        outfile = open('data/processed/pc_dic','wb')
         pickle.dump(pc_dic,outfile)
         outfile.close()
         return df_pc 
@@ -170,7 +181,7 @@ class CreateOptions:
                 km FROM dss.f_from_to;"""
 
         df_ft = self.database_instance.select_query(query_str=s)
-        df_ft.to_pickle('data/interim/ft_df')
+        df_ft.to_pickle('data/processed/ft_df')
         
         return  
 
@@ -181,43 +192,43 @@ class ImportOptions:
     path = os.path.dirname(path)
 
     def demand_harvest(self):
-        infile = open(f"{self.path}/data/interim/ddic_he",'rb')
+        infile = open(f"{self.path}/data/processed/ddf_he",'rb')
         data = pickle.load(infile)
         infile.close()
         return data
 
     def demand_capacity(self):
-        infile = open(f"{self.path}/data/interim/ddic_pc",'rb')
+        infile = open(f"{self.path}/data/processed/ddf_pc",'rb')
         data = pickle.load(infile)
         infile.close()
         return data
 
     def demand_metadata(self):
-        infile = open(f"{self.path}/data/interim/ddic_metadata",'rb')
+        infile = open(f"{self.path}/data/processed/ddic_metadata",'rb')
         data = pickle.load(infile)
         infile.close()
         return data
 
     def demand_ready(self):
-        infile = open(f"{self.path}/data/interim/dlist_ready",'rb')
+        infile = open(f"{self.path}/data/processed/dlist_ready",'rb')
         data = pickle.load(infile)
         infile.close()
         return data
 
     def harvest_estimate(self):
-        infile = open(f"{self.path}/data/interim/he_dic",'rb')
+        infile = open(f"{self.path}/data/processed/he_dic",'rb')
         data = pickle.load(infile)
         infile.close()
         return data
 
     def pack_capacity(self):
-        infile = open(f"{self.path}/data/interim/pc_dic",'rb')
+        infile = open(f"{self.path}/data/processed/pc_dic",'rb')
         data = pickle.load(infile)
         infile.close()
         return data
 
     def from_to(self):
-        infile = open(f"{self.path}/data/interim/ft_df",'rb')
+        infile = open(f"{self.path}/data/processed/ft_df",'rb')
         data = pickle.load(infile)
         infile.close()
         return data

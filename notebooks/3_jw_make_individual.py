@@ -10,55 +10,53 @@ from src.data.make_dataset import ImportOptions
 # Import all data sets from pickel files.
 options = ImportOptions()
 
-ddic_he = options.demand_harvest()
-ddic_pc = options.demand_capacity()
+ddf_he = options.demand_harvest()
+ddf_he['evaluated'] = 0
+ddf_pc = options.demand_capacity()
 ddic_metadata = options.demand_metadata()
 dlist_allocate = options.demand_ready()
-
 he_dic = options.harvest_estimate()
-pc_dic = options.pack_capacity()
-pc_df = pd.DataFrame.from_dict(pc_dic, orient='index')
-pc_df['id'] = pc_df.index
 ft_df = options.from_to()
 
-individual = {}
-individuald_he = []
-individuald_pc = []
-individuald_kg = []
-test_table = pd.DataFrame()
-for d in dlist_allocate:
-    print(d)
-    print(ddic_he[d])
-    print(ddic_pc[d])
-    print('------------------------')
-    print(' ')
+individualdf = pd.DataFrame()
 
+while len(dlist_allocate) > 0:
+
+    # Randomly choose which d to allocate first
+    dpos = random.randint(0, len(dlist_allocate)-1)
+    d = dlist_allocate[dpos]
+    print(f"{d}: {int(ddic_metadata[d]['kg'])} kg")
     dkg = ddic_metadata[d]['kg']
 
+    individuald_he = []
+    individuald_pc = []
+    individuald_kg = []
     while dkg > 0:
-        if len(ddic_he[d]) > 0:
-            hepos = random.randint(0, len(ddic_he[d])-1)
-            he = ddic_he[d][hepos]
+        # Filter demand_he table according to d and kg.
+        # Check that combination of d_he has not yet been used.
+        ddf_het = ddf_he[(ddf_he['demand_id']==d) & (ddf_he['kg_rem']>0) & \
+            (ddf_he['evaluated']==0)]
+        dhes = ddf_het['id'].tolist()
+        dhe_kg_rem = ddf_het['kg_rem'].tolist()
 
-            if he_dic[he]['kg_rem'] == 0:
-                ddic_he[d].remove(he)  # remove he from list to not reuse it
+        if len(dhes) > 0:
+            # Randomly choose a he that is suitable
+            hepos = random.randint(0, len(dhes)-1)
+            he = dhes[hepos]
+            he_kg_rem = dhe_kg_rem[hepos]
+
+            print(f"he ({he}) -> {int(he_kg_rem)} kg_rem")
+
+            if he_kg_rem == 0:
+                ddf_he.loc[(ddf_he['id'] == he) & (ddf_he['demand_id'] == d), 'evaluated'] = 1
                 continue
 
-            # Calculate kg
-            if he_dic[he]['kg_rem'] > dkg:
-                # Get the kg that will be packed
+            # Calculate kg potential that can be packed
+            if he_kg_rem > dkg:
                 to_pack = dkg
-                # Subtract demand from he
-                he_dic[he]['kg_rem'] = he_dic[he]['kg_rem'] - dkg
-                dkg = 0
-                
+
             else:
-                # Get the kg that will be packed
-                to_pack = he_dic[he]['kg_rem']
-                # Subtract he from demand
-                dkg = dkg - he_dic[he]['kg_rem']
-                he_dic[he]['kg_rem'] = 0
-                ddic_he[d].remove(he)
+                to_pack = he_kg_rem
 
             # Get closest pc for he from available pc's
             block_id = he_dic[he]['block_id']
@@ -69,19 +67,17 @@ for d in dlist_allocate:
 
             # Allocate to_pack to pack capacities
             while to_pack > 0:
-                pc_dft = pc_df[pc_df['time_id'] == ddic_metadata[d]['time_id']]
-                pc_dft = pc_dft[pc_dft['pack_type_id'] == packtype_id]
-                pc_dft = pc_dft[pc_dft['kg_rem'] > 0]
+                ddf_pct = ddf_pc[(ddf_pc['demand_id']==d) & (ddf_pc['kg_rem']>0)]
 
-                if len(ft_dft) > 0 and len(pc_dft):
-                    pc_dft = pc_dft.merge(ft_dft, on='packhouse_id', how='left')
-                    pcf_dft = pc_dft.sort_values(['km']).reset_index(drop=True)
+                if len(ft_dft) > 0 and len(ddf_pct) > 0:
+                    ddf_pct = ddf_pct.merge(ft_dft, on='packhouse_id', how='left')
+                    ddf_pct = ddf_pct.sort_values(['km']).reset_index(drop=True)
 
                     # Allocate closest pc to block
-                    pc = pcf_dft.id[0]
-                    packhouse_id = pcf_dft.packhouse_id[0]
-                    km = pcf_dft.km[0]
-                    pckg_rem = pcf_dft.kg_rem[0]
+                    pc = ddf_pct.id[0]
+                    packhouse_id = ddf_pct.packhouse_id[0]
+                    km = ddf_pct.km[0]
+                    pckg_rem = ddf_pct.kg_rem[0]
 
                     if pckg_rem > to_pack:
                         packed = to_pack
@@ -93,20 +89,34 @@ for d in dlist_allocate:
                         to_pack = to_pack - pckg_rem
                         pckg_rem = 0
 
-                    pc_df.loc[(pc_df['id'] == pc), 'kg_rem'] = pckg_rem
+                    # Update demand tables with updated capacity
+                    ddf_pc.loc[(ddf_pc['id'] == pc), 'kg_rem'] = pckg_rem
+                    ddf_he.loc[(ddf_he['id'] == he), 'kg_rem'] = he_kg_rem - packed
+                    dkg = dkg - packed
 
                     individuald_he.append(he)
                     individuald_pc.append(pc)
                     individuald_kg.append(packed)
 
                 else:
+                    ddf_he.loc[(ddf_he['id'] == he) & (ddf_he['demand_id'] == d), 'evaluated'] = 1
                     break
-                
-            individual.update({d:{'he':individuald_he, 'pc':individuald_pc}})        
-        
+                        
         else:
             break
+    
+    dindividual = {'he':individuald_he, 'pc':individuald_pc, 'kg': individuald_kg} 
+    individualdft = pd.DataFrame(data=dindividual)      
+    individualdft['demand_id'] = d
+    individualdft['time_id'] = ddic_metadata[d]['time_id']
+    individualdf = pd.concat([individualdf,individualdft])
 
+    # Remove d from list to not alocate it again
+    dlist_allocate.remove(d)
 
-# TODO only subtract kg from he & demand if it can be packed!!!!!!!!!!
-# TODO update pc_df
+    print(f"     {int(dkg)} not packed")
+    print('------------------------')
+    print(' ')
+
+# TODO: Calculate fitness
+# TODO: Save to disk
