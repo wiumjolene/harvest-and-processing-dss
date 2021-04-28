@@ -19,6 +19,7 @@ class CreateOptions:
         df_he = self.get_harvest_estimate()
         df_pc = self.get_pack_capacity()
         self.get_from_to()
+        self.get_speed()
 
         self.logger.info('- make_options')
         ddic_pc = {}
@@ -151,7 +152,8 @@ class CreateOptions:
             pc.pack_type_id,
             w.id AS time_id,
             pc.kg,
-            pc.stdunits
+            pc.stdunits,
+            (pc.stdunits / (5.5 * 8)) * 12 / 60 as stdunits_hour
         FROM
             dss.f_pack_capacity pc
                 LEFT JOIN
@@ -184,6 +186,42 @@ class CreateOptions:
         df_ft.to_pickle('data/processed/ft_df')
         
         return  
+
+    def get_speed(self):
+        self.logger.info('- get_speed')
+        s = """SELECT * FROM dss.f_speed;"""
+        df_speed = self.database_instance.select_query(query_str=s)
+        
+        dic_speed = {}
+        packhouses = df_speed.filter(['packhouse_id']).drop_duplicates()
+        packhouses = packhouses['packhouse_id'].tolist()
+        for p in packhouses:
+            
+            df_speed1 = df_speed[df_speed['packhouse_id']==p].reset_index(drop=True)
+            packtypes = df_speed1.filter(['packtype_id']).drop_duplicates()
+            packtypes = packtypes['packtype_id'].tolist()
+            
+            dic_packtypes = {}
+            for pt in packtypes:
+            
+                df_speed2 = df_speed1[df_speed1['packtype_id']==pt].reset_index(drop=True)
+                vas = df_speed2.filter(['va_id']).drop_duplicates()
+                vas = vas['va_id'].tolist()   
+                
+                dic_vas = {}
+                for va in vas:
+                    df_speed3 = df_speed2[df_speed2['va_id']==va].reset_index(drop=True)
+                    speed = df_speed3.speed[0]
+                    
+                    dic_vas.update({va: speed})
+                dic_packtypes.update({pt:dic_vas})
+            dic_speed.update({p:dic_packtypes})
+
+        outfile = open('data/processed/dic_speed','wb')
+        pickle.dump(dic_speed,outfile)
+        outfile.close()
+        return
+
 
 class ImportOptions:
     """ Class to get data. """
@@ -229,6 +267,12 @@ class ImportOptions:
 
     def from_to(self):
         infile = open(f"{self.path}/data/processed/ft_df",'rb')
+        data = pickle.load(infile)
+        infile.close()
+        return data
+
+    def speed(self):
+        infile = open(f"{self.path}/data/processed/dic_speed",'rb')
         data = pickle.load(infile)
         infile.close()
         return data

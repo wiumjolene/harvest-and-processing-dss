@@ -5,6 +5,6 @@ LUG = 11 # weight (kg) of a lug
 SEASON = 2020
 
 #s_unit = truck
-#zar_workhour = 20
-#zar_km = 3.16
+ZAR_HR = 20
+ZAR_KM = 3.16
 #min_hepc = 800 # minumum % that should be allocated from a specific he to a packhouse
