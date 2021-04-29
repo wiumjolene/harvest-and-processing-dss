@@ -214,13 +214,7 @@ class Population:
         
         for i in range(size):
             ind = self.indv.individual(i)
-            pop=pop.append(ind)
-
-        x_series = pop['obj1']
-        y_series = pop['obj2']
-        names = pop['id']
-
-        self.graph.scatter_plot(x_series, y_series,names)
+            pop=pop.append(ind).reset_index(drop=True)
 
         return pop    
 

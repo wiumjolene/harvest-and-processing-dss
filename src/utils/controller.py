@@ -2,14 +2,14 @@
 import logging
 
 from src.data.make_dataset import CreateOptions
-from src.features.build_features import Population
+from src.models.genetic_algorithm import GeneticAlgorithm
 
 class MainController:
     """ Decide which parts of the module to update. """
     logger = logging.getLogger(f"{__name__}.MainController")
     synch_data = False
     make_data = False
-    build_feature = True
+    genetic_algoritm = True
     ga = False
     tabu = False
 
@@ -24,8 +24,7 @@ class MainController:
             v = CreateOptions()
             v.make_options()
 
-        if self.build_feature:
-            self.logger.info('MAKE POPULATION')
-            p = Population()
-            x = p.population(10) #FIXME:
-            x.to_excel('data/interim/fitness.xlsx', index=False) #FIXME:
+        if self.genetic_algoritm:
+            self.logger.info('--- GENETIC ALGORITHM ---')
+            ga = GeneticAlgorithm()
+            ga.genetic_algorithm()
