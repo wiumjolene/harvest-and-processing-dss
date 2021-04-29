@@ -69,19 +69,15 @@ class CreateOptions:
                                             'ready': ready}})
 
         # Save nb datasets to processed for use in algorithms
-        outfile = open('data/processed/ddic_metadata','wb')
+        outfile = open('data/processed/ddic_dp','wb')
         pickle.dump(ddic_metadata,outfile)
         outfile.close()
 
+        df_dp.to_pickle('data/processed/ddf_metadata')
+
         ddf_he.to_pickle('data/processed/ddf_he')
-        #outfile = open('data/processed/ddic_he','wb')
-        #pickle.dump(ddic_he,outfile)
-        #outfile.close()
 
         ddf_pc.to_pickle('data/processed/ddf_pc')
-        #outfile = open('data/processed/ddic_pc','wb')
-        #pickle.dump(ddic_pc,outfile)
-        #outfile.close()
 
         outfile = open('data/processed/dlist_ready','wb')
         pickle.dump(dlist_ready,outfile)
@@ -109,8 +105,10 @@ class CreateOptions:
                     LEFT JOIN
                 dim_week w ON fdp.arrivalweek = w.week
             WHERE w.season = {config.SEASON}
+            AND w.id in (341, 348, 355, 362)
             """
-            
+            # FIXME: Delete week limitation
+
         df_dp = self.database_instance.select_query(query_str=s)
         df_dp['kg'] = df_dp['stdunits'] * config.STDUNIT * (1 + config.GIVEAWAY)
         df_dp = df_dp.sort_values(by=['time_id', 'priority']).reset_index(drop=True)
@@ -132,8 +130,6 @@ class CreateOptions:
         df_he = df_he.set_index('id')
         df_he['id'] = df_he.index
         df_he['stdunits'] = (df_he['kg'] * (1-config.GIVEAWAY))/config.STDUNIT
-        #df_he['trucks_raw'] = df_he['kg'] / config.TRUCK
-        #df_he['lugs_raw'] = df_he['kg'] / config.LUG
         df_he['kg_rem'] = df_he['kg']
 
         he_dic = df_he.to_dict(orient='index')
@@ -165,7 +161,6 @@ class CreateOptions:
         df_pc = df_pc.set_index('id')
         df_pc['id'] = df_pc.index
         df_pc['stdunits'] = df_pc['kg'] / config.STDUNIT
-        #df_pc['trucks_raw'] = (df_pc['kg'] * (1 + config.GIVEAWAY))/config.TRUCK
         df_pc['kg_rem'] = df_pc['kg']
         
         pc_dic = df_pc.to_dict(orient='index')

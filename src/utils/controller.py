@@ -10,6 +10,7 @@ class MainController:
     synch_data = False
     make_data = False
     build_feature = True
+    ga = False
     tabu = False
 
 
@@ -27,4 +28,4 @@ class MainController:
             self.logger.info('MAKE POPULATION')
             p = Population()
             x = p.population(10) #FIXME:
-            x.to_excel('data/interim/fitness.xlsx') #FIXME:
+            x.to_excel('data/interim/fitness.xlsx', index=False) #FIXME:

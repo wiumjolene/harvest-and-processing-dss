@@ -14,26 +14,42 @@ from src.utils.visualize import Visualize
 class Individual:
     """ Class to generate an individual solution. """
     logger = logging.getLogger(f"{__name__}.Individual")
+    individual_df = pd.DataFrame()
+    dlistt=[]
 
-    def individual(self, number):
+    def individual(self, number, get_indiv=True, indiv=individual_df):
         self.logger.info(f"- individual: {number}")
-        indiv = self.make_individual()
-        fitness = self.make_fitness(indiv)
-        indiv.to_pickle(f"data/interim/id_{number}") # FIXME:
-        self.logger.info(f"-> result: {number}:cost=R{int(fitness[0])/1000}k, dev={int(fitness[1])/1000}ton")
-        return {number: fitness}
 
-    def make_individual(self):
+        if get_indiv:
+            indiv = self.make_individual()
+
+        fitness = self.make_fitness(indiv)
+
+        ind_fitness = pd.DataFrame(fitness, columns=['obj1', 'obj2'])
+        ind_fitness['id'] = number
+
+        #indiv.to_pickle(f"data/interim/id_{number}") # FIXME: Change back to pickle!
+        indiv.to_excel(f"data/interim/id_{number}.xlsx")
+        self.logger.info(f"-> result: {number}:cost=R{int(fitness[0][0])/1000}k, dev={int(fitness[0][1])/1000}ton")
+        return ind_fitness
+
+    def make_individual(self, get_dlist=True, dlist=dlistt):
         self.logger.info('- make_individual')
 
         # Import all data sets from pickel files.
         options = ImportOptions()
 
+        # Get all demands ready for allocation
+        if get_dlist:
+            dlist_allocate = options.demand_ready()
+           
+        else:  # Or use custom list
+            dlist_allocate = dlist
+
         ddf_he = options.demand_harvest()
         ddf_he['evaluated'] = 0
         ddf_pc = options.demand_capacity()
         ddic_metadata = options.demand_metadata()
-        dlist_allocate = options.demand_ready()
         he_dic = options.harvest_estimate()
         ft_df = options.from_to()
         dic_speed = options.speed()
@@ -80,7 +96,7 @@ class Individual:
                     # Variables to determine speed -> add calculate the number of hours 
                     packtype_id = ddic_metadata[d]['pack_type_id']
                     ft_dft = ft_df[ft_df['block_id'] == block_id]
-                    # FIXME: All blocks must be able to pack at all sites
+                    # TODO: All blocks must be able to pack at all sites
 
                     # Allocate to_pack to pack capacities
                     while to_pack > 0:
@@ -130,6 +146,12 @@ class Individual:
                             break
                                 
                 else:
+                    if dkg == ddic_metadata[d]['kg']:
+                        indd_he.append(0)
+                        indd_pc.append(0)
+                        indd_kg.append(0)
+                        indd_kgkm.append(0)
+                        indd_hrs.append(0)
                     break
             
             dindividual = {'he':indd_he, 'pc':indd_pc, 'kg': indd_kg,
@@ -150,7 +172,7 @@ class Individual:
         self.logger.info('- make_fitness')
         options = ImportOptions()
 
-        # FIXME: dont pull data everytime 
+        # TODO: dont pull data everytime 
         pc_dic = options.pack_capacity()
         pc_df = pd.DataFrame.from_dict(pc_dic, orient='index')
 
@@ -177,7 +199,7 @@ class Individual:
 
         total_dev = individualdf3.deviation.sum()
 
-        return [total_cost, total_dev]
+        return [[total_cost, total_dev]]
 
 
 class Population:
@@ -191,13 +213,14 @@ class Population:
         pop=pd.DataFrame()
         
         for i in range(size):
-            ind=pd.DataFrame.from_dict(self.indv.individual(i),orient='index')
+            ind = self.indv.individual(i)
             pop=pop.append(ind)
 
-            x_series = pop[0]
-            y_series = pop[1]
+        x_series = pop['obj1']
+        y_series = pop['obj2']
+        names = pop['id']
 
-            self.graph.scatter_plot(x_series, y_series)
+        self.graph.scatter_plot(x_series, y_series,names)
 
         return pop    
 
