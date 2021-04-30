@@ -12,5 +12,5 @@ ZAR_KM=3.16
 ########################################################
 TOURSIZE=3
 MUTATIONRATE=5
-POPUATION=50
-ITERATIONS=300
+POPUATION=5
+ITERATIONS=30

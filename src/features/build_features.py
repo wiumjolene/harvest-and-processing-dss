@@ -216,6 +216,8 @@ class Population:
             ind = self.indv.individual(i)
             pop=pop.append(ind).reset_index(drop=True)
 
+        pop['population'] = 'population'
+
         return pop    
 
             
