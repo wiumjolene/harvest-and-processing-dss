@@ -15,7 +15,7 @@ class GeneticAlgorithm:
     logger = logging.getLogger(f"{__name__}.GeneticAlgorithm")
     graph = Visualize()
 
-    def genetic_algorithm(self):
+    def vega(self):
         """ Function that manages the GA. """
         self.logger.info(f"- genetic_algorithm")
         
@@ -24,6 +24,7 @@ class GeneticAlgorithm:
         
         for _ in range(config.ITERATIONS):
             fitness_df = self.crossover(fitness_df)
+            fitness_df = self.pareto_vega(fitness_df)
 
         fitness_df.to_excel('data/interim/fitness.xlsx', index=False)
         filename_html = 'reports/figures/genetic_algorithm.html'
@@ -90,56 +91,6 @@ class GeneticAlgorithm:
 
         return df_mutate2
 
-    def pareto_moga(self, fitness_df):
-        """ Decide if new child is worthy of pareto membership 
-        Fonseca and Flemming 1993
-        """
-        fitness_df1 = fitness_df[fitness_df['population'] != 'none'].reset_index(drop=True)
-
-        for i in range(len(fitness_df1)):
-            id = fitness_df1.id[i]
-            obj1 = fitness_df1.obj1[i]
-            obj2 = fitness_df1.obj2[i]
-            r = 1
-
-            for j in range(len(fitness_df1)):
-                obj1x = fitness_df1.obj1[j]
-                obj2x = fitness_df1.obj2[j]      
-
-                if obj1x < obj1 and obj2x < obj2:
-                    r = r + 1
-
-            fitness_df.loc[(fitness_df['id']==id), 'rank'] = r
-
-        fitness_df= fitness_df.sort_values(by='rank').reset_index(drop=True)
-
-        fitness_df.loc[(fitness_df.index<=config.POPUATION), 'population'] = 'population'
-        fitness_df.loc[(fitness_df['rank']==1), 'population'] = 'pareto'
-        fitness_df.loc[(fitness_df.index>config.POPUATION), 'population'] = 'none'
-
-        # NB: average out those with the same value
-        return fitness_df
-
-    def pareto_vega(self, fitness_df):
-        """ Decide if new child is worthy of pareto membership 
-        Shaffer 1985
-        """
-        # FIXME: only evaluate child and old pareto pop
-        pareto = math.floor(config.POPUATION/2)
-        fitness_df['pareto'] = 'n'
-
-        # Sort along obj1 1
-        fitness_df1 = fitness_df.sort_values(by=['obj1'])
-        fitness_df1 = list(fitness_df1.obj1[pareto-1:pareto])[0]
-        fitness_df.loc[(fitness_df['obj1'] <= fitness_df1), 'population'] = 'pareto'
-
-        # Sort along obj1 2
-        fitness_df2 = fitness_df.sort_values(by=['obj2'])
-        fitness_df2 = list(fitness_df2.obj2[pareto-1:pareto])[0]
-        fitness_df.loc[(fitness_df['obj2'] <= fitness_df2), 'population'] = 'pareto'        
-
-        return fitness_df
-
     def crossover(self, fitness_df):
         """ GA crossover genetic material for diversivication"""
 
@@ -184,7 +135,58 @@ class GeneticAlgorithm:
 
         fitness_df = pd.concat([fitness_df, child1_f, child2_f]).reset_index(drop=True)
 
-        fitness_df = self.pareto_moga(fitness_df)
+        return fitness_df
+
+    def pareto_moga(self, fitness_df):
+        """ Decide if new child is worthy of pareto membership 
+        Fonseca and Flemming 1993
+        """
+        fitness_df1 = fitness_df[fitness_df['population'] != 'none'].reset_index(drop=True)
+
+        for i in range(len(fitness_df1)):
+            id = fitness_df1.id[i]
+            obj1 = fitness_df1.obj1[i]
+            obj2 = fitness_df1.obj2[i]
+            r = 1
+
+            for j in range(len(fitness_df1)):
+                obj1x = fitness_df1.obj1[j]
+                obj2x = fitness_df1.obj2[j]      
+
+                if obj1x < obj1 and obj2x < obj2:
+                    r = r + 1
+
+            fitness_df.loc[(fitness_df['id']==id), 'rank'] = r
+
+        fitness_df= fitness_df.sort_values(by='rank').reset_index(drop=True)
+
+        fitness_df.loc[(fitness_df.index<=config.POPUATION), 'population'] = 'population'
+        fitness_df.loc[(fitness_df['rank']==1), 'population'] = 'pareto'
+        fitness_df.loc[(fitness_df.index>config.POPUATION), 'population'] = 'none'
+
+        # NB: average out those with the same value
+        return fitness_df
+
+    def pareto_vega(self, fitness_df):
+        """ Decide if new child is worthy of pareto membership 
+        Shaffer 1985
+        """
+
+        # FIXME: 
+        popsize = config.POPUATION
+        fitness_df=fitness_df.groupby(['obj1','obj2'])['id'].min().reset_index(drop=False)
+        fitness_df['population'] = 'none'
+
+        # Random select objective to sort
+        objective = random.randint(0,1)
+        objective = ['obj1', 'obj2'][objective]
+
+        # Sort along objective
+        fitness_df1 = fitness_df.sort_values(by=[objective])
+        fitness_df1 = list(fitness_df1.obj1[popsize-1:popsize])[0]
+        fitness_df.loc[(fitness_df[objective] <= fitness_df1), 'population'] = 'yes'      
+
+        fitness_df = fitness_df[fitness_df['population'] == 'yes']  
 
         return fitness_df
 

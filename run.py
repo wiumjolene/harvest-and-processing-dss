@@ -1,5 +1,4 @@
 import logging
-#from src.data.make_dataset import vakansie
 from src.utils.controller import MainController
 
 

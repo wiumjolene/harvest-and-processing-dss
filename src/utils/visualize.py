@@ -30,7 +30,7 @@ class Visualize:
 
         fig.update_traces(marker=dict(size=16))
 
-        #fig.show()
+        fig.show()
         fig.write_html(filename)
        
         return 

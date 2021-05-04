@@ -9,7 +9,7 @@ class MainController:
     logger = logging.getLogger(f"{__name__}.MainController")
     synch_data = False
     make_data = False
-    genetic_algoritm = True
+    vega = True
     ga = False
     tabu = False
 
@@ -24,7 +24,7 @@ class MainController:
             v = CreateOptions()
             v.make_options()
 
-        if self.genetic_algoritm:
+        if self.vega:
             self.logger.info('--- GENETIC ALGORITHM ---')
             ga = GeneticAlgorithm()
-            ga.genetic_algorithm()
+            ga.vega()

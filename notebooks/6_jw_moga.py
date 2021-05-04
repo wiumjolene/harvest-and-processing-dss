@@ -26,7 +26,7 @@ for i in range(len(fitness_df1)):
         obj1x = fitness_df1.obj1[j]
         obj2x = fitness_df1.obj2[j]      
 
-        if obj1x < obj1 and obj2x < obj2:
+        if obj1x <= obj1 and obj2x <= obj2:
             r = r + 1
 
     fitness_df.loc[(fitness_df['id']==id), 'rank'] = r
