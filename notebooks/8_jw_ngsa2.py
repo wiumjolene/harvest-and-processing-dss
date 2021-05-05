@@ -9,11 +9,12 @@ from src.utils.visualize import Visualize
 from src.utils import config
 
 graph = Visualize()
-p = Population()
+pop = Population()
 
-p = r'C:\Users\Jolene Wium\Documents\personal\studies\phd\model\model\data\interim\fitness.xlsx'
-fitness_df = pd.read_excel(p)
+path = r'C:\Users\Jolene Wium\Documents\personal\studies\phd\model\model\data\interim\fitness.xlsx'
+fitness_df = pd.read_excel(path)
 domination = {}
+front = []
 
 for i in range(len(fitness_df)):
     id = fitness_df.id[i]
@@ -31,14 +32,40 @@ for i in range(len(fitness_df)):
 
             if obj1x <= obj1 and obj2x <= obj2:
                 domcount = domcount + 1
-
             else:
                 domset.append(idx)
 
     domination.update({id:domset})
 
-    fitness_df.loc[(fitness_df['id']==id), 'front'] = domcount
+    fitness_df.loc[(fitness_df['id']==id), 'domcount'] = domcount
+
+    if domcount == 0:
+        fitness_df.loc[(fitness_df['id']==id), 'front'] = 1
+        front.append(id)
 
 
+fc=1
+while len(front) > 0:
+    q1= []
+
+    for p in front:
+        sp = domination[p]
+
+        for q in domination[p]:
+            dc = fitness_df['domcount'][fitness_df['id'] == q].iloc[0]
+            dc = dc - 1
+            fitness_df.loc[(fitness_df['id']==q), 'domcount'] = dc
+
+            if dc == 0:
+                q1.append(q)
+                fitness_df.loc[(fitness_df['id']==q), 'front'] = fc+1
+    
+    fc = fc + 1
+    front = q1
+
+
+
+
+# TODO: check this logic - it feels like it is evaluating too many q's
 
 #graph.scatter_plot2(fitness_df, 'html.html')
