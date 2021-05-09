@@ -4,6 +4,7 @@ import os
 import pickle
 import random
 import sys
+import datetime
 
 import pandas as pd
 from src.data.make_dataset import ImportOptions
@@ -27,10 +28,9 @@ class Individual:
 
         ind_fitness = pd.DataFrame(fitness, columns=['obj1', 'obj2'])
         ind_fitness['id'] = number
+        ind_fitness['datetime'] = datetime.datetime.now()
 
-        #indiv.to_pickle(f"data/interim/{alg}id_{number}") # FIXME: Change back to pickle!
-        indiv.to_excel(f"data/interim/{alg}/id_{number}.xlsx")
-        self.logger.info(f"-> result: {number}:cost=R{int(fitness[0][0])/1000}k, dev={int(fitness[0][1])/1000}ton")
+        indiv.to_pickle(f"data/interim/{alg}/id_{number}") 
         return ind_fitness
 
     def make_individual(self, get_dlist=True, dlist=dlistt):
@@ -228,7 +228,6 @@ class GeneticAlgorithmGenetics:
         """ GA: choose parents to take into crossover"""
 
         self.logger.info(f"--- tournament_selection")
-        #TODO: filter on population
         fitness_df=fitness_df[fitness_df['population']!='none'].reset_index(drop=True)
 
         high_fit1 = 0
@@ -248,9 +247,9 @@ class GeneticAlgorithmGenetics:
         if high_fit1 == 0 and high_fit2 == 0:
             parent = option_id
             
-        parent_path = f"data/interim/{alg}/id_{parent}.xlsx" #TODO: Make pickle
-        parent_df = pd.read_excel(parent_path)
-        #parent_df = pd.read_pickle(parent_path) #TODO: Make pickle
+        parent_path = f"data/interim/{alg}/id_{parent}"
+        #parent_df = pd.read_excel(parent_path + ".xlsx")
+        parent_df = pd.read_pickle(parent_path) #TODO: Make pickle
         parent_df['parent'] = parent
         
         return parent_df

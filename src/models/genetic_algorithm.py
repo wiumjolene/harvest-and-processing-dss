@@ -42,6 +42,7 @@ class GeneticAlgorithmVega:
         """
         self.logger.info(f"- getting fitness")
         popsize = config.POPUATION
+        # TODO: check legitimacy of this!
         fitness_df=fitness_df.groupby(['obj1','obj2'])['id'].min().reset_index(drop=False)
         fitness_df['population'] = 'none'
 
@@ -49,10 +50,19 @@ class GeneticAlgorithmVega:
         objective = random.randint(0,1)
         objective = ['obj1', 'obj2'][objective]
 
-        # Sort along objective
+        # Sort along objectives
+        halfpop = int(popsize/2)
+        objective = 'obj1'
         fitness_df1 = fitness_df.sort_values(by=[objective])
-        objval = list(fitness_df1[objective][popsize-1:popsize])[0]
+        #objval = list(fitness_df1[objective][popsize-1:popsize])[0]
+        objval = list(fitness_df1[objective][halfpop-1:halfpop])[0]
         fitness_df.loc[(fitness_df[objective] <= objval), 'population'] = 'yes'      
+
+        objective = 'obj2'
+        fitness_df1 = fitness_df.sort_values(by=[objective])
+        #objval = list(fitness_df1[objective][popsize-1:popsize])[0]
+        objval = list(fitness_df1[objective][halfpop-1:halfpop])[0]
+        fitness_df.loc[(fitness_df[objective] <= objval), 'population'] = 'yes'
 
         # TODO: to keep population small uncomment
         #fitness_df = fitness_df[fitness_df['population'] == 'yes']  
@@ -71,8 +81,8 @@ class GeneticAlgorithmNsga2:
         
         p = Population()
         fitness_df = p.population(config.POPUATION, 'nsga2')
-        #TODO: make chld pop out of main population
-
+        
+        # Make child pop out of main population
         while len(fitness_df) < (config.POPUATION * 2):
             fitness_df = self.gag.crossover(fitness_df, 'nsga2')
             self.logger.info(f"making chile pop 2n {len(fitness_df)}")
@@ -86,7 +96,8 @@ class GeneticAlgorithmNsga2:
 
         fitness_df.to_excel('data/interim/fitness_nsga2.xlsx', index=False)
         filename_html = 'reports/figures/genetic_algorithm_nsga2.html'
-        self.graph.scatter_plot2(fitness_df, filename_html)
+        fitness_df['colour'] = fitness_df['front'].astype(str)
+        self.graph.scatter_plot2(fitness_df, filename_html, colour='colour')
         return
 
     def crowding_distance(self, fitness_df, fc, size):
@@ -97,7 +108,6 @@ class GeneticAlgorithmNsga2:
             space = config.POPUATION
         else:
             space = config.POPUATION - size
-        #print(f"{fc}-{size}-{space}-{len(fitness_dff)}")
 
         objs = ['obj1', 'obj2']
         fitness_df['cdist'] = 0
@@ -192,6 +202,7 @@ class GeneticAlgorithmNsga2:
                 # Only for as many fronts as needed to fill popsize
                 if size + len(front) > config.POPUATION:
                     fitness_df=self.crowding_distance(fitness_df, fc, size)
+                    
                     break
 
                 else:
