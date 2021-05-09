@@ -3,15 +3,15 @@ import logging
 
 from src.data.make_dataset import CreateOptions
 from src.models.genetic_algorithm import GeneticAlgorithmVega
+from src.models.genetic_algorithm import GeneticAlgorithmNsga2
 
 class MainController:
     """ Decide which parts of the module to update. """
     logger = logging.getLogger(f"{__name__}.MainController")
     synch_data = False
     make_data = False
-    vega = True
-    ga = False
-    tabu = False
+    vega = False
+    nsga2 = True
 
 
     def pipeline_control(self):
@@ -28,3 +28,8 @@ class MainController:
             self.logger.info('--- GENETIC ALGORITHM: VEGA ---')
             ga = GeneticAlgorithmVega()
             ga.vega()
+
+        if self.nsga2:
+            self.logger.info('--- GENETIC ALGORITHM: NSGA2 ---')
+            ga = GeneticAlgorithmNsga2()
+            ga.nsga2()

@@ -9,11 +9,15 @@ from src.features.build_features import Population
 from src.utils.visualize import Visualize
 from src.utils import config
 
-graph = Visualize()
-pop = Population()
 
 path = r'C:\Users\Jolene Wium\Documents\personal\studies\phd\model\model\data\interim\fitness.xlsx'
 fitness_df = pd.read_excel(path)
+
+
+graph = Visualize()
+#pop = Population()
+
+
 fitness_df['population'] = 'none'
 domination = {}
 front = []
