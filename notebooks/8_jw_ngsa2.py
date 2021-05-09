@@ -14,9 +14,47 @@ pop = Population()
 
 path = r'C:\Users\Jolene Wium\Documents\personal\studies\phd\model\model\data\interim\fitness.xlsx'
 fitness_df = pd.read_excel(path)
+fitness_df['population'] = 'none'
 domination = {}
 front = []
 
+
+def crowding_distance(fitness_df, fc, size):
+    """ Crowding distance sorting """ 
+    fitness_dff = fitness_df[fitness_df['front']==fc].reset_index(drop=True)
+
+    if fc==1:
+        space = config.POPUATION
+    else:
+        space = config.POPUATION - size
+    print(f"{fc}-{size}-{space}-{len(fitness_dff)}")
+
+    objs = ['obj1', 'obj2']
+    fitness_df['cdist'] = 0
+    for m in objs:
+        df = fitness_dff.sort_values(by=m,ascending=False ).reset_index(drop=True)
+
+        for i in range(len(fitness_dff)):
+            id = fitness_dff.id[i]
+
+            if i == 0 or i == len(fitness_dff)-1:
+                fitness_df.loc[(fitness_df['id']==id),'cdist']= np.inf
+            
+            else:
+                max = df[m][df.index == 0].iloc[0]
+                min = df[m][df.index == len(fitness_dff) - 1].iloc[0]
+
+                oneup = df[m][df.index == (i-1)].iloc[0]
+                onedown = df[m][df.index == (i+1)].iloc[0]
+                distance = (oneup - onedown) / (max - min)
+
+                fitness_df.loc[(fitness_df['id']==id),'cdist']=fitness_df['cdist']+distance
+
+    fitness_df = fitness_df.sort_values(by=['cdist'], ascending=False).reset_index(drop=True)
+    fitness_df.loc[(fitness_df.index<space),'population']='yes' 
+    return fitness_df
+
+# Initiate domination count and dominated by list
 for i in range(len(fitness_df)):
     id = fitness_df.id[i]
     obj1 = fitness_df.obj1[i]
@@ -37,7 +75,6 @@ for i in range(len(fitness_df)):
                 domset.append(idx)
 
     domination.update({id:domset})
-
     fitness_df.loc[(fitness_df['id']==id), 'domcount'] = domcount
 
     if domcount == 0:
@@ -45,68 +82,47 @@ for i in range(len(fitness_df)):
         front.append(id)
 
 
-fc=1
-size = 0
-while len(front) > 0:
-    q1= []
+# Get front count and determine population status
+size = len(fitness_df[fitness_df['front'] == 1])
 
-    for p in front:
-        sp = domination[p]
-        #TODO: Only for as many fronts as needed to full popsize
+if size > config.POPUATION:
+    print('pop size reached')
+    fitness_df=crowding_distance(fitness_df, 1, size)
 
-        for q in domination[p]:
-            dc = fitness_df['domcount'][fitness_df['id'] == q].iloc[0]
-            dc = dc - 1
-            fitness_df.loc[(fitness_df['id']==q), 'domcount'] = dc
+else:
+    fitness_df.loc[(fitness_df['front']==1), 'population'] = 'yes'
+    fc=2
+    while len(front) > 0:
+        q1= []
 
-            if dc == 0:
-                q1.append(q)
-                fitness_df.loc[(fitness_df['id']==q), 'front'] = fc+1
-    
-    fc = fc + 1
-    front = q1
-    size = size + len(front)
+        for p in front:
+            sp = domination[p]
 
+            for q in domination[p]:
+                dc = fitness_df['domcount'][fitness_df['id'] == q].iloc[0]
+                dc = dc - 1
+                fitness_df.loc[(fitness_df['id']==q), 'domcount'] = dc
 
+                if dc == 0:
+                    q1.append(q)
+                    fitness_df.loc[(fitness_df['id']==q), 'front'] = fc
 
-# Crowding distance sorting
-nfront = fitness_df.front.unique()
-fitness_dff = fitness_df[fitness_df['front']==3].reset_index(drop=True)
+        # Only for as many fronts as needed to fill popsize
+        if size + len(front) > config.POPUATION:
+            print('pop size reached')
+            fitness_df=crowding_distance(fitness_df, fc, size)
+            break
 
-objs = ['obj1', 'obj2']
-fitness_df['cdist'] = 0
-for m in objs:
-    df = fitness_dff.sort_values(by=m,ascending=False ).reset_index(drop=True)
-
-    for i in range(len(fitness_dff)):
-        id = fitness_dff.id[i]
-
-        if i == 0 or i == len(fitness_dff)-1:
-            fitness_df.loc[(fitness_df['id']==id),'cdist']= np.inf
-        
         else:
-            max = df[m][df.index == 0].iloc[0]
-            min = df[m][df.index == len(fitness_dff) - 1].iloc[0]
+            fitness_df.loc[(fitness_df['front']==fc), 'population'] = 'yes'
 
-            oneup = df[m][df.index == (i-1)].iloc[0]
-            onedown = df[m][df.index == (i+1)].iloc[0]
+        fc = fc + 1
+        front = q1
+        size = size + len(front)
 
-            distance = (oneup - onedown) / (max - min)
-
-
-            print(f"{i}-{oneup}-{onedown}")
-
-            fitness_df.loc[(fitness_df['id']==id),'cdist']=fitness_df['cdist']+distance
+fitness_df['front'] = fitness_df['front'].fillna(-99)
+fitness_df=fitness_df.drop(columns=['cdist', 'domcount'])
+fitness_df['colour']=fitness_df['population'].astype(str)
 
 
-
-
-
-
-
-
-
-
-# TODO: check this logic - it feels like it is evaluating too many q's
-fitness_df['colour']=fitness_df['front'].astype(int).astype(str)
-#graph.scatter_plot2(fitness_df, 'html.html')
+graph.scatter_plot2(fitness_df, 'html.html')

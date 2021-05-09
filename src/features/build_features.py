@@ -17,7 +17,7 @@ class Individual:
     individual_df = pd.DataFrame()
     dlistt=[]
 
-    def individual(self, number, get_indiv=True, indiv=individual_df):
+    def individual(self, number, alg, get_indiv=True, indiv=individual_df):
         self.logger.info(f"- individual: {number}")
 
         if get_indiv:
@@ -28,13 +28,13 @@ class Individual:
         ind_fitness = pd.DataFrame(fitness, columns=['obj1', 'obj2'])
         ind_fitness['id'] = number
 
-        #indiv.to_pickle(f"data/interim/id_{number}") # FIXME: Change back to pickle!
-        indiv.to_excel(f"data/interim/id_{number}.xlsx")
+        #indiv.to_pickle(f"data/interim/{alg}id_{number}") # FIXME: Change back to pickle!
+        indiv.to_excel(f"data/interim/{alg}/id_{number}.xlsx")
         self.logger.info(f"-> result: {number}:cost=R{int(fitness[0][0])/1000}k, dev={int(fitness[0][1])/1000}ton")
         return ind_fitness
 
     def make_individual(self, get_dlist=True, dlist=dlistt):
-        self.logger.info('- make_individual')
+        self.logger.info('-> make_individual')
 
         # Import all data sets from pickel files.
         options = ImportOptions()
@@ -169,7 +169,7 @@ class Individual:
         return individualdf
 
     def make_fitness(self, individualdf):
-        self.logger.info('- make_fitness')
+        self.logger.info('-> make_fitness')
         options = ImportOptions()
 
         # TODO: dont pull data everytime 
@@ -208,12 +208,12 @@ class Population:
     indv = Individual()
     graph = Visualize()
 
-    def population(self, size):
-        self.logger.info('- population')
+    def population(self, size, alg):
+        self.logger.info(f"population ({size})")
         pop=pd.DataFrame()
         
         for i in range(size):
-            ind = self.indv.individual(i)
+            ind = self.indv.individual(i, alg)
             pop=pop.append(ind).reset_index(drop=True)
 
         pop['population'] = 'population'
@@ -221,3 +221,110 @@ class Population:
         return pop    
 
             
+class GeneticAlgorithmGenetics:
+    logger = logging.getLogger(f"{__name__}.GeneticAlgorithmGenetics")
+
+    def tournament_selection(self, fitness_df, alg):
+        """ GA: choose parents to take into crossover"""
+
+        self.logger.info(f"--- tournament_selection")
+        #TODO: filter on population
+        fitness_df=fitness_df[fitness_df['population']!='none'].reset_index(drop=True)
+
+        high_fit1 = 0
+        high_fit2 = 0
+
+        for _ in range(config.TOURSIZE):
+            option_num = random.randint(0,len(fitness_df)-1)
+            option_id = fitness_df.id[option_num]
+            fit1 = fitness_df.obj1[option_num]
+            fit2 = fitness_df.obj2[option_num]
+
+            if fit1 >= high_fit1 or fit2 >= high_fit2:
+                high_fit1 = fit1
+                high_fit2 = fit2
+                parent = option_id
+
+        if high_fit1 == 0 and high_fit2 == 0:
+            parent = option_id
+            
+        parent_path = f"data/interim/{alg}/id_{parent}.xlsx" #TODO: Make pickle
+        parent_df = pd.read_excel(parent_path)
+        #parent_df = pd.read_pickle(parent_path) #TODO: Make pickle
+        parent_df['parent'] = parent
+        
+        return parent_df
+
+    def mutation(self, df_mutate, times, alg):
+        """ GA mutation function to diversify gene pool. """
+
+        self.logger.info(f"-- mutation check")
+        mutation_random = random.randint(0,100)
+
+        if mutation_random <= config.MUTATIONRATE:
+            self.logger.info(f"--- mutation activated")
+
+            # Get mutation point
+            mp = random.randint(0,len(times)-1)
+            mp_time = times[mp]
+
+            df_genex = df_mutate[df_mutate['time_id'] == mp_time]
+            demand_list = list(df_genex.demand_id.unique())
+
+            ix = Individual()
+            df_genenew = ix.make_individual(get_dlist=False, dlist=demand_list)
+
+            df_mutate1 = df_mutate[df_mutate['time_id'] != mp_time]
+            df_mutate2 = pd.concat([df_mutate1, df_genenew])
+
+        else:
+            
+            df_mutate2 = df_mutate
+
+        return df_mutate2
+
+    def crossover(self, fitness_df, alg):
+        """ GA crossover genetic material for diversivication"""
+
+        self.logger.info(f"-- crossover")
+
+        ix = Individual()
+        max_id = fitness_df.id.max()
+
+        ddf_metadata = pd.read_pickle('data/processed/ddf_metadata')
+        times = list(ddf_metadata.time_id.unique())
+
+        # Get cross over point
+        xp = random.randint(0,len(times)-1)
+        xp_time = times[xp]
+
+        # Select parents with tournament
+        pareto_df = fitness_df[fitness_df['population'] != 'none'].reset_index(drop=True)
+        parent1 = self.tournament_selection(pareto_df, alg)
+        parent2 = self.tournament_selection(pareto_df, alg)
+
+        # Get parental parts
+        parent1a = parent1[parent1['time_id']<xp_time]
+        parent1b = parent1[parent1['time_id']>=xp_time]
+
+        parent2a = parent2[parent2['time_id']<xp_time]
+        parent2b = parent2[parent2['time_id']>=xp_time]
+
+        # Create new children
+        child1 = pd.concat([parent1a, parent2b]).reset_index(drop=True)
+        child2 = pd.concat([parent2a, parent1b]).reset_index(drop=True)
+
+        # Bring mutatation opportunity in
+        child1 = self.mutation(child1, times, alg)
+        child2 = self.mutation(child2, times, alg)
+
+        # Register child on fitness_df
+        child1_f = ix.individual(max_id+1, alg, get_indiv=False, indiv=child1)
+        child2_f = ix.individual(max_id+2, alg, get_indiv=False, indiv=child2)
+
+        child1_f['population'] = 'child'
+        child2_f['population'] = 'child'
+
+        fitness_df = pd.concat([fitness_df, child1_f, child2_f]).reset_index(drop=True)
+
+        return fitness_df

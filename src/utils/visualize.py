@@ -25,7 +25,7 @@ class Visualize:
 
 
     def scatter_plot2(self, df, filename):
-        fig = px.scatter(df, x="obj1", y="obj2", color="colour",
+        fig = px.scatter(df, x="obj1", y="obj2", color="population",
                         hover_data=['id'])
 
         fig.update_traces(marker=dict(size=16))

@@ -2,7 +2,7 @@
 import logging
 
 from src.data.make_dataset import CreateOptions
-from src.models.genetic_algorithm import GeneticAlgorithm
+from src.models.genetic_algorithm import GeneticAlgorithmVega
 
 class MainController:
     """ Decide which parts of the module to update. """
@@ -25,6 +25,6 @@ class MainController:
             v.make_options()
 
         if self.vega:
-            self.logger.info('--- GENETIC ALGORITHM ---')
-            ga = GeneticAlgorithm()
+            self.logger.info('--- GENETIC ALGORITHM: VEGA ---')
+            ga = GeneticAlgorithmVega()
             ga.vega()
