@@ -4,15 +4,17 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
 import pandas as pd
 import numpy as np
+import datetime
 
 from src.features.build_features import Population
 from src.utils.visualize import Visualize
 from src.utils import config
 
+print(datetime.datetime.now())
 
 path = r'C:\Users\Jolene Wium\Documents\personal\studies\phd\model\model\data\interim\fitness.xlsx'
 fitness_df = pd.read_excel(path)
-
+fitness_df=fitness_df[fitness_df['population']=='yes'].reset_index(drop=True)
 
 graph = Visualize()
 #pop = Population()
@@ -31,7 +33,7 @@ def crowding_distance(fitness_df, fc, size):
         space = config.POPUATION
     else:
         space = config.POPUATION - size
-    print(f"{fc}-{size}-{space}-{len(fitness_dff)}")
+    #print(f"{fc}-{size}-{space}-{len(fitness_dff)}")
 
     objs = ['obj1', 'obj2']
     fitness_df['cdist'] = 0
@@ -85,12 +87,11 @@ for i in range(len(fitness_df)):
         fitness_df.loc[(fitness_df['id']==id), 'front'] = 1
         front.append(id)
 
-
+print(datetime.datetime.now())
 # Get front count and determine population status
 size = len(fitness_df[fitness_df['front'] == 1])
 
 if size > config.POPUATION:
-    print('pop size reached')
     fitness_df=crowding_distance(fitness_df, 1, size)
 
 else:
@@ -113,7 +114,7 @@ else:
 
         # Only for as many fronts as needed to fill popsize
         if size + len(front) > config.POPUATION:
-            print('pop size reached')
+            
             fitness_df=crowding_distance(fitness_df, fc, size)
             break
 
@@ -127,6 +128,6 @@ else:
 fitness_df['front'] = fitness_df['front'].fillna(-99)
 fitness_df=fitness_df.drop(columns=['cdist', 'domcount'])
 fitness_df['colour']=fitness_df['population'].astype(str)
+print(datetime.datetime.now())
 
-
-graph.scatter_plot2(fitness_df, 'html.html')
+#graph.scatter_plot2(fitness_df, 'html.html')

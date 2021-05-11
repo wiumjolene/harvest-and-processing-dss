@@ -85,12 +85,13 @@ class GeneticAlgorithmNsga2:
         # Make child pop out of main population
         while len(fitness_df) < (config.POPUATION * 2):
             fitness_df = self.gag.crossover(fitness_df, 'nsga2')
-            self.logger.info(f"making chile pop 2n {len(fitness_df)}")
+            self.logger.info(f"making child pop 2n {len(fitness_df)}")
 
         fitness_df['population'] = 'yes'
 
         self.logger.info(f"starting NSGA2 search")
         for _ in range(config.ITERATIONS):
+            fitness_df = fitness_df[fitness_df['population'] == 'yes'].reset_index(drop=True)
             fitness_df = self.gag.crossover(fitness_df, 'nsga2')
             fitness_df = self.pareto_nsga2(fitness_df)
 
@@ -179,7 +180,7 @@ class GeneticAlgorithmNsga2:
         size = len(fitness_df[fitness_df['front'] == 1])
 
         # Check of set of sols in front 1 will fit into new population?
-        if size > config.POPUATION:
+        if size >= config.POPUATION:
             fitness_df=self.crowding_distance(fitness_df, 1, size)
 
         # Else continue assigning fronts to solutions
@@ -200,7 +201,7 @@ class GeneticAlgorithmNsga2:
                             fitness_df.loc[(fitness_df['id']==q), 'front'] = fc
 
                 # Only for as many fronts as needed to fill popsize
-                if size + len(front) > config.POPUATION:
+                if size + len(front) >= config.POPUATION:
                     fitness_df=self.crowding_distance(fitness_df, fc, size)
                     
                     break
@@ -213,6 +214,6 @@ class GeneticAlgorithmNsga2:
                 size = size + len(front)
 
         fitness_df['front'] = fitness_df['front'].fillna(-99)
-        fitness_df=fitness_df.drop(columns=['cdist', 'domcount'])
+        fitness_df=fitness_df.drop(columns=['cdist', 'domcount']) # FIXME: uncomment
 
         return fitness_df

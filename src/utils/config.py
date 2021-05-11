@@ -5,12 +5,12 @@ LUG=11 # weight (kg) of a lug
 SEASON=2020
 
 ZAR_HR=20
-ZAR_KM=3.16
+ZAR_KM=3.16/1000
 
 ########################################################
 # GA CONFIG
 ########################################################
 TOURSIZE=2  # NB NSGI2 requires binary tournament selection
 MUTATIONRATE=5
-POPUATION=20
-ITERATIONS=50
+POPUATION=25
+ITERATIONS=150

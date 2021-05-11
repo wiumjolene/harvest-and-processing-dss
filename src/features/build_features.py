@@ -198,6 +198,7 @@ class Individual:
         individualdf3['deviation'] =  abs(individualdf3['dkg']-individualdf3['kg'])
 
         total_dev = individualdf3.deviation.sum()
+        total_dev = (total_dev * (1 - config.GIVEAWAY)) / config.STDUNIT 
 
         return [[total_cost, total_dev]]
 
@@ -249,8 +250,8 @@ class GeneticAlgorithmGenetics:
             
         parent_path = f"data/interim/{alg}/id_{parent}"
         #parent_df = pd.read_excel(parent_path + ".xlsx")
-        parent_df = pd.read_pickle(parent_path) #TODO: Make pickle
-        parent_df['parent'] = parent
+        parent_df = pd.read_pickle(parent_path) 
+        #parent_df['parent'] = parent
         
         return parent_df
 
@@ -274,7 +275,7 @@ class GeneticAlgorithmGenetics:
             df_genenew = ix.make_individual(get_dlist=False, dlist=demand_list)
 
             df_mutate1 = df_mutate[df_mutate['time_id'] != mp_time]
-            df_mutate2 = pd.concat([df_mutate1, df_genenew])
+            df_mutate2 = pd.concat([df_mutate1, df_genenew]).reset_index(drop=True)
 
         else:
             
