@@ -150,7 +150,7 @@ class GeneticAlgorithmNsga2:
             id = fitness_df.id[i]
             obj1 = fitness_df.obj1[i]
             obj2 = fitness_df.obj2[i]
-            domcount = 0  # number of sols that dominate cursol
+            domcount = 0  # number of sols that dominate cur sol
             domset = []  # set of sols cursol dominates
 
             for j in range(len(fitness_df)):
@@ -214,6 +214,6 @@ class GeneticAlgorithmNsga2:
                 size = size + len(front)
 
         fitness_df['front'] = fitness_df['front'].fillna(-99)
-        fitness_df=fitness_df.drop(columns=['cdist', 'domcount']) # FIXME: uncomment
+        fitness_df=fitness_df.drop(columns=['cdist', 'domcount'])
 
         return fitness_df

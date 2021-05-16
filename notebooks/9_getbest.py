@@ -10,7 +10,7 @@ from src.utils import config
 
 print(datetime.datetime.now())
 
-path = r'C:\Users\Jolene Wium\Documents\personal\studies\phd\model\model\data\interim\fitness.xlsx'
+path = r'C:\Users\Jolene Wium\Documents\personal\studies\phd\model\model\data\interim\fitness_nsga2.xlsx'
 
 fitness_df = pd.read_excel(path)
 fitness_df=fitness_df[fitness_df['front']==1].reset_index(drop=True)
