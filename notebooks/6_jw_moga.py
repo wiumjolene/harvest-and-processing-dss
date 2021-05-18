@@ -15,13 +15,15 @@ from src.utils import config
 
 graph = Visualize()
 
+# TODO: dynamically calc sshare
+sshare = 1/(math.sqrt(config.POPUATION)-1)
+
 p = r'C:\Users\Jolene Wium\Documents\personal\studies\phd\model\model\data\interim\fitness_vega.xlsx'
 fitness_df = pd.read_excel(p)
 
 fitness_df = fitness_df[fitness_df['population'] != 'none'].reset_index(drop=True)
-fitness_df= fitness_df.sort_values(by=['obj1','obj2']).reset_index(drop=True)
-
 fitness_df=fitness_df.groupby(['obj1','obj2'])['id'].min().reset_index(drop=False)
+fitness_df= fitness_df.sort_values(by=['obj1','obj2']).reset_index(drop=True)
 
 ##############################################################################
 # 1. Assign rank based on non-dominated
@@ -69,8 +71,6 @@ fitness_df['fitness'] = N - fitness_df['nk'] - (fitness_df['solk'] * 0.5)
 
 ##############################################################################
 # 3. STANDARD FITNESS SHARE
-# TODO: dynamically calc sshare
-sshare = 100
 ##############################################################################
 # 3.1 Normalised distance between any two indivs in same rank
 
@@ -114,7 +114,13 @@ for r in ranks:
 
 # 3.4 Finally, the assigned fitness is reduced by dividing the fitness Fi given 
 #       in step 2 by the niche count as follows
-fitness_df['fitness2']=fitness_df['fitness']/fitness_df['nc']
+fitness_df['fitness']=fitness_df['fitness']/fitness_df['nc']
+
+fitness_df = fitness_df.sort_values(by=['fitness']).reset_index(drop=True)
+fitness_df.loc[(fitness_df.index<=config.POPUATION),'population']='yes'
+fitness_df.loc[(fitness_df.index>config.POPUATION),'population']='none'
+
+
 graph.scatter_plot2(fitness_df,'moga.html','fitness2')
 
 

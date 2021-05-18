@@ -1,3 +1,5 @@
+import math
+
 STDUNIT=4.5 # each stdunit is so many kg of produce
 GIVEAWAY=0.05 # % giveaway
 TRUCK=1500 # 1 * truck carries so many kg of produce
@@ -13,4 +15,10 @@ ZAR_KM=3.16/1000
 TOURSIZE=2  # NB NSGI2 requires binary tournament selection
 MUTATIONRATE=5
 POPUATION=25
-ITERATIONS=150
+ITERATIONS=100
+
+
+########################################################
+# MOGA CONFIG
+########################################################
+SSHARE = 1/(math.sqrt(POPUATION)-1)
