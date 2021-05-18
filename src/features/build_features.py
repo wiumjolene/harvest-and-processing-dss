@@ -249,10 +249,8 @@ class GeneticAlgorithmGenetics:
             parent = option_id
             
         parent_path = f"data/interim/{alg}/id_{parent}"
-        #parent_df = pd.read_excel(parent_path + ".xlsx")
         parent_df = pd.read_pickle(parent_path) 
-        #parent_df['parent'] = parent
-        
+                
         return parent_df
 
     def mutation(self, df_mutate, times, alg):

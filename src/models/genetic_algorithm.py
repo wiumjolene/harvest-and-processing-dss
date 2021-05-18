@@ -23,7 +23,8 @@ class GeneticAlgorithmVega:
         self.logger.info(f"Vector Evaluated Genetic Algorthm")
         
         p = Population()
-        fitness_df = p.population(config.POPUATION, 'vega')
+        init_pop = p.population(config.POPUATION, 'vega')
+        fitness_df = init_pop
         fitness_df['population'] = 'yes'
 
         self.logger.info(f"starting VEGA search")
@@ -31,10 +32,19 @@ class GeneticAlgorithmVega:
             fitness_df = self.gag.crossover(fitness_df, 'vega')
             fitness_df = self.pareto_vega(fitness_df)
 
+        init_pop['result'] = 'init pop'
+        fitness_df['result'] = 'final result'
+        
+        fitness_df = pd.concat([fitness_df, init_pop])
+
         fitness_df.to_excel('data/interim/fitness_vega.xlsx', index=False)
         filename_html = 'reports/figures/genetic_algorithm_vega.html'
-        self.graph.scatter_plot2(fitness_df, filename_html)
-        return
+        self.graph.scatter_plot2(fitness_df, filename_html, 'result', 
+                'Vector Evaluated Genetic Algorithm (VEGA)')
+
+        best_obj1 = fitness_df['obj1'].min()
+        best_obj2 = fitness_df['obj2'].min()
+        return [best_obj1, best_obj2]
 
     def pareto_vega(self, fitness_df):
         """ Decide if new child is worthy of pareto membership 
@@ -42,6 +52,7 @@ class GeneticAlgorithmVega:
         """
         self.logger.info(f"- getting fitness")
         popsize = config.POPUATION
+
         # TODO: check legitimacy of this!
         fitness_df=fitness_df.groupby(['obj1','obj2'])['id'].min().reset_index(drop=False)
         fitness_df['population'] = 'none'
@@ -65,7 +76,7 @@ class GeneticAlgorithmVega:
         fitness_df.loc[(fitness_df[objective] <= objval), 'population'] = 'yes'
 
         # TODO: to keep population small uncomment
-        #fitness_df = fitness_df[fitness_df['population'] == 'yes']  
+        fitness_df = fitness_df[fitness_df['population'] == 'yes']  
 
         return fitness_df
 
@@ -80,8 +91,9 @@ class GeneticAlgorithmNsga2:
         self.logger.info(f"Non Dominated Sorting Genetic Algorithm")
         
         p = Population()
-        fitness_df = p.population(config.POPUATION, 'nsga2')
-        
+        init_pop = p.population(config.POPUATION, 'nsga2')
+        fitness_df = init_pop
+
         # Make child pop out of main population
         while len(fitness_df) < (config.POPUATION * 2):
             fitness_df = self.gag.crossover(fitness_df, 'nsga2')
@@ -91,15 +103,22 @@ class GeneticAlgorithmNsga2:
 
         self.logger.info(f"starting NSGA2 search")
         for _ in range(config.ITERATIONS):
-            fitness_df = fitness_df[fitness_df['population'] == 'yes'].reset_index(drop=True)
             fitness_df = self.gag.crossover(fitness_df, 'nsga2')
             fitness_df = self.pareto_nsga2(fitness_df)
 
+        init_pop['result'] = 'init pop'
+        fitness_df['result'] = 'final result'
+        
+        fitness_df = pd.concat([fitness_df, init_pop])        
+        
         fitness_df.to_excel('data/interim/fitness_nsga2.xlsx', index=False)
         filename_html = 'reports/figures/genetic_algorithm_nsga2.html'
-        fitness_df['colour'] = fitness_df['front'].astype(str)
-        self.graph.scatter_plot2(fitness_df, filename_html, colour='colour')
-        return
+        self.graph.scatter_plot2(fitness_df, filename_html, 'result', 
+                'Nondominted Sorting Genetic Algorithm2 (NSGA2)')
+
+        best_obj1 = fitness_df['obj1'].min()
+        best_obj2 = fitness_df['obj2'].min()
+        return [best_obj1, best_obj2]
 
     def crowding_distance(self, fitness_df, fc, size):
         """ Crowding distance sorting """ 
@@ -215,6 +234,7 @@ class GeneticAlgorithmNsga2:
 
         fitness_df['front'] = fitness_df['front'].fillna(-99)
         fitness_df=fitness_df.drop(columns=['cdist', 'domcount'])
+        fitness_df = fitness_df[fitness_df['population'] == 'yes'].reset_index(drop=True)
 
         return fitness_df
 
@@ -230,7 +250,8 @@ class GeneticAlgorithmMoga:
         self.logger.info(f"Multi Objective Genetic Algorithm")
         
         p = Population()
-        fitness_df = p.population(config.POPUATION, 'moga')
+        init_pop = p.population(config.POPUATION, 'moga')
+        fitness_df = init_pop
 
         fitness_df['population'] = 'yes'
 
@@ -239,11 +260,20 @@ class GeneticAlgorithmMoga:
             fitness_df = self.gag.crossover(fitness_df, 'moga')
             fitness_df = self.pareto_moga(fitness_df)
 
+        init_pop['result'] = 'init pop'
+        fitness_df['result'] = 'final result'
+        
+        fitness_df = pd.concat([fitness_df, init_pop])
+
         fitness_df.to_excel('data/interim/fitness_moga.xlsx', index=False)
         filename_html = 'reports/figures/genetic_algorithm_moga.html'
-        fitness_df['colour'] = fitness_df['fitness'].astype(str)
-        self.graph.scatter_plot2(fitness_df, filename_html, colour='colour')
-        return
+        #fitness_df['colour'] = fitness_df['population'].astype(str)
+        self.graph.scatter_plot2(fitness_df, filename_html, 'result', 
+                'Multi Objective Genetic Algorithm (MOGA)')
+
+        best_obj1 = fitness_df['obj1'].min()
+        best_obj2 = fitness_df['obj2'].min()
+        return [best_obj1, best_obj2]
 
     def pareto_moga(self, fitness_df):
 

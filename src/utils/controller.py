@@ -12,8 +12,9 @@ class MainController:
     logger = logging.getLogger(f"{__name__}.MainController")
     synch_data = False
     make_data = False
-    vega = False
-    nsga2 = False
+
+    vega = True
+    nsga2 = True
     moga = True
 
     def pipeline_control(self):
@@ -32,11 +33,12 @@ class MainController:
             ga = GeneticAlgorithmVega()
 
             start=datetime.datetime.now()
-            ga.vega()
+            x=ga.vega()
             finish=datetime.datetime.now()
 
-            temp = pd.DataFrame(data=[('vega', start, finish, (finish-start))],
-                    columns=['vega', 'start', 'finish', 'diff'])
+            temp = pd.DataFrame(data=[('vega', start, finish, (finish-start), x[0], x[1])],
+                    columns=['model', 'start', 'finish', 'diff', 'best_obj1', 'best_obj2' ])
+
             monitor=pd.concat([monitor, temp])
 
         if self.nsga2:
@@ -44,11 +46,11 @@ class MainController:
             ga = GeneticAlgorithmNsga2()
 
             start=datetime.datetime.now()
-            ga.nsga2()
+            x=ga.nsga2()
             finish=datetime.datetime.now()
 
-            temp = pd.DataFrame(data=[('nsga2', start, finish, (finish-start))],
-                    columns=['vega', 'start', 'finish', 'diff'])
+            temp = pd.DataFrame(data=[('nsga2', start, finish, (finish-start), x[0], x[1])],
+                    columns=['model', 'start', 'finish', 'diff', 'best_obj1', 'best_obj2' ])
             monitor=pd.concat([monitor, temp])
 
         if self.moga:
@@ -56,12 +58,12 @@ class MainController:
             ga = GeneticAlgorithmMoga()
 
             start=datetime.datetime.now()
-            ga.moga()
+            x=ga.moga()
             finish=datetime.datetime.now()
 
-            temp = pd.DataFrame(data=[('moga', start, finish, (finish-start))],
-                    columns=['moga', 'start', 'finish', 'diff'])
-                    
+            temp = pd.DataFrame(data=[('moga', start, finish, (finish-start), x[0], x[1])],
+                    columns=['model', 'start', 'finish', 'diff', 'best_obj1', 'best_obj2' ])
+
             monitor=pd.concat([monitor, temp])
 
         monitor.to_excel('data/interim/monitor.xlsx', index=False)
