@@ -16,11 +16,13 @@ fitness_df = pd.read_excel(path)
 fitness_df=fitness_df[fitness_df['front']==1].reset_index(drop=True)
 
 def makepath(id,x):
-    path = f"C:/Users/Jolene Wium/Documents/personal/studies/phd/model/model/data/interim/nsga2/id_{id}{x}"
+    path = f"C:/Users/Jolene Wium/Documents/personal/studies/phd/model/model/data/interim/moga/id_{id}{x}"
     return path
 
-for i in range(len(fitness_df)):
-    id = fitness_df.id[i]
+ids = ['286']
+
+for i in ids:
+    id = i
 
     df=pd.read_pickle(makepath(id,''))
 

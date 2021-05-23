@@ -7,9 +7,12 @@ import sys
 import datetime
 
 import pandas as pd
+import numpy as np
+
 from src.data.make_dataset import ImportOptions
 from src.utils import config
 from src.utils.visualize import Visualize 
+from src.features.make_tests import Tests
 
 
 class Individual:
@@ -21,16 +24,26 @@ class Individual:
     def individual(self, number, alg, get_indiv=True, indiv=individual_df):
         self.logger.info(f"- individual: {number}")
 
-        if get_indiv:
-            indiv = self.make_individual()
+        if get_indiv == "test":
+            """ Test function - define indiv and fitness """
+            test=Tests()
+            x = np.random.rand(config.D)
+            indiv = pd.DataFrame(x, columns=['value'])
+            indiv['time_id'] = indiv.index
+            fitness = test.ZDT1(x)
 
-        fitness = self.make_fitness(indiv)
+        else:
+            if get_indiv:
+                indiv = self.make_individual()
+
+            fitness = self.make_fitness(indiv)
 
         ind_fitness = pd.DataFrame(fitness, columns=['obj1', 'obj2'])
         ind_fitness['id'] = number
         ind_fitness['datetime'] = datetime.datetime.now()
 
         indiv.to_pickle(f"data/interim/{alg}/id_{number}") 
+        indiv.to_excel(f"data/interim/{alg}/id_{number}.xlsx")
         return ind_fitness
 
     def make_individual(self, get_dlist=True, dlist=dlistt):
@@ -253,7 +266,7 @@ class GeneticAlgorithmGenetics:
                 
         return parent_df
 
-    def mutation(self, df_mutate, times, alg):
+    def mutation(self, df_mutate, times, nontest=True):
         """ GA mutation function to diversify gene pool. """
 
         self.logger.info(f"-- mutation check")
@@ -266,11 +279,16 @@ class GeneticAlgorithmGenetics:
             mp = random.randint(0,len(times)-1)
             mp_time = times[mp]
 
-            df_genex = df_mutate[df_mutate['time_id'] == mp_time]
-            demand_list = list(df_genex.demand_id.unique())
-
-            ix = Individual()
-            df_genenew = ix.make_individual(get_dlist=False, dlist=demand_list)
+            if nontest:
+                df_genex = df_mutate[df_mutate['time_id'] == mp_time]
+                demand_list = list(df_genex.demand_id.unique())
+                ix = Individual()
+                df_genenew = ix.make_individual(get_dlist=False, dlist=demand_list)  # FIXME:
+            
+            else:  
+                x = np.random.rand(1)
+                df_genenew = pd.DataFrame(x, columns=['value'])
+                df_genenew['time_id'] = mp_time
 
             df_mutate1 = df_mutate[df_mutate['time_id'] != mp_time]
             df_mutate2 = pd.concat([df_mutate1, df_genenew]).reset_index(drop=True)
@@ -281,7 +299,7 @@ class GeneticAlgorithmGenetics:
 
         return df_mutate2
 
-    def crossover(self, fitness_df, alg):
+    def crossover(self, fitness_df, alg, nontest=True):
         """ GA crossover genetic material for diversivication"""
 
         self.logger.info(f"-- crossover")
@@ -312,13 +330,23 @@ class GeneticAlgorithmGenetics:
         child1 = pd.concat([parent1a, parent2b]).reset_index(drop=True)
         child2 = pd.concat([parent2a, parent1b]).reset_index(drop=True)
 
-        # Bring mutatation opportunity in
-        child1 = self.mutation(child1, times, alg)
-        child2 = self.mutation(child2, times, alg)
+        if nontest==True:
+            # Bring mutatation opportunity in
+            child1 = self.mutation(child1, times, alg, nontest=True)
+            child2 = self.mutation(child2, times, alg, nontest=True)
 
-        # Register child on fitness_df
-        child1_f = ix.individual(max_id+1, alg, get_indiv=False, indiv=child1)
-        child2_f = ix.individual(max_id+2, alg, get_indiv=False, indiv=child2)
+            # Register child on fitness_df
+            child1_f = ix.individual(max_id+1, alg, get_indiv=False, indiv=child1)
+            child2_f = ix.individual(max_id+2, alg, get_indiv=False, indiv=child2)
+
+        else:
+            # Bring mutatation opportunity in
+            child1 = self.mutation(child1, times, alg, nontest=False)
+            child2 = self.mutation(child2, times, alg, nontest=False)
+
+            # Register child on fitness_df
+            child1_f = ix.individual(max_id+1, alg, get_indiv="Test", indiv=child1)
+            child2_f = ix.individual(max_id+2, alg, get_indiv="Test", indiv=child2)
 
         child1_f['population'] = 'child'
         child2_f['population'] = 'child'
