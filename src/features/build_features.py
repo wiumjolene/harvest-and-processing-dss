@@ -21,16 +21,16 @@ class Individual:
     individual_df = pd.DataFrame()
     dlistt=[]
 
-    def individual(self, number, alg, get_indiv=True, indiv=individual_df):
+    def individual(self, number, alg, get_indiv=True, indiv=individual_df, test=False):
         self.logger.info(f"- individual: {number}")
 
-        if get_indiv == "test":
+        if test:
             """ Test function - define indiv and fitness """
-            test=Tests()
+            t=Tests()
             x = np.random.rand(config.D)
             indiv = pd.DataFrame(x, columns=['value'])
             indiv['time_id'] = indiv.index
-            fitness = test.ZDT1(x)
+            fitness = t.ZDT1(x)
 
         else:
             if get_indiv:
@@ -266,7 +266,7 @@ class GeneticAlgorithmGenetics:
                 
         return parent_df
 
-    def mutation(self, df_mutate, times, nontest=True):
+    def mutation(self, df_mutate, times, test):
         """ GA mutation function to diversify gene pool. """
 
         self.logger.info(f"-- mutation check")
@@ -279,16 +279,18 @@ class GeneticAlgorithmGenetics:
             mp = random.randint(0,len(times)-1)
             mp_time = times[mp]
 
-            if nontest:
+            # If test then make new gene here
+            if test:
+                x = np.random.rand(1)
+                df_genenew = pd.DataFrame(x, columns=['value'])
+                df_genenew['time_id'] = mp_time
+            
+            # Else get only gene aternate
+            else:  
                 df_genex = df_mutate[df_mutate['time_id'] == mp_time]
                 demand_list = list(df_genex.demand_id.unique())
                 ix = Individual()
                 df_genenew = ix.make_individual(get_dlist=False, dlist=demand_list)  # FIXME:
-            
-            else:  
-                x = np.random.rand(1)
-                df_genenew = pd.DataFrame(x, columns=['value'])
-                df_genenew['time_id'] = mp_time
 
             df_mutate1 = df_mutate[df_mutate['time_id'] != mp_time]
             df_mutate2 = pd.concat([df_mutate1, df_genenew]).reset_index(drop=True)
@@ -299,7 +301,7 @@ class GeneticAlgorithmGenetics:
 
         return df_mutate2
 
-    def crossover(self, fitness_df, alg, nontest=True):
+    def crossover(self, fitness_df, alg, test=False):
         """ GA crossover genetic material for diversivication"""
 
         self.logger.info(f"-- crossover")
@@ -330,23 +332,24 @@ class GeneticAlgorithmGenetics:
         child1 = pd.concat([parent1a, parent2b]).reset_index(drop=True)
         child2 = pd.concat([parent2a, parent1b]).reset_index(drop=True)
 
-        if nontest==True:
+        # If test then make new test individual gene
+        if test:
             # Bring mutatation opportunity in
-            child1 = self.mutation(child1, times, alg, nontest=True)
-            child2 = self.mutation(child2, times, alg, nontest=True)
+            child1 = self.mutation(child1, times, test=test)
+            child2 = self.mutation(child2, times, test=test)
+
+            # Register child on fitness_df
+            child1_f = ix.individual(max_id+1, alg, get_indiv=False, indiv=child1, test=test)
+            child2_f = ix.individual(max_id+2, alg, get_indiv=False, indiv=child2, test=test) 
+
+        else:
+           # Bring mutatation opportunity in
+            child1 = self.mutation(child1, times, test=False)
+            child2 = self.mutation(child2, times, test=False)
 
             # Register child on fitness_df
             child1_f = ix.individual(max_id+1, alg, get_indiv=False, indiv=child1)
             child2_f = ix.individual(max_id+2, alg, get_indiv=False, indiv=child2)
-
-        else:
-            # Bring mutatation opportunity in
-            child1 = self.mutation(child1, times, alg, nontest=False)
-            child2 = self.mutation(child2, times, alg, nontest=False)
-
-            # Register child on fitness_df
-            child1_f = ix.individual(max_id+1, alg, get_indiv="Test", indiv=child1)
-            child2_f = ix.individual(max_id+2, alg, get_indiv="Test", indiv=child2)
 
         child1_f['population'] = 'child'
         child2_f['population'] = 'child'

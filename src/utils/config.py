@@ -14,8 +14,8 @@ ZAR_KM=3.16/1000
 ########################################################
 TOURSIZE=2  # NB NSGI2 requires binary tournament selection
 MUTATIONRATE=5
-POPUATION=5
-ITERATIONS=20
+POPUATION=50
+ITERATIONS=2000
 
 
 ########################################################

@@ -122,6 +122,8 @@ class GeneticAlgorithmNsga2:
 
     def crowding_distance(self, fitness_df, fc, size):
         """ Crowding distance sorting """ 
+        self.logger.info(f"-- crowding distance activated")
+
         fitness_dff = fitness_df[fitness_df['front']==fc].reset_index(drop=True)
 
         if fc==1:
@@ -151,7 +153,7 @@ class GeneticAlgorithmNsga2:
                     fitness_df.loc[(fitness_df['id']==id),'cdist']=fitness_df['cdist']+distance
 
         fitness_df = fitness_df.sort_values(by=['cdist'], ascending=False).reset_index(drop=True)
-        fitness_df.loc[(fitness_df.index < space),'population']='yes' 
+        fitness_df.loc[(fitness_df.index < space),'population']='yes'
         return fitness_df
 
     def pareto_nsga2(self, fitness_df):
@@ -165,6 +167,7 @@ class GeneticAlgorithmNsga2:
         domination = {}
         front = []
         # Initiate domination count and dominated by list
+        self.logger.info(f"-- getting domcount")
         for i in range(len(fitness_df)):
             id = fitness_df.id[i]
             obj1 = fitness_df.obj1[i]
@@ -179,9 +182,12 @@ class GeneticAlgorithmNsga2:
                     obj1x = fitness_df.obj1[j]
                     obj2x = fitness_df.obj2[j]      
 
-                    if (obj1x <= obj1 and obj2x <= obj2) and (obj1x < obj1 or obj2x < obj2):
+                    # Calculate # of solutions that dominate obj
+                    if (obj1x<=obj1 and obj2x<=obj2) and (obj1x<obj1 or obj2x<obj2):
                         domcount = domcount + 1
-                    else:
+                    
+                    # Get set of solutions that solution dominates
+                    if (obj1 <= obj1x and obj2 <= obj2x) and (obj1 < obj1x or obj2 < obj2x):
                         domset.append(idx)
 
             domination.update({id:domset})
@@ -194,13 +200,17 @@ class GeneticAlgorithmNsga2:
         ###################################################
         # Get front count and determine population status #
         ###################################################
+        self.logger.info(f"-- getting front count")
 
         # Size of selected solutions
         size = len(fitness_df[fitness_df['front'] == 1])
 
         # Check of set of sols in front 1 will fit into new population?
-        if size >= config.POPUATION:
+        if size > config.POPUATION:
             fitness_df=self.crowding_distance(fitness_df, 1, size)
+
+        elif size == config.POPUATION:
+            fitness_df.loc[(fitness_df['front']==1), 'population'] = 'yes'
 
         # Else continue assigning fronts to solutions
         else:
@@ -220,11 +230,12 @@ class GeneticAlgorithmNsga2:
                             fitness_df.loc[(fitness_df['id']==q), 'front'] = fc
 
                 # Only for as many fronts as needed to fill popsize
-                if size + len(front) >= config.POPUATION:
+                if size + len(front) > config.POPUATION:
                     fitness_df=self.crowding_distance(fitness_df, fc, size)
-                    
                     break
-
+                elif size + len(front) == config.POPUATION:
+                    fitness_df.loc[(fitness_df['front']==fc), 'population'] = 'yes'
+                    break
                 else:
                     fitness_df.loc[(fitness_df['front']==fc), 'population'] = 'yes'
 
@@ -233,8 +244,9 @@ class GeneticAlgorithmNsga2:
                 size = size + len(front)
 
         fitness_df['front'] = fitness_df['front'].fillna(-99)
-        fitness_df=fitness_df.drop(columns=['cdist', 'domcount'])
-        fitness_df = fitness_df[fitness_df['population'] == 'yes'].reset_index(drop=True)
+        fitness_df=fitness_df[fitness_df['population']=='yes'].reset_index(drop=True)
+        #fitness_df=fitness_df.drop(columns=['cdist', 'domcount'])
+        #fitness_df = fitness_df[fitness_df['population'] == 'yes'].reset_index(drop=True)
 
         return fitness_df
 

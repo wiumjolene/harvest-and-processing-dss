@@ -13,9 +13,9 @@ class MainController:
     synch_data = False
     make_data = False
 
-    vega = True
+    vega = False
     nsga2 = True
-    moga = True
+    moga = False
 
     def pipeline_control(self):
         monitor = pd.DataFrame()

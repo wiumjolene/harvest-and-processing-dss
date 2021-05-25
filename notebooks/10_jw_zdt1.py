@@ -8,7 +8,7 @@ import platypus as plat
 problem = plat.ZDT1()
 algorithm = plat.NSGAII(problem)
 
-algorithm.run(20)
+algorithm.run(2000)
 
 for solution in algorithm.result:
     print(solution.objectives)

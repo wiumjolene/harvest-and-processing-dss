@@ -12,7 +12,7 @@ import platypus as plat
 
 from src.features.make_tests import Tests
 from src.features.build_features import Individual
-from src.models.genetic_algorithm import GeneticAlgorithmMoga
+from src.models.genetic_algorithm import GeneticAlgorithmMoga, GeneticAlgorithmNsga2, GeneticAlgorithmVega
 from src.utils.visualize import Visualize
 from src.utils import config
 from src.features.build_features import GeneticAlgorithmGenetics
@@ -20,25 +20,25 @@ from src.features.build_features import GeneticAlgorithmGenetics
 gag = GeneticAlgorithmGenetics()
 test=Tests()
 graph = Visualize()
-moga=GeneticAlgorithmMoga()
+ga=GeneticAlgorithmNsga2()
 indiv = Individual()
 
 def population(start, size):
     pop=pd.DataFrame()
     for p in range(size):
-        ind = indiv.individual(start + p, 'zdt1_moga', get_indiv="test")
+        ind = indiv.individual(start + p, 'zdt1_moga', test=True)
         pop=pop.append(ind).reset_index(drop=True)
     return pop
 
 fitness_df = population(0, config.POPUATION)
-fitness_df['population'] = 'pop'
+fitness_df['population'] = 'yes'
 
 for i in range(config.ITERATIONS):
-    if i % 10 == 0:
+    if i % 100 == 0:
         print(i)
-    fitness_df = gag.crossover(fitness_df, 'zdt1_moga',nontest=False)
 
-    fitness_df=moga.pareto_moga(fitness_df)
+    fitness_df = gag.crossover(fitness_df, 'zdt1_moga', test=True)
+    fitness_df=ga.pareto_nsga2(fitness_df)
 
     if i % 1000 == 0:
         graph.scatter_plot2(fitness_df, 'html.html', 'population', f"ZDT1-{i}")

@@ -12,7 +12,7 @@ from src.utils import config
 
 print(datetime.datetime.now())
 
-path = r'C:\Users\Jolene Wium\Documents\personal\studies\phd\model\model\data\interim\fitness.xlsx'
+path = r'C:\Users\Jolene Wium\Documents\personal\studies\phd\model\model\data\interim\fitness_nsga22.xlsx'
 fitness_df = pd.read_excel(path)
 fitness_df=fitness_df[fitness_df['population']=='yes'].reset_index(drop=True)
 
@@ -27,13 +27,14 @@ front = []
 
 def crowding_distance(fitness_df, fc, size):
     """ Crowding distance sorting """ 
+    #self.logger.info(f"-- crowding distance activated")
+
     fitness_dff = fitness_df[fitness_df['front']==fc].reset_index(drop=True)
 
     if fc==1:
         space = config.POPUATION
     else:
         space = config.POPUATION - size
-    #print(f"{fc}-{size}-{space}-{len(fitness_dff)}")
 
     objs = ['obj1', 'obj2']
     fitness_df['cdist'] = 0
@@ -57,16 +58,26 @@ def crowding_distance(fitness_df, fc, size):
                 fitness_df.loc[(fitness_df['id']==id),'cdist']=fitness_df['cdist']+distance
 
     fitness_df = fitness_df.sort_values(by=['cdist'], ascending=False).reset_index(drop=True)
-    fitness_df.loc[(fitness_df.index<space),'population']='yes' 
+    fitness_df.loc[(fitness_df.index < space),'population']='yes'
     return fitness_df
 
+""" Decide if new child is worthy of pareto membership 
+Deb 2002
+"""
+#self.logger.info(f"- getting fitness")
+fitness_df=fitness_df.groupby(['obj1','obj2'])['id'].min().reset_index(drop=False)
+
+fitness_df['population'] = 'none'
+domination = {}
+front = []
 # Initiate domination count and dominated by list
+#self.logger.info(f"-- getting domcount")
 for i in range(len(fitness_df)):
     id = fitness_df.id[i]
     obj1 = fitness_df.obj1[i]
     obj2 = fitness_df.obj2[i]
-    domcount = 0
-    domset = []
+    domcount = 0  # number of sols that dominate cur sol
+    domset = []  # set of sols cursol dominates
 
     for j in range(len(fitness_df)):
         idx = fitness_df.id[j]
@@ -75,34 +86,44 @@ for i in range(len(fitness_df)):
             obj1x = fitness_df.obj1[j]
             obj2x = fitness_df.obj2[j]      
 
-            if (obj1x <= obj1 and obj2x <= obj2) and (obj1x < obj1 or obj2x < obj2):
+            # Calculate # of solutions that dominate obj
+            if (obj1x<=obj1 and obj2x<=obj2) and (obj1x<obj1 or obj2x<obj2):
                 domcount = domcount + 1
-            else:
+            
+            # Get set of solutions that solution dominates
+            if (obj1 <= obj1x and obj2 <= obj2x) and (obj1 < obj1x or obj2 < obj2x):
                 domset.append(idx)
 
     domination.update({id:domset})
     fitness_df.loc[(fitness_df['id']==id), 'domcount'] = domcount
 
-    if domcount == 0:
+    if domcount == 0:  # if part of front 1
         fitness_df.loc[(fitness_df['id']==id), 'front'] = 1
         front.append(id)
 
-print(datetime.datetime.now())
-# Get front count and determine population status
+###################################################
+# Get front count and determine population status #
+###################################################
+#self.logger.info(f"-- getting front count")
+
+# Size of selected solutions
 size = len(fitness_df[fitness_df['front'] == 1])
 
+# Check of set of sols in front 1 will fit into new population?
 if size > config.POPUATION:
     fitness_df=crowding_distance(fitness_df, 1, size)
 
+elif size == config.POPUATION:
+    fitness_df.loc[(fitness_df['front']==1), 'population'] = 'yes'
+
+# Else continue assigning fronts to solutions
 else:
     fitness_df.loc[(fitness_df['front']==1), 'population'] = 'yes'
     fc=2
     while len(front) > 0:
-        q1= []
+        q1= []  # Solutions in new front
 
         for p in front:
-            sp = domination[p]
-
             for q in domination[p]:
                 dc = fitness_df['domcount'][fitness_df['id'] == q].iloc[0]
                 dc = dc - 1
@@ -114,10 +135,11 @@ else:
 
         # Only for as many fronts as needed to fill popsize
         if size + len(front) > config.POPUATION:
-            
             fitness_df=crowding_distance(fitness_df, fc, size)
             break
-
+        elif size + len(front) == config.POPUATION:
+            fitness_df.loc[(fitness_df['front']==fc), 'population'] = 'yes'
+            break
         else:
             fitness_df.loc[(fitness_df['front']==fc), 'population'] = 'yes'
 
@@ -126,8 +148,6 @@ else:
         size = size + len(front)
 
 fitness_df['front'] = fitness_df['front'].fillna(-99)
-fitness_df=fitness_df.drop(columns=['cdist', 'domcount'])
-fitness_df['colour']=fitness_df['population'].astype(str)
-print(datetime.datetime.now())
-
-#graph.scatter_plot2(fitness_df, 'html.html')
+fitness_df=fitness_df[fitness_df['population']=='yes'].reset_index(drop=True)
+#fitness_df=fitness_df.drop(columns=['cdist', 'domcount'])
+#fitness_df = fitness_df[fitness_df['population'] == 'yes'].reset_index(drop=True)
