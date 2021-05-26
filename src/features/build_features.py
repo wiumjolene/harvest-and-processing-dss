@@ -30,7 +30,7 @@ class Individual:
             x = np.random.rand(config.D)
             indiv = pd.DataFrame(x, columns=['value'])
             indiv['time_id'] = indiv.index
-            fitness = t.ZDT1(x)
+            fitness = t.ZDT2(x)
 
         else:
             if get_indiv:
@@ -43,7 +43,7 @@ class Individual:
         ind_fitness['datetime'] = datetime.datetime.now()
 
         indiv.to_pickle(f"data/interim/{alg}/id_{number}") 
-        indiv.to_excel(f"data/interim/{alg}/id_{number}.xlsx")
+        #indiv.to_excel(f"data/interim/{alg}/id_{number}.xlsx")
         return ind_fitness
 
     def make_individual(self, get_dlist=True, dlist=dlistt):

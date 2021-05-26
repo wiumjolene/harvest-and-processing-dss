@@ -26,7 +26,7 @@ indiv = Individual()
 def population(start, size):
     pop=pd.DataFrame()
     for p in range(size):
-        ind = indiv.individual(start + p, 'zdt1_moga', test=True)
+        ind = indiv.individual(start + p, 'zdt2', test=True)
         pop=pop.append(ind).reset_index(drop=True)
     return pop
 
@@ -37,7 +37,7 @@ for i in range(config.ITERATIONS):
     if i % 100 == 0:
         print(i)
 
-    fitness_df = gag.crossover(fitness_df, 'zdt1_moga', test=True)
+    fitness_df = gag.crossover(fitness_df, 'zdt2', test=True)
     fitness_df=ga.pareto_nsga2(fitness_df)
 
     if i % 1000 == 0:
