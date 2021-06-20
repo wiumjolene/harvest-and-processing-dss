@@ -12,10 +12,12 @@ ZAR_KM=3.16/1000
 ########################################################
 # GA CONFIG
 ########################################################
-TOURSIZE=2  # NB NSGI2 requires binary tournament selection
-MUTATIONRATE=5
-POPUATION=50
-ITERATIONS=2000
+TOURSIZE=3  # NB NSGI2 requires binary tournament selection
+MUTATIONRATE=0.08
+MUTATIONRATE2=0.05
+CROSSOVERRATE=0.5
+POPUATION=100
+ITERATIONS=20000
 
 
 ########################################################
@@ -28,3 +30,7 @@ SSHARE = 1/(math.sqrt(POPUATION)-1)
 # TESTS
 ########################################################
 D = 30
+
+# ssh root@159.65.247.178
+# cd phd/workdir/
+# ~/agrihub/api/env/bin/python run.py
