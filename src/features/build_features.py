@@ -255,6 +255,7 @@ class GeneticAlgorithmGenetics:
             fit2 = fitness_df.obj2[option_num]
 
             if (fit1 <= high_fit1 and fit2 <= high_fit2) and (fit1 < high_fit1 or fit2 < high_fit2):  
+            #if self.dominates([(fit1, fit2)],[(high_fit1, high_fit2)]):
                 high_fit1 = fit1
                 high_fit2 = fit2
                 parent = option_id
@@ -273,7 +274,7 @@ class GeneticAlgorithmGenetics:
         """
 
         pareto_set = fitness_df[fitness_df['front']==1].reset_index(drop=True)
-        option_num = random.randint(0,len(fitness_df)-1)
+        option_num = random.randint(0,len(pareto_set)-1)
         option_id = fitness_df.id[option_num]
         parent_path = f"data/interim/{alg}/id_{option_id}"
         parent_df = pd.read_pickle(parent_path)  # FIXME: Optimise
@@ -376,3 +377,27 @@ class GeneticAlgorithmGenetics:
         fitness_df = pd.concat([fitness_df, child1_f, child2_f]).reset_index(drop=True)
 
         return fitness_df
+
+    def dominates(objset1, objset2, sign=[1, 1]):
+        """Return true if each objective of *self* is not strictly worse than
+                the corresponding objective of *other* and at least one objective is
+                strictly better.
+            **no need to care about the equal cases
+            (Cuz equal cases mean they are non-dominators)
+        :param obj1: a list of multiple objective values
+        :type obj1: numpy.ndarray
+        :param obj2: a list of multiple objective values
+        :type obj2: numpy.ndarray
+        :param sign: target types. positive means maximize and otherwise minimize.
+        :type sign: list
+        FROM DEAP
+        """
+        #print(obj1)
+        indicator = False
+        for a, b, sign in zip(objset1, objset2, sign):
+            if a * sign < b * sign:
+                indicator = True
+            # if one of the objectives is dominated, then return False
+            elif a * sign > b * sign:
+                return False
+        return indicator

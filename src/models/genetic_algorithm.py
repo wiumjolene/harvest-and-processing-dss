@@ -9,6 +9,7 @@ import numpy as np
 from src.features.build_features import Individual
 from src.features.build_features import Population
 from src.features.build_features import GeneticAlgorithmGenetics
+from src.features import build_features
 from src.utils.visualize import Visualize
 from src.utils import config
 
@@ -90,13 +91,13 @@ class GeneticAlgorithmNsga2:
         self.logger.info(f"Non Dominated Sorting Genetic Algorithm")
         
         p = Population()
-        init_pop = p.population(config.POPUATION, 'nsga2')
+        init_pop = p.population(config.POPUATION * 2, 'nsga2')
         fitness_df = init_pop
 
         # Make child pop out of main population
-        while len(fitness_df) < (config.POPUATION * 2):
-            fitness_df = self.gag.crossover(fitness_df, 'nsga2')
-            self.logger.info(f"making child pop 2n {len(fitness_df)}")
+        #while len(fitness_df) < (config.POPUATION * 2):
+        #    fitness_df = self.gag.crossover(fitness_df, 'nsga2')
+        #    self.logger.info(f"making child pop 2n {len(fitness_df)}")
 
         fitness_df['population'] = 'yes'
 
@@ -164,7 +165,6 @@ class GeneticAlgorithmNsga2:
         Deb 2002
         """
         self.logger.info(f"- getting fitness")
-        fitness_df=fitness_df.groupby(['obj1','obj2'])['id'].min().reset_index(drop=False)
 
         fitness_df['population'] = 'none'
         domination = {} # Dictionary of solutions Sp values
@@ -183,14 +183,20 @@ class GeneticAlgorithmNsga2:
 
                 if idx != id:
                     obj1x = fitness_df.obj1[j]
-                    obj2x = fitness_df.obj2[j]      
+                    obj2x = fitness_df.obj2[j]  
 
                     # Calculate # of solutions that dominate obj
+                    #inda = [(obj1, obj2)]
+                    #indb = [(obj1x, obj2x)]
+                    #com1 = build_features.GeneticAlgorithmGenetics.dominates(indb, inda)
+                    #com2 = build_features.GeneticAlgorithmGenetics.dominates(inda, indb)
                     if (obj1x<=obj1 and obj2x<=obj2) and (obj1x<obj1 or obj2x<obj2):
+                    #if com1:
                         domcount = domcount + 1
                     
                     # Get set of solutions that solution dominates
                     if (obj1 <= obj1x and obj2 <= obj2x) and (obj1 < obj1x or obj2 < obj2x):
+                    #elif com2:
                         domset.append(idx)
 
             domination.update({id:domset})
@@ -225,6 +231,7 @@ class GeneticAlgorithmNsga2:
 
                 # Visit each member of previous front
                 for p in front:
+
                     # Visit each member that is dominated by p
                     for q in domination[p]:
                         dc = fitness_df['domcount'][fitness_df['id'] == q].iloc[0]
