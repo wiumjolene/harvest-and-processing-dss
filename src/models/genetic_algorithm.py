@@ -3,6 +3,7 @@ import random
 import sys
 import logging
 import math
+from collections import defaultdict
 
 import pandas as pd
 import numpy as np
@@ -137,8 +138,8 @@ class GeneticAlgorithmNsga2:
         objs = ['obj1', 'obj2']
         fitness_df['cdist'] = 0
         for m in objs:
-            # Sort by objective (m)
-            df = fitness_dff.sort_values(by=m,ascending=False ).reset_index(drop=True)
+            # Sort by objective (m) 
+            df = fitness_dff.sort_values(by=m, ascending=False).reset_index(drop=True)
 
             for i in range(len(df)):
                 id = df.id[i]
@@ -158,6 +159,8 @@ class GeneticAlgorithmNsga2:
 
         fitness_df = fitness_df.sort_values(by=['cdist'], ascending=False).reset_index(drop=True)
         fitness_df.loc[(fitness_df.index < space),'population']='yes'
+        fitness_df = fitness_df.set_index('id')
+        fitness_df['id'] = fitness_df.index
         return fitness_df
 
     def pareto_nsga2(self, fitness_df):
@@ -167,45 +170,59 @@ class GeneticAlgorithmNsga2:
         self.logger.info(f"- getting fitness")
 
         fitness_df['population'] = 'none'
-        domination = {} # Dictionary of solutions Sp values
+        fitness_df['domcount'] = 0 
         front = []
+        fits = list(fitness_df.id)
         # Initiate domination count and dominated by list
         self.logger.info(f"-- getting domcount")
-        for i in range(len(fitness_df)):
-            id = fitness_df.id[i]
-            obj1 = fitness_df.obj1[i]
-            obj2 = fitness_df.obj2[i]
-            domcount = 0  # n number of sols that dominate curent solution
-            domset = []  # Sp set of solutions that cursol dominates (The sols you dominate)
 
-            for j in range(len(fitness_df)):
-                idx = fitness_df.id[j]
+        dominating_fits = defaultdict(int)  # n (The number of people that dominate you)
+        dominated_fits = defaultdict(list)  # Sp (The people you dominate)
+        fitness_df=fitness_df.set_index('id')
+        
+        #for i in range(len(fitness_df)):
+        for i, id in enumerate(fits):
+            #obj1 = fitness_df.loc[fitness_df['id'] == id, 'obj1'].iloc[0]
+            #obj2 = fitness_df.loc[fitness_df['id'] == id, 'obj2'].iloc[0]
+            obj1 = fitness_df.at[id, 'obj1']
+            obj2 = fitness_df.at[id, 'obj2']
 
-                if idx != id:
-                    obj1x = fitness_df.obj1[j]
-                    obj2x = fitness_df.obj2[j]  
+            objset1 = (obj1, obj2)
 
-                    # Calculate # of solutions that dominate obj
-                    #inda = [(obj1, obj2)]
-                    #indb = [(obj1x, obj2x)]
-                    #com1 = build_features.GeneticAlgorithmGenetics.dominates(indb, inda)
-                    #com2 = build_features.GeneticAlgorithmGenetics.dominates(inda, indb)
-                    if (obj1x<=obj1 and obj2x<=obj2) and (obj1x<obj1 or obj2x<obj2):
-                    #if com1:
-                        domcount = domcount + 1
+            #for j in range(len(fitness_df)):
+            for idx in fits[i + 1:]:
+                #obj1x = fitness_df.loc[fitness_df['id'] == idx, 'obj1'].iloc[0]
+                #obj2x = fitness_df.loc[fitness_df['id'] == idx, 'obj2'].iloc[0]
+                obj1x = fitness_df.at[idx, 'obj1']
+                obj2x = fitness_df.at[idx, 'obj2']
+
+                objset2 = (obj1x, obj2x)
+                
+                if build_features.GeneticAlgorithmGenetics.dominates(objset1, objset2):
+                    dominating_fits[idx] += 1 
+                    #d = fitness_df.loc[fitness_df['id'] == idx, 'domcount'].iloc[0]
+                    #d = fitness_df.at[idx, 'domcount']
                     
-                    # Get set of solutions that solution dominates
-                    if (obj1 <= obj1x and obj2 <= obj2x) and (obj1 < obj1x or obj2 < obj2x):
-                    #elif com2:
-                        domset.append(idx)
+                    #fitness_df.loc[fitness_df['id'] == idx, 'domcount'] = d + 1
+                    fitness_df.at[idx, 'domcount'] += 1
+                    dominated_fits[id].append(idx) 
 
-            domination.update({id:domset})
-            fitness_df.loc[(fitness_df['id']==id), 'domcount'] = domcount
+                elif build_features.GeneticAlgorithmGenetics.dominates(objset2, objset1):  
+                    dominating_fits[id] += 1
+                    #d = fitness_df.loc[fitness_df['id'] == id, 'domcount'].iloc[0]
+                    #d = fitness_df.at[id, 'domcount']
+                    
+                    #fitness_df.loc[fitness_df['id'] == id, 'domcount'] = d + 1
+                    fitness_df.at[id, 'domcount'] += 1
+                    dominated_fits[idx].append(id)    
 
-            if domcount == 0:  # if part of front 1
-                fitness_df.loc[(fitness_df['id']==id), 'front'] = 1
+            if dominating_fits[id] == 0:
+                #fitness_df.loc[(fitness_df['id']==id), 'front'] = 1
+                fitness_df.loc[(fitness_df.index==id), 'front'] = 1
                 front.append(id)
-
+        
+        fitness_df['id'] = fitness_df.index
+        #fitness_df = fitness_df.reset_index(drop=False)
         ###################################################
         # Get front count and determine population status #
         ###################################################
@@ -228,30 +245,38 @@ class GeneticAlgorithmNsga2:
             fc=2
             while len(front) > 0:
                 q1= []  # Solutions in new front
-
+                #print(f"New front: {front}")
                 # Visit each member of previous front
                 for p in front:
-
+                    #print(f"front: {fc} - indiv: {p}")
+                    #print(dominated_fits[p])
                     # Visit each member that is dominated by p
-                    for q in domination[p]:
-                        dc = fitness_df['domcount'][fitness_df['id'] == q].iloc[0]
+                    for q in dominated_fits[p]:
+                        #print(f"dominated: {q} - domcount: {fitness_df.at[q, 'domcount']}")
+                        #dc = fitness_df['domcount'][fitness_df['id'] == q].iloc[0]
+                        #dc = dc - 1
+                        #fitness_df.loc[(fitness_df['id']==q), 'domcount'] = dc
+                        dc = fitness_df.at[q, 'domcount']
                         dc = dc - 1
-                        fitness_df.loc[(fitness_df['id']==q), 'domcount'] = dc
+                        fitness_df.at[q, 'domcount'] = dc
 
                         # Add to the next front if no further domination
                         if dc == 0:
                             q1.append(q)
-                            fitness_df.loc[(fitness_df['id']==q), 'front'] = fc
+                            #fitness_df.loc[(fitness_df['id']==q), 'front'] = fc
+                            fitness_df.at[q, 'front'] = fc
 
                 # Only for as many fronts as needed to fill popsize
                 if size + len(front) > config.POPUATION:
                     fitness_df=self.crowding_distance(fitness_df, fc, size)
-                    front= []
+                    front = []
+                    q1 = []
                     break
 
                 elif size + len(front) == config.POPUATION:
                     fitness_df.loc[(fitness_df['front']==fc), 'population'] = 'yes'
-                    front= []
+                    front = []
+                    q1 = []
                     break
 
                 else:

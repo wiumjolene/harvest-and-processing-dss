@@ -1,5 +1,8 @@
 import math
 
+# show graphs
+SHOW=True
+
 STDUNIT=4.5 # each stdunit is so many kg of produce
 GIVEAWAY=0.05 # % giveaway
 TRUCK=1500 # 1 * truck carries so many kg of produce
@@ -17,7 +20,7 @@ MUTATIONRATE=0.08
 MUTATIONRATE2=0.05
 CROSSOVERRATE=0.5
 POPUATION=80
-ITERATIONS=20000
+ITERATIONS=10000
 
 
 ########################################################

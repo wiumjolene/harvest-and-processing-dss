@@ -81,7 +81,6 @@ class MainController:
 
             monitor=pd.concat([monitor, temp])
 
-
         if self.nsga2_zdt1:
             self.logger.info('--- TEST: NSGA2 - ZDT1 ---')
             ga = RunTests()

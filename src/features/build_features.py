@@ -19,7 +19,8 @@ class Individual:
     dlistt=[]
 
     def individual(self, number, alg_path, get_indiv=True, indiv=individual_df, test=False, test_name='zdt1'):
-        self.logger.info(f"- individual: {number}")
+        #self.logger.info(f"- individual: {number}")
+        #self.logger.info(f"- individual")
 
         if test:
             """ Test function - define indiv and fitness """
@@ -43,7 +44,7 @@ class Individual:
 
         ind_fitness = pd.DataFrame(fitness, columns=['obj1', 'obj2'])
         ind_fitness['id'] = number
-        ind_fitness['datetime'] = datetime.datetime.now()
+        #ind_fitness['datetime'] = datetime.datetime.now()
 
         indiv.to_pickle(f"data/interim/{alg_path}/id_{number}", protocol = 5) 
         return ind_fitness
@@ -324,12 +325,15 @@ class GeneticAlgorithmGenetics:
         if test:
             times = list(range(config.D))
 
-        #else:
             ddf_metadata = pd.read_pickle('data/processed/ddf_metadata')
             times = list(ddf_metadata.time_id.unique())
 
         # Select parents with tournament
-        pareto_df = fitness_df[fitness_df['population'] != 'none'].reset_index(drop=True)
+        if alg == 'zdt1/nsga2':  # FIXME: and checks nondom selection as well
+            pareto_df = fitness_df[fitness_df['front'] == 1].reset_index(drop=True)
+
+        else:
+            pareto_df = fitness_df[fitness_df['population'] != 'none'].reset_index(drop=True)
         #parent1 = self.tournament_selection(pareto_df, alg)
         #parent2 = self.tournament_selection(pareto_df, alg)
 
@@ -392,7 +396,7 @@ class GeneticAlgorithmGenetics:
         :type sign: list
         FROM DEAP
         """
-        #print(obj1)
+        #print(f"{objset1[0]},{objset1[1]} - {objset1[0]},{objset2[1]}")
         indicator = False
         for a, b, sign in zip(objset1, objset2, sign):
             if a * sign < b * sign:
