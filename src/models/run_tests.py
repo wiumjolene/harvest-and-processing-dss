@@ -32,9 +32,8 @@ class RunTests:
         alg_path = f"{test_name}/{alg}"
 
         fitness_df = self.population(0, config.POPUATION, alg_path, test_name)
-        # FIXME: DELETE - ONLY FOR TESTING!!!!!!!!
-        #fitness_df = pd.read_excel(f"data/interim/{test_name}/fitness_nsga2{test_name}_TEST.xlsx")
         fitness_df['population'] = 'yes'
+        fitness_df.to_excel(f"data/interim/{test_name}/fitness_nsga2{test_name}_1.xlsx", index=False)
 
         if alg == 'vega':
             fitness_df = self.ga1.pareto_vega(fitness_df)
@@ -46,7 +45,7 @@ class RunTests:
             fitness_df = self.ga3.pareto_moga(fitness_df)
 
         init_pop = fitness_df
-        fitness_df.to_excel(f"data/interim/{test_name}/fitness_nsga2{test_name}FIRST.xlsx", index=False)
+        fitness_df.to_excel(f"data/interim/{test_name}/fitness_nsga2{test_name}_2.xlsx", index=False)
 
         filename_html = f"reports/figures/genetic_algorithm_{test_name}_{alg}.html"
 
@@ -54,6 +53,7 @@ class RunTests:
             self.logger.info(f"ITERATION {i}")
 
             fitness_df = self.gag.crossover(fitness_df, alg_path, test=True, test_name='zdt1')
+            #fitness_df.to_excel(f"data/interim/{test_name}/fitness_nsga2{test_name}_3_{i}.xlsx", index=False)
 
             if alg == 'vega':
                 fitness_df = self.ga1.pareto_vega(fitness_df)
@@ -67,6 +67,8 @@ class RunTests:
             if i % 1000 == 0 and config.SHOW:
                 self.graph.scatter_plot2(fitness_df, filename_html, 'population', f"{alg_path}-{i}")
             
+            #fitness_df.to_excel(f"data/interim/{test_name}/fitness_nsga2{test_name}_4_{i}.xlsx", index=False)
+
         t=Tests()
         # Get pareto optimal set
         for pp in range(config.POPUATION):
@@ -84,7 +86,7 @@ class RunTests:
         #init_pop['population'] = 'initial'
         #fitness_df=fitness_df.append(init_pop).reset_index(drop=True)
 
-        fitness_df.to_excel(f"data/interim/{test_name}/fitness_nsga2{test_name}.xlsx", index=False)
+        fitness_df.to_excel(f"data/interim/{test_name}/fitness_nsga2{test_name}_5.xlsx", index=False)
         
         if config.SHOW:
             self.graph.scatter_plot2(fitness_df, filename_html, 'population', f"{alg_path}-final")

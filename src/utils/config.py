@@ -16,11 +16,11 @@ ZAR_KM=3.16/1000
 # GA CONFIG
 ########################################################
 TOURSIZE=3  # NB NSGI2 requires binary tournament selection
-MUTATIONRATE=0.08
+MUTATIONRATE=1
 MUTATIONRATE2=0.05
 CROSSOVERRATE=0.5
-POPUATION=80
-ITERATIONS=10000
+POPUATION=100
+ITERATIONS=6000
 
 
 ########################################################

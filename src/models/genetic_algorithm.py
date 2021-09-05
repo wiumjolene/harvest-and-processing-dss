@@ -56,7 +56,6 @@ class GeneticAlgorithmVega:
         self.logger.info(f"- getting fitness")
         popsize = config.POPUATION
 
-        #fitness_df=fitness_df.groupby(['obj1','obj2'])['id'].min().reset_index(drop=False)
         fitness_df['population'] = 'none'
 
         # Random select objective to sort
@@ -139,7 +138,7 @@ class GeneticAlgorithmNsga2:
         fitness_df['cdist'] = 0
         for m in objs:
             # Sort by objective (m) 
-            df = fitness_dff.sort_values(by=m, ascending=False).reset_index(drop=True)
+            df = fitness_dff.sort_values(by=m, ascending=True).reset_index(drop=True) # TODO: ASCENDING / DECENDING?
 
             for i in range(len(df)):
                 id = df.id[i]
@@ -148,12 +147,12 @@ class GeneticAlgorithmNsga2:
                     fitness_df.loc[(fitness_df['id']==id),'cdist']= np.inf
                 
                 else:
-                    max = df[m][df.index == 0].iloc[0]
-                    min = df[m][df.index == len(df) - 1].iloc[0]
+                    min = df[m][df.index == 0].iloc[0]
+                    max = df[m][df.index == len(df) - 1].iloc[0]
 
                     oneup = df[m][df.index == (i-1)].iloc[0]
                     onedown = df[m][df.index == (i+1)].iloc[0]
-                    distance = (oneup - onedown) / (max - min)
+                    distance = (onedown - oneup) / (max - min)
 
                     fitness_df.loc[(fitness_df['id']==id),'cdist']=fitness_df['cdist']+distance
 
@@ -179,50 +178,35 @@ class GeneticAlgorithmNsga2:
         dominating_fits = defaultdict(int)  # n (The number of people that dominate you)
         dominated_fits = defaultdict(list)  # Sp (The people you dominate)
         fitness_df=fitness_df.set_index('id')
+        fitness_df['id'] = fitness_df.index
         
-        #for i in range(len(fitness_df)):
         for i, id in enumerate(fits):
-            #obj1 = fitness_df.loc[fitness_df['id'] == id, 'obj1'].iloc[0]
-            #obj2 = fitness_df.loc[fitness_df['id'] == id, 'obj2'].iloc[0]
             obj1 = fitness_df.at[id, 'obj1']
             obj2 = fitness_df.at[id, 'obj2']
-
             objset1 = (obj1, obj2)
 
             #for j in range(len(fitness_df)):
             for idx in fits[i + 1:]:
-                #obj1x = fitness_df.loc[fitness_df['id'] == idx, 'obj1'].iloc[0]
-                #obj2x = fitness_df.loc[fitness_df['id'] == idx, 'obj2'].iloc[0]
                 obj1x = fitness_df.at[idx, 'obj1']
                 obj2x = fitness_df.at[idx, 'obj2']
-
                 objset2 = (obj1x, obj2x)
                 
-                if build_features.GeneticAlgorithmGenetics.dominates(objset1, objset2):
+                #if build_features.GeneticAlgorithmGenetics.dominates(objset1, objset2):
+                if (obj1 <= obj1x and obj2 <= obj2x) and (obj1 < obj1x or obj2 < obj2x):
                     dominating_fits[idx] += 1 
-                    #d = fitness_df.loc[fitness_df['id'] == idx, 'domcount'].iloc[0]
-                    #d = fitness_df.at[idx, 'domcount']
-                    
-                    #fitness_df.loc[fitness_df['id'] == idx, 'domcount'] = d + 1
                     fitness_df.at[idx, 'domcount'] += 1
                     dominated_fits[id].append(idx) 
 
-                elif build_features.GeneticAlgorithmGenetics.dominates(objset2, objset1):  
+                #elif build_features.GeneticAlgorithmGenetics.dominates(objset2, objset1):  
+                if (obj1x <= obj1 and obj2x <= obj2) and (obj1x < obj1 or obj2x < obj2):
                     dominating_fits[id] += 1
-                    #d = fitness_df.loc[fitness_df['id'] == id, 'domcount'].iloc[0]
-                    #d = fitness_df.at[id, 'domcount']
-                    
-                    #fitness_df.loc[fitness_df['id'] == id, 'domcount'] = d + 1
                     fitness_df.at[id, 'domcount'] += 1
                     dominated_fits[idx].append(id)    
 
             if dominating_fits[id] == 0:
-                #fitness_df.loc[(fitness_df['id']==id), 'front'] = 1
                 fitness_df.loc[(fitness_df.index==id), 'front'] = 1
                 front.append(id)
         
-        fitness_df['id'] = fitness_df.index
-        #fitness_df = fitness_df.reset_index(drop=False)
         ###################################################
         # Get front count and determine population status #
         ###################################################
@@ -245,17 +229,10 @@ class GeneticAlgorithmNsga2:
             fc=2
             while len(front) > 0:
                 q1= []  # Solutions in new front
-                #print(f"New front: {front}")
                 # Visit each member of previous front
                 for p in front:
-                    #print(f"front: {fc} - indiv: {p}")
-                    #print(dominated_fits[p])
                     # Visit each member that is dominated by p
                     for q in dominated_fits[p]:
-                        #print(f"dominated: {q} - domcount: {fitness_df.at[q, 'domcount']}")
-                        #dc = fitness_df['domcount'][fitness_df['id'] == q].iloc[0]
-                        #dc = dc - 1
-                        #fitness_df.loc[(fitness_df['id']==q), 'domcount'] = dc
                         dc = fitness_df.at[q, 'domcount']
                         dc = dc - 1
                         fitness_df.at[q, 'domcount'] = dc
@@ -263,7 +240,6 @@ class GeneticAlgorithmNsga2:
                         # Add to the next front if no further domination
                         if dc == 0:
                             q1.append(q)
-                            #fitness_df.loc[(fitness_df['id']==q), 'front'] = fc
                             fitness_df.at[q, 'front'] = fc
 
                 # Only for as many fronts as needed to fill popsize
@@ -286,7 +262,7 @@ class GeneticAlgorithmNsga2:
                 front = q1
                 size = size + len(front)
 
-        fitness_df['front'] = fitness_df['front'].fillna(-99)
+        fitness_df['front'] = fitness_df['front'].fillna(fc)  # FIXME: Why will there be nulls?
         fitness_df=fitness_df[fitness_df['population']=='yes'].reset_index(drop=True)
         return fitness_df
 
@@ -330,7 +306,6 @@ class GeneticAlgorithmMoga:
     def pareto_moga(self, fitness_df):
 
         fitness_df = fitness_df[fitness_df['population'] != 'none'].reset_index(drop=True)
-        #fitness_df=fitness_df.groupby(['obj1','obj2'])['id'].min().reset_index(drop=False)
         fitness_df= fitness_df.sort_values(by=['obj1','obj2']).reset_index(drop=True)
 
         sshare = config.SSHARE

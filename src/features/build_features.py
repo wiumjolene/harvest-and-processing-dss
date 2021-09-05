@@ -21,13 +21,20 @@ class Individual:
     def individual(self, number, alg_path, get_indiv=True, indiv=individual_df, test=False, test_name='zdt1'):
         #self.logger.info(f"- individual: {number}")
         #self.logger.info(f"- individual")
-
+        # indiv.individual(max_id+1, alg     , get_indiv=False, indiv=child1, test=test, test_name=test_name)
+        # indiv.individual(start+p , alg_path, test=True, test_name=test_name)
         if test:
             """ Test function - define indiv and fitness """
             t=Tests()
-            x = np.random.rand(config.D)
-            indiv = pd.DataFrame(x, columns=['value'])
-            indiv['time_id'] = indiv.index
+            if get_indiv:
+                x = np.random.rand(config.D)
+                indiv = pd.DataFrame(x, columns=['value'])
+                indiv['time_id'] = indiv.index
+
+            else:
+                x = list(indiv.value)
+                #print(x)
+
 
             # Choose which test to use
             if test_name == 'zdt1':
@@ -256,7 +263,6 @@ class GeneticAlgorithmGenetics:
             fit2 = fitness_df.obj2[option_num]
 
             if (fit1 <= high_fit1 and fit2 <= high_fit2) and (fit1 < high_fit1 or fit2 < high_fit2):  
-            #if self.dominates([(fit1, fit2)],[(high_fit1, high_fit2)]):
                 high_fit1 = fit1
                 high_fit2 = fit2
                 parent = option_id
@@ -276,9 +282,10 @@ class GeneticAlgorithmGenetics:
 
         pareto_set = fitness_df[fitness_df['front']==1].reset_index(drop=True)
         option_num = random.randint(0,len(pareto_set)-1)
-        option_id = fitness_df.id[option_num]
+        option_id = pareto_set.at[option_num, 'id']
         parent_path = f"data/interim/{alg}/id_{option_id}"
         parent_df = pd.read_pickle(parent_path)  # FIXME: Optimise
+        #parent_df.to_excel(f"data/check/parent_{option_id}.xlsx")
         return parent_df
 
     def mutation(self, df_mutate, times, test):
@@ -299,24 +306,22 @@ class GeneticAlgorithmGenetics:
                         x = np.random.rand(1)
                         df_gene = pd.DataFrame(x, columns=['value'])
                         df_gene['time_id'] = m
+                        #print(df_gene)
                     
-                    # Else get only gene aternate
+                    # Else get only gene alternate
                     else:  
-                        #df_genex = df_mutate[df_mutate['time_id'] == m]
                         demand_list = list(df_gene.demand_id.unique())
                         df_gene = ix.make_individual(get_dlist=False, dlist=demand_list)  # FIXME:
 
                 df_mutate1 = pd.concat([df_mutate1, df_gene]).reset_index(drop=True)
 
         else:
-            
             df_mutate1 = df_mutate
 
         return df_mutate1
 
     def crossover(self, fitness_df, alg, test=False, test_name='zdt1'):
-        """ GA crossover genetic material for diversivication"""
-
+        """ GA crossover genetic material for diversification"""
         self.logger.info(f"-- crossover")
 
         ix = Individual()
@@ -325,20 +330,21 @@ class GeneticAlgorithmGenetics:
         if test:
             times = list(range(config.D))
 
+        else:
             ddf_metadata = pd.read_pickle('data/processed/ddf_metadata')
             times = list(ddf_metadata.time_id.unique())
 
         # Select parents with tournament
-        if alg == 'zdt1/nsga2':  # FIXME: and checks nondom selection as well
+        #if alg == 'zdt1/nsga2':  # TODO: make universal
+        if alg == '':
             pareto_df = fitness_df[fitness_df['front'] == 1].reset_index(drop=True)
+            parent1 = self.nondom_selection(pareto_df, alg)
+            parent2 = self.nondom_selection(pareto_df, alg)
 
         else:
             pareto_df = fitness_df[fitness_df['population'] != 'none'].reset_index(drop=True)
-        #parent1 = self.tournament_selection(pareto_df, alg)
-        #parent2 = self.tournament_selection(pareto_df, alg)
-
-        parent1 = self.nondom_selection(pareto_df, alg)
-        parent2 = self.nondom_selection(pareto_df, alg)
+            parent1 = self.tournament_selection(pareto_df, alg)
+            parent2 = self.tournament_selection(pareto_df, alg)
 
         # Uniform crossover
         child1=pd.DataFrame()
@@ -346,6 +352,7 @@ class GeneticAlgorithmGenetics:
         for g in times:
             gene1 = parent1[parent1['time_id']==g]
             gene2 = parent2[parent2['time_id']==g]
+            
             if random.random() < config.CROSSOVERRATE:
                 child1 = pd.concat([child1,gene2]).reset_index(drop=True)
                 child2 = pd.concat([child2,gene1]).reset_index(drop=True)
@@ -379,6 +386,10 @@ class GeneticAlgorithmGenetics:
         child2_f['population'] = 'child'
 
         fitness_df = pd.concat([fitness_df, child1_f, child2_f]).reset_index(drop=True)
+
+        #child1.to_excel(f"data/check/child_child1.xlsx")
+        #child2.to_excel(f"data/check/child_child2.xlsx")
+        #fitness_df.to_excel('data/check/post_cross.xlsx')
 
         return fitness_df
 
