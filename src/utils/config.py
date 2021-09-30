@@ -2,6 +2,7 @@ import math
 
 # show graphs
 SHOW=True
+SHOWRATE = 10000
 
 STDUNIT=4.5 # each stdunit is so many kg of produce
 GIVEAWAY=0.05 # % giveaway
@@ -16,11 +17,11 @@ ZAR_KM=3.16/1000
 # GA CONFIG
 ########################################################
 TOURSIZE=3  # NB NSGI2 requires binary tournament selection
-MUTATIONRATE=1
-MUTATIONRATE2=0.05
+MUTATIONRATE=0.08
+MUTATIONRATE2=0.08
 CROSSOVERRATE=0.5
-POPUATION=100
-ITERATIONS=6000
+POPUATION=80
+ITERATIONS=200
 
 
 ########################################################
@@ -33,6 +34,7 @@ SSHARE = 1/(math.sqrt(POPUATION)-1)
 # TESTS
 ########################################################
 D = 30
+SAMPLE = 2 # number of tests for t-test sample
 
 # ssh root@159.65.247.178
 # cd phd/workdir/

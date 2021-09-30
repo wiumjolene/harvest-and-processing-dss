@@ -19,12 +19,9 @@ class Individual:
     dlistt=[]
 
     def individual(self, number, alg_path, get_indiv=True, indiv=individual_df, test=False, test_name='zdt1'):
+        """ Function to define indiv and fitness """
         #self.logger.info(f"- individual: {number}")
-        #self.logger.info(f"- individual")
-        # indiv.individual(max_id+1, alg     , get_indiv=False, indiv=child1, test=test, test_name=test_name)
-        # indiv.individual(start+p , alg_path, test=True, test_name=test_name)
         if test:
-            """ Test function - define indiv and fitness """
             t=Tests()
             if get_indiv:
                 x = np.random.rand(config.D)
@@ -33,8 +30,6 @@ class Individual:
 
             else:
                 x = list(indiv.value)
-                #print(x)
-
 
             # Choose which test to use
             if test_name == 'zdt1':
@@ -42,6 +37,9 @@ class Individual:
 
             if test_name == 'zdt2':
                 fitness = t.ZDT2(x)
+
+            if test_name == 'zdt3':
+                fitness = t.ZDT3(x)
 
         else:
             if get_indiv:
@@ -51,12 +49,13 @@ class Individual:
 
         ind_fitness = pd.DataFrame(fitness, columns=['obj1', 'obj2'])
         ind_fitness['id'] = number
-        #ind_fitness['datetime'] = datetime.datetime.now()
 
         indiv.to_pickle(f"data/interim/{alg_path}/id_{number}", protocol = 5) 
         return ind_fitness
 
     def make_individual(self, get_dlist=True, dlist=dlistt):
+        """ Function to make problem specific  individual solution """
+
         self.logger.info('-> make_individual')
 
         # Import all data sets from pickel files.
@@ -306,7 +305,6 @@ class GeneticAlgorithmGenetics:
                         x = np.random.rand(1)
                         df_gene = pd.DataFrame(x, columns=['value'])
                         df_gene['time_id'] = m
-                        #print(df_gene)
                     
                     # Else get only gene alternate
                     else:  
@@ -368,6 +366,7 @@ class GeneticAlgorithmGenetics:
             child2 = self.mutation(child2, times, test=test)
 
             # Register child on fitness_df
+            #print(test_name)
             child1_f = ix.individual(max_id+1, alg, get_indiv=False, indiv=child1, 
                             test=test, test_name=test_name)
             child2_f = ix.individual(max_id+2, alg, get_indiv=False, indiv=child2, 
@@ -386,15 +385,12 @@ class GeneticAlgorithmGenetics:
         child2_f['population'] = 'child'
 
         fitness_df = pd.concat([fitness_df, child1_f, child2_f]).reset_index(drop=True)
-
-        #child1.to_excel(f"data/check/child_child1.xlsx")
-        #child2.to_excel(f"data/check/child_child2.xlsx")
-        #fitness_df.to_excel('data/check/post_cross.xlsx')
-
         return fitness_df
 
     def dominates(objset1, objset2, sign=[1, 1]):
-        """Return true if each objective of *self* is not strictly worse than
+        """
+        DEPRICATED
+        Return true if each objective of *self* is not strictly worse than
                 the corresponding objective of *other* and at least one objective is
                 strictly better.
             **no need to care about the equal cases

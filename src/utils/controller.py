@@ -4,10 +4,14 @@ import datetime
 import os
 
 import pandas as pd
+#import pygmo as pg
+
 from src.data.make_dataset import CreateOptions
-from src.models.genetic_algorithm import GeneticAlgorithmMoga, GeneticAlgorithmVega
+from src.models.genetic_algorithm import GeneticAlgorithmVega
+from src.models.genetic_algorithm import GeneticAlgorithmMoga
 from src.models.genetic_algorithm import GeneticAlgorithmNsga2
 from src.models.run_tests import RunTests
+from src.utils import config
 
 class MainController:
     """ Decide which parts of the module to update. """
@@ -16,12 +20,12 @@ class MainController:
     make_data = False
 
     vega = False
-    nsga2 = False
+    nsga2 = True
     moga = False
 
-    nsga2_zdt1 = True
-    moga_zdt1 = False
-    vega_zdt1 = False
+    test_fxn = True
+    tests = ['zdt1', 'zdt2', 'zdt3']
+    tests = ['zdt1']
 
     def pipeline_control(self):
         monitor = pd.DataFrame()
@@ -36,97 +40,86 @@ class MainController:
 
         if self.vega:
             self.logger.info('--- GENETIC ALGORITHM: VEGA ---')
-            ga = GeneticAlgorithmVega()
+            if self.test_fxn:
+                for t in self.tests:
+                    monitor = self.run_tests('vega', t, monitor)
 
-            if not os.path.exists('data/interim/vega'):
-                os.makedirs('data/interim/vega')
+            else:
+                ga = GeneticAlgorithmVega()
 
-            start=datetime.datetime.now()
-            x=ga.vega()
-            finish=datetime.datetime.now()
+                if not os.path.exists('data/interim/vega'):
+                    os.makedirs('data/interim/vega')
 
-            temp = pd.DataFrame(data=[('vega', start, finish, (finish-start), x[0], x[1])],
-                    columns=['model', 'start', 'finish', 'diff', 'best_obj1', 'best_obj2' ])
+                start=datetime.datetime.now()
+                x=ga.vega()
+                finish=datetime.datetime.now()
 
-            monitor=pd.concat([monitor, temp])
+                temp = pd.DataFrame(data=[('vega', start, finish, (finish-start), x[0], x[1])],
+                        columns=['model', 'start', 'finish', 'diff', 'best_obj1', 'best_obj2' ])
+
+                monitor=pd.concat([monitor, temp])
 
         if self.nsga2:
             self.logger.info('--- GENETIC ALGORITHM: NSGA2 ---')
-            ga = GeneticAlgorithmNsga2()
 
-            if not os.path.exists('data/interim/nsga2'):
-                os.makedirs('data/interim/nsga2')
+            if self.test_fxn:
+                for t in self.tests:
+                    monitor = self.run_tests('nsga2', t, monitor)
 
-            start=datetime.datetime.now()
-            x=ga.nsga2()
-            finish=datetime.datetime.now()
+            else:
+                ga = GeneticAlgorithmNsga2()
 
-            temp = pd.DataFrame(data=[('nsga2', start, finish, (finish-start), x[0], x[1])],
-                    columns=['model', 'start', 'finish', 'diff', 'best_obj1', 'best_obj2' ])
-            monitor=pd.concat([monitor, temp])
+                if not os.path.exists('data/interim/nsga2'):
+                    os.makedirs('data/interim/nsga2')
+
+                start=datetime.datetime.now()
+                x=ga.nsga2()
+                finish=datetime.datetime.now()
+
+                temp = pd.DataFrame(data=[('nsga2', start, finish, (finish-start), x[0], x[1])],
+                        columns=['model', 'start', 'finish', 'diff', 'best_obj1', 'best_obj2' ])
+                monitor=pd.concat([monitor, temp])
 
         if self.moga:
             self.logger.info('--- GENETIC ALGORITHM: MOGA ---')
-            ga = GeneticAlgorithmMoga()
 
-            if not os.path.exists('data/interim/moga'):
-                os.makedirs('data/interim/moga')
+            if self.test_fxn:
+                for t in self.tests:
+                    monitor = self.run_tests('moga', t, monitor)
 
-            start=datetime.datetime.now()
-            x=ga.moga()
-            finish=datetime.datetime.now()
+            else:
+                ga = GeneticAlgorithmMoga()
 
-            temp = pd.DataFrame(data=[('moga', start, finish, (finish-start), x[0], x[1])],
-                    columns=['model', 'start', 'finish', 'diff', 'best_obj1', 'best_obj2' ])
+                if not os.path.exists('data/interim/moga'):
+                    os.makedirs('data/interim/moga')
 
-            monitor=pd.concat([monitor, temp])
+                start=datetime.datetime.now()
+                x=ga.moga()
+                finish=datetime.datetime.now()
 
-        if self.nsga2_zdt1:
-            self.logger.info('--- TEST: NSGA2 - ZDT1 ---')
-            ga = RunTests()
+                temp = pd.DataFrame(data=[('moga', start, finish, (finish-start), x[0], x[1])],
+                        columns=['model', 'start', 'finish', 'diff', 'best_obj1', 'best_obj2' ])
 
-            if not os.path.exists('data/interim/zdt1/nsga2'):
-                os.makedirs('data/interim/zdt1/nsga2')
-
-            start=datetime.datetime.now()
-            x=ga.make_ga_test('nsga2', 'zdt1')
-            finish=datetime.datetime.now()
-
-            temp = pd.DataFrame(data=[('nsga1_zdt1', start, finish, (finish-start))],
-                    columns=['model', 'start', 'finish', 'diff'])
-
-            monitor=pd.concat([monitor, temp])
-
-        if self.moga_zdt1:
-            self.logger.info('--- TEST: MOGA - ZDT1 ---')
-            ga = RunTests()
-
-            if not os.path.exists('data/interim/zdt1/moga'):
-                os.makedirs('data/interim/zdt1/moga')
-
-            start=datetime.datetime.now()
-            x=ga.make_ga_test('moga', 'zdt1')
-            finish=datetime.datetime.now()
-
-            temp = pd.DataFrame(data=[('moga_zdt1', start, finish, (finish-start))],
-                    columns=['model', 'start', 'finish', 'diff'])
-
-            monitor=pd.concat([monitor, temp])
-
-        if self.vega_zdt1:
-            self.logger.info('--- TEST: VEGA - ZDT1 ---')
-            ga = RunTests()
-
-            if not os.path.exists('data/interim/zdt1/vega'):
-                os.makedirs('data/interim/zdt1/vega')
-
-            start=datetime.datetime.now()
-            x=ga.make_ga_test('vega', 'zdt1')
-            finish=datetime.datetime.now()
-
-            temp = pd.DataFrame(data=[('vega_zdt1', start, finish, (finish-start))],
-                    columns=['model', 'start', 'finish', 'diff'])
-
-            monitor=pd.concat([monitor, temp])
+                monitor=pd.concat([monitor, temp])
 
         monitor.to_excel('data/interim/monitor.xlsx', index=False)
+
+    def run_tests(self, alg, test, monitor):
+        ga = RunTests()
+
+        if not os.path.exists(f"data/interim/{test}/{alg}"):
+            os.makedirs(f"data/interim/{test}/{alg}")
+
+        for s in range(config.SAMPLE):
+            start=datetime.datetime.now()
+            # TODO: Add number of tests to run
+            fitness_df=ga.make_ga_test(alg, test)
+            fitness_df.to_excel(f"data/interim/{test}/fitness_{alg}_{s}.xlsx", index=False)
+            finish=datetime.datetime.now()
+
+            temp = pd.DataFrame(data=[(f"{alg}_{test}", start, finish, (finish-start), s)],
+                    columns=['model', 'start', 'finish', 'diff','samplenumber'])
+
+            monitor=pd.concat([monitor, temp])
+
+        return monitor

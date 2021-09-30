@@ -33,7 +33,6 @@ class RunTests:
 
         fitness_df = self.population(0, config.POPUATION, alg_path, test_name)
         fitness_df['population'] = 'yes'
-        fitness_df.to_excel(f"data/interim/{test_name}/fitness_nsga2{test_name}_1.xlsx", index=False)
 
         if alg == 'vega':
             fitness_df = self.ga1.pareto_vega(fitness_df)
@@ -45,15 +44,13 @@ class RunTests:
             fitness_df = self.ga3.pareto_moga(fitness_df)
 
         init_pop = fitness_df
-        fitness_df.to_excel(f"data/interim/{test_name}/fitness_nsga2{test_name}_2.xlsx", index=False)
 
         filename_html = f"reports/figures/genetic_algorithm_{test_name}_{alg}.html"
 
         for i in range(config.ITERATIONS):
             self.logger.info(f"ITERATION {i}")
 
-            fitness_df = self.gag.crossover(fitness_df, alg_path, test=True, test_name='zdt1')
-            #fitness_df.to_excel(f"data/interim/{test_name}/fitness_nsga2{test_name}_3_{i}.xlsx", index=False)
+            fitness_df = self.gag.crossover(fitness_df, alg_path, test=True, test_name=test_name)
 
             if alg == 'vega':
                 fitness_df = self.ga1.pareto_vega(fitness_df)
@@ -64,10 +61,8 @@ class RunTests:
             if alg == 'moga':
                 fitness_df = self.ga3.pareto_moga(fitness_df)
 
-            if i % 1000 == 0 and config.SHOW:
+            if i % config.SHOWRATE == 0 and config.SHOW:
                 self.graph.scatter_plot2(fitness_df, filename_html, 'population', f"{alg_path}-{i}")
-            
-            #fitness_df.to_excel(f"data/interim/{test_name}/fitness_nsga2{test_name}_4_{i}.xlsx", index=False)
 
         t=Tests()
         # Get pareto optimal set
@@ -78,15 +73,24 @@ class RunTests:
             if test_name == 'zdt1':
                 fitness = t.ZDT1_pareto(x)
 
+            if test_name == 'zdt2':
+                fitness = t.ZDT2_pareto(x)
+
+            if test_name == 'zdt3':
+                fitness = t.ZDT3_pareto(x)
+
             pareto = pd.DataFrame(fitness, columns=['obj1', 'obj2'])
             pareto['population'] = 'pareto'
 
             fitness_df=fitness_df.append(pareto).reset_index(drop=True)
         
-        #init_pop['population'] = 'initial'
-        #fitness_df=fitness_df.append(init_pop).reset_index(drop=True)
+        init_pop['population'] = 'initial'
+        fitness_df=fitness_df.append(init_pop).reset_index(drop=True)
 
-        fitness_df.to_excel(f"data/interim/{test_name}/fitness_nsga2{test_name}_5.xlsx", index=False)
+        # FIXME: moved over to run tests
+        #fitness_df.to_excel(f"data/interim/{test_name}/fitness_nsga2.xlsx", index=False)
         
         if config.SHOW:
             self.graph.scatter_plot2(fitness_df, filename_html, 'population', f"{alg_path}-final")
+
+        return fitness_df

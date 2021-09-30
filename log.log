@@ -1,0 +1,1938 @@
+2021-09-10 13:47:31,354 - INFO: --- GENETIC ALGORITHM: MOGA --- - src.utils.controller.MainController
+2021-09-10 13:47:31,355 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,359 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,361 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,364 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,366 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,369 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,371 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,373 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,376 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,378 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,382 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,384 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,387 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,389 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,392 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,394 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,397 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,400 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,402 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,405 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,408 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,410 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,413 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,416 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,419 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,422 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,425 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,428 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,433 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,435 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,439 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,443 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,446 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,448 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,451 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,453 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,456 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,459 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,461 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,464 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,467 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,469 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,472 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,475 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,477 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,480 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,483 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,485 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,488 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,491 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,494 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,497 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,500 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,503 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,506 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,509 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,512 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,515 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,517 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,519 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,522 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,524 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,528 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,530 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,533 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,537 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,540 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,543 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,545 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,549 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,552 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,555 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,558 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,561 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,565 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,568 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,571 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,574 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,576 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,578 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,581 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:31,852 - INFO: ITERATION 0 - src.models.run_tests.TestCases
+2021-09-10 13:47:31,852 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:31,853 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:31,854 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:31,906 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:31,906 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:31,907 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,909 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:31,914 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:34,661 - INFO: ITERATION 1 - src.models.run_tests.TestCases
+2021-09-10 13:47:34,661 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:34,663 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:34,668 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:34,729 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:34,730 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:34,730 - INFO: --- mutation activated - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:34,753 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:34,755 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:34,758 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:34,994 - INFO: ITERATION 2 - src.models.run_tests.TestCases
+2021-09-10 13:47:34,994 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:34,995 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:34,996 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:35,038 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:35,038 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:35,038 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:35,040 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:35,044 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:35,287 - INFO: ITERATION 3 - src.models.run_tests.TestCases
+2021-09-10 13:47:35,287 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:35,288 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:35,290 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:35,332 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:35,333 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:35,333 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:35,335 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:35,340 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:35,621 - INFO: ITERATION 4 - src.models.run_tests.TestCases
+2021-09-10 13:47:35,621 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:35,622 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:35,623 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:35,671 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:35,671 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:35,672 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:35,673 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:35,677 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:35,907 - INFO: ITERATION 5 - src.models.run_tests.TestCases
+2021-09-10 13:47:35,907 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:35,908 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:35,909 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:35,951 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:35,951 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:35,951 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:35,953 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:35,956 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:36,186 - INFO: ITERATION 6 - src.models.run_tests.TestCases
+2021-09-10 13:47:36,186 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:36,187 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:36,189 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:36,230 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:36,230 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:36,230 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:36,232 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:36,236 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:36,455 - INFO: ITERATION 7 - src.models.run_tests.TestCases
+2021-09-10 13:47:36,455 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:36,455 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:36,457 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:36,502 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:36,503 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:36,503 - INFO: --- mutation activated - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:36,523 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:36,525 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:36,528 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:36,759 - INFO: ITERATION 8 - src.models.run_tests.TestCases
+2021-09-10 13:47:36,759 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:36,760 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:36,761 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:36,802 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:36,802 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:36,802 - INFO: --- mutation activated - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:36,824 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:36,826 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:36,829 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:37,047 - INFO: ITERATION 9 - src.models.run_tests.TestCases
+2021-09-10 13:47:37,047 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:37,048 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:37,050 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:37,091 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:37,091 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:37,091 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:37,093 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:37,097 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:37,308 - INFO: ITERATION 10 - src.models.run_tests.TestCases
+2021-09-10 13:47:37,308 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:37,308 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:37,310 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:37,355 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:37,355 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:37,355 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:37,357 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:37,360 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:37,633 - INFO: ITERATION 11 - src.models.run_tests.TestCases
+2021-09-10 13:47:37,633 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:37,633 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:37,635 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:37,674 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:37,674 - INFO: --- mutation activated - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:37,693 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:37,694 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:37,695 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:37,698 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:37,905 - INFO: ITERATION 12 - src.models.run_tests.TestCases
+2021-09-10 13:47:37,905 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:37,906 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:37,908 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:37,947 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:37,948 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:37,948 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:37,949 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:37,952 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:38,162 - INFO: ITERATION 13 - src.models.run_tests.TestCases
+2021-09-10 13:47:38,162 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:38,163 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:38,165 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:38,208 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:38,208 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:38,209 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:38,210 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:38,213 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:38,420 - INFO: ITERATION 14 - src.models.run_tests.TestCases
+2021-09-10 13:47:38,420 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:38,420 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:38,422 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:38,467 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:38,467 - INFO: --- mutation activated - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:38,489 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:38,489 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:38,491 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:38,494 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:38,756 - INFO: ITERATION 15 - src.models.run_tests.TestCases
+2021-09-10 13:47:38,756 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:38,757 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:38,759 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:38,797 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:38,797 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:38,797 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:38,799 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:38,802 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:39,006 - INFO: ITERATION 16 - src.models.run_tests.TestCases
+2021-09-10 13:47:39,006 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:39,007 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:39,008 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:39,047 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:39,047 - INFO: --- mutation activated - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:39,067 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:39,067 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:39,068 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:39,071 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:39,306 - INFO: ITERATION 17 - src.models.run_tests.TestCases
+2021-09-10 13:47:39,306 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:39,307 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:39,309 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:39,348 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:39,348 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:39,348 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:39,350 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:39,353 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:39,560 - INFO: ITERATION 18 - src.models.run_tests.TestCases
+2021-09-10 13:47:39,560 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:39,561 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:39,562 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:39,623 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:39,623 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:39,623 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:39,625 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:39,628 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:39,838 - INFO: ITERATION 19 - src.models.run_tests.TestCases
+2021-09-10 13:47:39,838 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:39,839 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:39,841 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:39,880 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:39,880 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:39,881 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:39,882 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:39,885 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:40,100 - INFO: ITERATION 20 - src.models.run_tests.TestCases
+2021-09-10 13:47:40,100 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:40,101 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:40,103 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:40,145 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:40,145 - INFO: --- mutation activated - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:40,163 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:40,163 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:40,166 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:40,169 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:40,374 - INFO: ITERATION 21 - src.models.run_tests.TestCases
+2021-09-10 13:47:40,374 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:40,374 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:40,376 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:40,416 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:40,416 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:40,416 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:40,418 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:40,420 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:40,623 - INFO: ITERATION 22 - src.models.run_tests.TestCases
+2021-09-10 13:47:40,623 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:40,624 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:40,626 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:40,665 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:40,665 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:40,665 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:40,667 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:40,670 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:40,907 - INFO: ITERATION 23 - src.models.run_tests.TestCases
+2021-09-10 13:47:40,907 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:40,908 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:40,910 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:40,953 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:40,953 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:40,953 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:40,955 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:40,960 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:41,186 - INFO: ITERATION 24 - src.models.run_tests.TestCases
+2021-09-10 13:47:41,186 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:41,187 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:41,188 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:41,229 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:41,229 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:41,229 - INFO: --- mutation activated - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:41,251 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:41,253 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:41,257 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:41,471 - INFO: ITERATION 25 - src.models.run_tests.TestCases
+2021-09-10 13:47:41,471 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:41,472 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:41,473 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:41,514 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:41,514 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:41,514 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:41,516 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:41,519 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:41,731 - INFO: ITERATION 26 - src.models.run_tests.TestCases
+2021-09-10 13:47:41,731 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:41,731 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:41,732 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:41,772 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:41,772 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:41,772 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:41,774 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:41,777 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:41,980 - INFO: ITERATION 27 - src.models.run_tests.TestCases
+2021-09-10 13:47:41,980 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:41,980 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:41,982 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:42,027 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:42,027 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:42,027 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:42,029 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:42,032 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:42,280 - INFO: ITERATION 28 - src.models.run_tests.TestCases
+2021-09-10 13:47:42,280 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:42,281 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:42,282 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:42,323 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:42,323 - INFO: --- mutation activated - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:42,342 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:42,342 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:42,344 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:42,347 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:42,587 - INFO: ITERATION 29 - src.models.run_tests.TestCases
+2021-09-10 13:47:42,587 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:42,588 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:42,590 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:42,636 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:42,636 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:42,636 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:42,638 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:42,641 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:42,869 - INFO: ITERATION 30 - src.models.run_tests.TestCases
+2021-09-10 13:47:42,869 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:42,870 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:42,871 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:42,912 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:42,912 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:42,912 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:42,914 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:42,917 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:43,125 - INFO: ITERATION 31 - src.models.run_tests.TestCases
+2021-09-10 13:47:43,125 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:43,126 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:43,127 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:43,167 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:43,167 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:43,168 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:43,169 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:43,172 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:43,379 - INFO: ITERATION 32 - src.models.run_tests.TestCases
+2021-09-10 13:47:43,379 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:43,380 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:43,382 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:43,423 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:43,423 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:43,423 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:43,425 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:43,428 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:43,642 - INFO: ITERATION 33 - src.models.run_tests.TestCases
+2021-09-10 13:47:43,642 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:43,642 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:43,644 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:43,685 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:43,685 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:43,686 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:43,687 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:43,691 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:43,899 - INFO: ITERATION 34 - src.models.run_tests.TestCases
+2021-09-10 13:47:43,899 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:43,900 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:43,901 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:43,942 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:43,942 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:43,943 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:43,944 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:43,948 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:44,151 - INFO: ITERATION 35 - src.models.run_tests.TestCases
+2021-09-10 13:47:44,151 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:44,152 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:44,153 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:44,193 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:44,193 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:44,193 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:44,195 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:44,198 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:44,398 - INFO: ITERATION 36 - src.models.run_tests.TestCases
+2021-09-10 13:47:44,398 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:44,399 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:44,401 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:44,440 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:44,441 - INFO: --- mutation activated - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:44,461 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:44,461 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:44,463 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:44,467 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:44,668 - INFO: ITERATION 37 - src.models.run_tests.TestCases
+2021-09-10 13:47:44,669 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:44,669 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:44,671 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:44,710 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:44,710 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:44,710 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:44,712 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:44,715 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:44,918 - INFO: ITERATION 38 - src.models.run_tests.TestCases
+2021-09-10 13:47:44,918 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:44,919 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:44,921 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:44,961 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:44,961 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:44,961 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:44,963 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:44,967 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:45,173 - INFO: ITERATION 39 - src.models.run_tests.TestCases
+2021-09-10 13:47:45,174 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:45,174 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:45,176 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:45,215 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:45,215 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:45,215 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:45,217 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:45,221 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:45,417 - INFO: ITERATION 40 - src.models.run_tests.TestCases
+2021-09-10 13:47:45,417 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:45,418 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:45,419 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:45,460 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:45,460 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:45,460 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:45,462 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:45,465 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:45,706 - INFO: ITERATION 41 - src.models.run_tests.TestCases
+2021-09-10 13:47:45,706 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:45,707 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:45,709 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:45,752 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:45,752 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:45,752 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:45,754 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:45,757 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:45,970 - INFO: ITERATION 42 - src.models.run_tests.TestCases
+2021-09-10 13:47:45,970 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:45,971 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:45,973 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:46,014 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:46,014 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:46,014 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:46,017 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:46,022 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:46,258 - INFO: ITERATION 43 - src.models.run_tests.TestCases
+2021-09-10 13:47:46,258 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:46,259 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:46,261 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:46,304 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:46,304 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:46,304 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:46,306 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:46,309 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:46,524 - INFO: ITERATION 44 - src.models.run_tests.TestCases
+2021-09-10 13:47:46,524 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:46,525 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:46,527 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:46,567 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:46,567 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:46,567 - INFO: --- mutation activated - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:46,588 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:46,590 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:46,593 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:46,858 - INFO: ITERATION 45 - src.models.run_tests.TestCases
+2021-09-10 13:47:46,858 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:46,858 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:46,860 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:46,905 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:46,905 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:46,905 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:46,908 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:46,911 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:47,194 - INFO: ITERATION 46 - src.models.run_tests.TestCases
+2021-09-10 13:47:47,194 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:47,195 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:47,196 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:47,237 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:47,237 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:47,237 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:47,239 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:47,242 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:47,503 - INFO: ITERATION 47 - src.models.run_tests.TestCases
+2021-09-10 13:47:47,504 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:47,504 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:47,506 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:47,546 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:47,546 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:47,546 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:47,548 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:47,552 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:47,761 - INFO: ITERATION 48 - src.models.run_tests.TestCases
+2021-09-10 13:47:47,762 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:47,762 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:47,764 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:47,805 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:47,805 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:47,805 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:47,807 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:47,811 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:48,084 - INFO: ITERATION 49 - src.models.run_tests.TestCases
+2021-09-10 13:47:48,084 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:48,084 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:48,086 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:48,130 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:48,130 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:48,130 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:48,132 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:48,135 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:48,359 - INFO: ITERATION 50 - src.models.run_tests.TestCases
+2021-09-10 13:47:48,359 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:48,360 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:48,361 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:48,401 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:48,401 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:48,401 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:48,403 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:48,406 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:48,606 - INFO: ITERATION 51 - src.models.run_tests.TestCases
+2021-09-10 13:47:48,606 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:48,607 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:48,609 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:48,648 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:48,648 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:48,648 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:48,650 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:48,655 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:48,857 - INFO: ITERATION 52 - src.models.run_tests.TestCases
+2021-09-10 13:47:48,857 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:48,857 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:48,859 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:48,898 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:48,898 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:48,899 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:48,900 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:48,904 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:49,106 - INFO: ITERATION 53 - src.models.run_tests.TestCases
+2021-09-10 13:47:49,106 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:49,107 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:49,109 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:49,148 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:49,148 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:49,148 - INFO: --- mutation activated - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:49,167 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:49,169 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:49,172 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:49,377 - INFO: ITERATION 54 - src.models.run_tests.TestCases
+2021-09-10 13:47:49,377 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:49,377 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:49,379 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:49,418 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:49,418 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:49,419 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:49,421 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:49,424 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:49,626 - INFO: ITERATION 55 - src.models.run_tests.TestCases
+2021-09-10 13:47:49,626 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:49,627 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:49,628 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:49,667 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:49,667 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:49,667 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:49,670 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:49,674 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:49,877 - INFO: ITERATION 56 - src.models.run_tests.TestCases
+2021-09-10 13:47:49,877 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:49,878 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:49,879 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:49,919 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:49,919 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:49,919 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:49,921 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:49,924 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:50,137 - INFO: ITERATION 57 - src.models.run_tests.TestCases
+2021-09-10 13:47:50,137 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:50,137 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:50,139 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:50,180 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:50,181 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:50,181 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:50,182 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:50,185 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:50,397 - INFO: ITERATION 58 - src.models.run_tests.TestCases
+2021-09-10 13:47:50,398 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:50,398 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:50,400 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:50,441 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:50,441 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:50,441 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:50,443 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:50,446 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:50,655 - INFO: ITERATION 59 - src.models.run_tests.TestCases
+2021-09-10 13:47:50,655 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:50,656 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:50,657 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:50,707 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:50,707 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:50,708 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:50,711 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:50,715 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:50,926 - INFO: ITERATION 60 - src.models.run_tests.TestCases
+2021-09-10 13:47:50,926 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:50,927 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:50,929 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:50,969 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:50,969 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:50,969 - INFO: --- mutation activated - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:50,990 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:50,991 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:50,994 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:51,202 - INFO: ITERATION 61 - src.models.run_tests.TestCases
+2021-09-10 13:47:51,203 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:51,203 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:51,205 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:51,245 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:51,245 - INFO: --- mutation activated - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:51,266 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:51,267 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:51,268 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:51,271 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:51,503 - INFO: ITERATION 62 - src.models.run_tests.TestCases
+2021-09-10 13:47:51,503 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:51,504 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:51,506 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:51,547 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:51,547 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:51,548 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:51,549 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:51,553 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:51,770 - INFO: ITERATION 63 - src.models.run_tests.TestCases
+2021-09-10 13:47:51,770 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:51,770 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:51,772 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:51,813 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:51,813 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:51,813 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:51,815 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:51,818 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:52,029 - INFO: ITERATION 64 - src.models.run_tests.TestCases
+2021-09-10 13:47:52,029 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:52,029 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:52,031 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:52,071 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:52,071 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:52,071 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:52,073 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:52,076 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:52,282 - INFO: ITERATION 65 - src.models.run_tests.TestCases
+2021-09-10 13:47:52,282 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:52,283 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:52,284 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:52,325 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:52,325 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:52,325 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:52,327 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:52,330 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:52,532 - INFO: ITERATION 66 - src.models.run_tests.TestCases
+2021-09-10 13:47:52,532 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:52,532 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:52,534 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:52,574 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:52,574 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:52,574 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:52,576 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:52,579 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:52,779 - INFO: ITERATION 67 - src.models.run_tests.TestCases
+2021-09-10 13:47:52,779 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:52,779 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:52,782 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:52,821 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:52,821 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:52,821 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:52,823 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:52,826 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:53,026 - INFO: ITERATION 68 - src.models.run_tests.TestCases
+2021-09-10 13:47:53,026 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:53,026 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:53,028 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:53,067 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:53,067 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:53,067 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:53,068 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:53,072 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:53,273 - INFO: ITERATION 69 - src.models.run_tests.TestCases
+2021-09-10 13:47:53,274 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:53,274 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:53,276 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:53,315 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:53,315 - INFO: --- mutation activated - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:53,335 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:53,336 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:53,338 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:53,341 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:53,541 - INFO: ITERATION 70 - src.models.run_tests.TestCases
+2021-09-10 13:47:53,541 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:53,542 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:53,543 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:53,584 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:53,584 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:53,584 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:53,586 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:53,589 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:53,790 - INFO: ITERATION 71 - src.models.run_tests.TestCases
+2021-09-10 13:47:53,790 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:53,791 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:53,793 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:53,833 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:53,833 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:53,833 - INFO: --- mutation activated - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:53,853 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:53,854 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:53,857 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:54,058 - INFO: ITERATION 72 - src.models.run_tests.TestCases
+2021-09-10 13:47:54,058 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:54,059 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:54,060 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:54,099 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:54,099 - INFO: --- mutation activated - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:54,119 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:54,120 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:54,121 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:54,124 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:54,324 - INFO: ITERATION 73 - src.models.run_tests.TestCases
+2021-09-10 13:47:54,324 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:54,325 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:54,327 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:54,367 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:54,367 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:54,367 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:54,368 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:54,371 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:54,574 - INFO: ITERATION 74 - src.models.run_tests.TestCases
+2021-09-10 13:47:54,574 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:54,575 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:54,576 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:54,617 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:54,617 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:54,617 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:54,619 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:54,622 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:54,822 - INFO: ITERATION 75 - src.models.run_tests.TestCases
+2021-09-10 13:47:54,822 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:54,823 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:54,824 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:54,863 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:54,863 - INFO: --- mutation activated - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:54,882 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:54,882 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:54,884 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:54,887 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:55,082 - INFO: ITERATION 76 - src.models.run_tests.TestCases
+2021-09-10 13:47:55,082 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:55,082 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:55,084 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:55,122 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:55,123 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:55,123 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:55,124 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:55,127 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:55,323 - INFO: ITERATION 77 - src.models.run_tests.TestCases
+2021-09-10 13:47:55,323 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:55,324 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:55,325 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:55,369 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:55,369 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:55,369 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:55,371 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:55,375 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:55,615 - INFO: ITERATION 78 - src.models.run_tests.TestCases
+2021-09-10 13:47:55,615 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:55,616 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:55,617 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:55,656 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:55,656 - INFO: --- mutation activated - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:55,676 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:55,676 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:55,677 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:55,680 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:55,887 - INFO: ITERATION 79 - src.models.run_tests.TestCases
+2021-09-10 13:47:55,887 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:55,888 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:55,890 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:55,928 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:55,928 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:55,929 - INFO: --- mutation activated - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:55,949 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:55,951 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:55,954 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:56,151 - INFO: ITERATION 80 - src.models.run_tests.TestCases
+2021-09-10 13:47:56,151 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:56,152 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:56,153 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:56,192 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:56,192 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:56,192 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:56,194 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:56,197 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:56,394 - INFO: ITERATION 81 - src.models.run_tests.TestCases
+2021-09-10 13:47:56,394 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:56,395 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:56,396 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:56,435 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:56,435 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:56,435 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:56,437 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:56,441 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:56,652 - INFO: ITERATION 82 - src.models.run_tests.TestCases
+2021-09-10 13:47:56,652 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:56,653 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:56,655 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:56,701 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:56,701 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:56,701 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:56,703 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:56,707 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:56,931 - INFO: ITERATION 83 - src.models.run_tests.TestCases
+2021-09-10 13:47:56,931 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:56,932 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:56,934 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:56,974 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:56,974 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:56,974 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:56,976 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:56,979 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:57,180 - INFO: ITERATION 84 - src.models.run_tests.TestCases
+2021-09-10 13:47:57,180 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:57,180 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:57,182 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:57,226 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:57,226 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:57,226 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:57,228 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:57,231 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:57,436 - INFO: ITERATION 85 - src.models.run_tests.TestCases
+2021-09-10 13:47:57,436 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:57,436 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:57,438 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:57,478 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:57,478 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:57,479 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:57,480 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:57,482 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:57,682 - INFO: ITERATION 86 - src.models.run_tests.TestCases
+2021-09-10 13:47:57,682 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:57,683 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:57,684 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:57,724 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:57,724 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:57,724 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:57,725 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:57,728 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:57,929 - INFO: ITERATION 87 - src.models.run_tests.TestCases
+2021-09-10 13:47:57,929 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:57,930 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:57,931 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:57,970 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:57,970 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:57,970 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:57,972 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:57,975 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:58,216 - INFO: ITERATION 88 - src.models.run_tests.TestCases
+2021-09-10 13:47:58,216 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:58,216 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:58,218 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:58,261 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:58,261 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:58,261 - INFO: --- mutation activated - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:58,281 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:58,283 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:58,286 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:58,486 - INFO: ITERATION 89 - src.models.run_tests.TestCases
+2021-09-10 13:47:58,486 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:58,487 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:58,489 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:58,528 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:58,528 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:58,528 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:58,530 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:58,533 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:58,732 - INFO: ITERATION 90 - src.models.run_tests.TestCases
+2021-09-10 13:47:58,732 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:58,732 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:58,734 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:58,774 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:58,774 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:58,774 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:58,776 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:58,779 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:58,981 - INFO: ITERATION 91 - src.models.run_tests.TestCases
+2021-09-10 13:47:58,981 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:58,982 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:58,983 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:59,025 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:59,025 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:59,025 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:59,027 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:59,030 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:59,275 - INFO: ITERATION 92 - src.models.run_tests.TestCases
+2021-09-10 13:47:59,275 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:59,275 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:59,277 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:59,316 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:59,316 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:59,316 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:59,318 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:59,321 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:59,518 - INFO: ITERATION 93 - src.models.run_tests.TestCases
+2021-09-10 13:47:59,518 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:59,518 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:59,520 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:59,559 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:59,560 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:59,560 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:59,561 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:59,564 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:47:59,763 - INFO: ITERATION 94 - src.models.run_tests.TestCases
+2021-09-10 13:47:59,763 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:59,763 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:59,765 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:59,809 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:59,809 - INFO: --- mutation activated - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:59,829 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:59,829 - INFO: --- mutation activated - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:47:59,850 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:59,852 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:47:59,857 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:00,083 - INFO: ITERATION 95 - src.models.run_tests.TestCases
+2021-09-10 13:48:00,083 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:00,083 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:00,085 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:00,125 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:00,125 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:00,125 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:00,127 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:00,130 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:00,329 - INFO: ITERATION 96 - src.models.run_tests.TestCases
+2021-09-10 13:48:00,329 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:00,330 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:00,331 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:00,370 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:00,370 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:00,370 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:00,373 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:00,376 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:00,576 - INFO: ITERATION 97 - src.models.run_tests.TestCases
+2021-09-10 13:48:00,576 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:00,577 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:00,579 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:00,618 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:00,618 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:00,618 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:00,620 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:00,624 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:00,821 - INFO: ITERATION 98 - src.models.run_tests.TestCases
+2021-09-10 13:48:00,823 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:00,823 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:00,825 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:00,864 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:00,864 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:00,864 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:00,866 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:00,869 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:01,077 - INFO: ITERATION 99 - src.models.run_tests.TestCases
+2021-09-10 13:48:01,077 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:01,078 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:01,080 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:01,119 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:01,119 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:01,119 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:01,121 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:01,124 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:01,325 - INFO: ITERATION 100 - src.models.run_tests.TestCases
+2021-09-10 13:48:01,325 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:01,326 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:01,327 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:01,369 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:01,369 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:01,369 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:01,371 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:01,375 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:01,592 - INFO: ITERATION 101 - src.models.run_tests.TestCases
+2021-09-10 13:48:01,592 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:01,593 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:01,594 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:01,636 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:01,636 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:01,636 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:01,638 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:01,642 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:01,851 - INFO: ITERATION 102 - src.models.run_tests.TestCases
+2021-09-10 13:48:01,852 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:01,852 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:01,854 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:01,901 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:01,901 - INFO: --- mutation activated - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:01,923 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:01,923 - INFO: --- mutation activated - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:01,943 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:01,945 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:01,948 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:02,172 - INFO: ITERATION 103 - src.models.run_tests.TestCases
+2021-09-10 13:48:02,172 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:02,173 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:02,174 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:02,221 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:02,221 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:02,221 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:02,222 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:02,226 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:02,455 - INFO: ITERATION 104 - src.models.run_tests.TestCases
+2021-09-10 13:48:02,455 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:02,455 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:02,458 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:02,499 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:02,499 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:02,499 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:02,501 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:02,504 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:02,711 - INFO: ITERATION 105 - src.models.run_tests.TestCases
+2021-09-10 13:48:02,711 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:02,711 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:02,713 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:02,753 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:02,753 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:02,753 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:02,755 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:02,759 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:02,966 - INFO: ITERATION 106 - src.models.run_tests.TestCases
+2021-09-10 13:48:02,966 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:02,966 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:02,968 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:03,009 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:03,009 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:03,009 - INFO: --- mutation activated - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:03,030 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:03,032 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:03,036 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:03,257 - INFO: ITERATION 107 - src.models.run_tests.TestCases
+2021-09-10 13:48:03,257 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:03,257 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:03,259 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:03,300 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:03,300 - INFO: --- mutation activated - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:03,320 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:03,320 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:03,322 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:03,326 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:03,534 - INFO: ITERATION 108 - src.models.run_tests.TestCases
+2021-09-10 13:48:03,535 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:03,535 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:03,537 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:03,577 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:03,577 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:03,577 - INFO: --- mutation activated - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:03,597 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:03,599 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:03,602 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:03,805 - INFO: ITERATION 109 - src.models.run_tests.TestCases
+2021-09-10 13:48:03,806 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:03,806 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:03,808 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:03,849 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:03,850 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:03,850 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:03,852 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:03,855 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:04,098 - INFO: ITERATION 110 - src.models.run_tests.TestCases
+2021-09-10 13:48:04,098 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:04,098 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:04,101 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:04,147 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:04,147 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:04,147 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:04,149 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:04,152 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:04,387 - INFO: ITERATION 111 - src.models.run_tests.TestCases
+2021-09-10 13:48:04,387 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:04,387 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:04,389 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:04,430 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:04,430 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:04,430 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:04,432 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:04,435 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:04,662 - INFO: ITERATION 112 - src.models.run_tests.TestCases
+2021-09-10 13:48:04,662 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:04,663 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:04,665 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:04,705 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:04,705 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:04,705 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:04,707 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:04,711 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:04,970 - INFO: ITERATION 113 - src.models.run_tests.TestCases
+2021-09-10 13:48:04,970 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:04,971 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:04,972 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:05,014 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:05,014 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:05,014 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:05,016 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:05,019 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:05,228 - INFO: ITERATION 114 - src.models.run_tests.TestCases
+2021-09-10 13:48:05,228 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:05,229 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:05,230 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:05,272 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:05,272 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:05,272 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:05,275 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:05,281 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:05,490 - INFO: ITERATION 115 - src.models.run_tests.TestCases
+2021-09-10 13:48:05,490 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:05,490 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:05,491 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:05,532 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:05,532 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:05,532 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:05,534 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:05,537 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:05,755 - INFO: ITERATION 116 - src.models.run_tests.TestCases
+2021-09-10 13:48:05,755 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:05,755 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:05,758 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:05,800 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:05,800 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:05,800 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:05,802 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:05,805 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:06,012 - INFO: ITERATION 117 - src.models.run_tests.TestCases
+2021-09-10 13:48:06,012 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:06,013 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:06,014 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:06,053 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:06,053 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:06,053 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:06,055 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:06,059 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:06,261 - INFO: ITERATION 118 - src.models.run_tests.TestCases
+2021-09-10 13:48:06,261 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:06,261 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:06,263 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:06,303 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:06,303 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:06,303 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:06,305 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:06,308 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:06,512 - INFO: ITERATION 119 - src.models.run_tests.TestCases
+2021-09-10 13:48:06,512 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:06,512 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:06,514 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:06,558 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:06,558 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:06,558 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:06,559 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:06,563 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:06,835 - INFO: ITERATION 120 - src.models.run_tests.TestCases
+2021-09-10 13:48:06,835 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:06,836 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:06,838 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:06,879 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:06,879 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:06,879 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:06,881 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:06,884 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:07,105 - INFO: ITERATION 121 - src.models.run_tests.TestCases
+2021-09-10 13:48:07,105 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:07,106 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:07,107 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:07,150 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:07,150 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:07,151 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:07,153 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:07,156 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:07,388 - INFO: ITERATION 122 - src.models.run_tests.TestCases
+2021-09-10 13:48:07,388 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:07,389 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:07,391 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:07,434 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:07,434 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:07,434 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:07,436 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:07,439 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:07,645 - INFO: ITERATION 123 - src.models.run_tests.TestCases
+2021-09-10 13:48:07,645 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:07,646 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:07,647 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:07,686 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:07,686 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:07,686 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:07,688 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:07,691 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:07,921 - INFO: ITERATION 124 - src.models.run_tests.TestCases
+2021-09-10 13:48:07,921 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:07,921 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:07,923 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:07,962 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:07,963 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:07,963 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:07,965 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:07,968 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:08,170 - INFO: ITERATION 125 - src.models.run_tests.TestCases
+2021-09-10 13:48:08,170 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:08,170 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:08,172 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:08,213 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:08,213 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:08,213 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:08,215 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:08,219 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:08,454 - INFO: ITERATION 126 - src.models.run_tests.TestCases
+2021-09-10 13:48:08,455 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:08,455 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:08,457 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:08,498 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:08,498 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:08,499 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:08,500 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:08,504 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:08,713 - INFO: ITERATION 127 - src.models.run_tests.TestCases
+2021-09-10 13:48:08,713 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:08,714 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:08,716 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:08,757 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:08,757 - INFO: --- mutation activated - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:08,777 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:08,777 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:08,779 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:08,782 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:08,995 - INFO: ITERATION 128 - src.models.run_tests.TestCases
+2021-09-10 13:48:08,995 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:08,995 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:08,997 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:09,038 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:09,038 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:09,038 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:09,040 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:09,044 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:09,262 - INFO: ITERATION 129 - src.models.run_tests.TestCases
+2021-09-10 13:48:09,262 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:09,262 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:09,264 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:09,306 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:09,306 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:09,306 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:09,308 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:09,311 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:09,516 - INFO: ITERATION 130 - src.models.run_tests.TestCases
+2021-09-10 13:48:09,516 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:09,517 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:09,518 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:09,559 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:09,559 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:09,560 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:09,561 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:09,564 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:09,794 - INFO: ITERATION 131 - src.models.run_tests.TestCases
+2021-09-10 13:48:09,794 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:09,794 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:09,796 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:09,836 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:09,837 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:09,837 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:09,838 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:09,842 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:10,052 - INFO: ITERATION 132 - src.models.run_tests.TestCases
+2021-09-10 13:48:10,052 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:10,053 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:10,055 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:10,103 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:10,103 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:10,103 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:10,105 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:10,108 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:10,322 - INFO: ITERATION 133 - src.models.run_tests.TestCases
+2021-09-10 13:48:10,322 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:10,322 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:10,324 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:10,365 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:10,365 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:10,366 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:10,367 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:10,371 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:10,602 - INFO: ITERATION 134 - src.models.run_tests.TestCases
+2021-09-10 13:48:10,602 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:10,603 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:10,604 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:10,653 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:10,654 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:10,654 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:10,656 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:10,660 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:10,897 - INFO: ITERATION 135 - src.models.run_tests.TestCases
+2021-09-10 13:48:10,897 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:10,898 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:10,900 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:10,942 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:10,942 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:10,942 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:10,943 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:10,947 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:11,162 - INFO: ITERATION 136 - src.models.run_tests.TestCases
+2021-09-10 13:48:11,162 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:11,163 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:11,164 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:11,219 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:11,219 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:11,220 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:11,221 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:11,225 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:11,448 - INFO: ITERATION 137 - src.models.run_tests.TestCases
+2021-09-10 13:48:11,448 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:11,448 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:11,450 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:11,491 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:11,491 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:11,491 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:11,494 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:11,497 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:11,707 - INFO: ITERATION 138 - src.models.run_tests.TestCases
+2021-09-10 13:48:11,707 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:11,707 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:11,709 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:11,749 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:11,749 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:11,749 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:11,751 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:11,754 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:11,959 - INFO: ITERATION 139 - src.models.run_tests.TestCases
+2021-09-10 13:48:11,959 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:11,960 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:11,961 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:12,003 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:12,003 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:12,003 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:12,006 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:12,009 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:12,224 - INFO: ITERATION 140 - src.models.run_tests.TestCases
+2021-09-10 13:48:12,225 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:12,225 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:12,227 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:12,266 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:12,266 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:12,266 - INFO: --- mutation activated - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:12,287 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:12,288 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:12,291 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:12,534 - INFO: ITERATION 141 - src.models.run_tests.TestCases
+2021-09-10 13:48:12,534 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:12,534 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:12,536 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:12,586 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:12,586 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:12,586 - INFO: --- mutation activated - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:12,611 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:12,613 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:12,617 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:12,860 - INFO: ITERATION 142 - src.models.run_tests.TestCases
+2021-09-10 13:48:12,861 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:12,861 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:12,863 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:12,903 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:12,903 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:12,903 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:12,905 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:12,908 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:13,137 - INFO: ITERATION 143 - src.models.run_tests.TestCases
+2021-09-10 13:48:13,137 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:13,137 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:13,139 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:13,181 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:13,181 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:13,181 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:13,183 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:13,186 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:13,396 - INFO: ITERATION 144 - src.models.run_tests.TestCases
+2021-09-10 13:48:13,396 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:13,397 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:13,399 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:13,439 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:13,440 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:13,440 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:13,442 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:13,445 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:13,655 - INFO: ITERATION 145 - src.models.run_tests.TestCases
+2021-09-10 13:48:13,655 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:13,656 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:13,658 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:13,698 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:13,698 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:13,698 - INFO: --- mutation activated - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:13,720 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:13,722 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:13,725 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:13,947 - INFO: ITERATION 146 - src.models.run_tests.TestCases
+2021-09-10 13:48:13,947 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:13,947 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:13,949 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:13,990 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:13,990 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:13,990 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:13,992 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:13,996 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:14,205 - INFO: ITERATION 147 - src.models.run_tests.TestCases
+2021-09-10 13:48:14,205 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:14,205 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:14,207 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:14,247 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:14,247 - INFO: --- mutation activated - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:14,269 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:14,269 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:14,271 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:14,274 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:14,490 - INFO: ITERATION 148 - src.models.run_tests.TestCases
+2021-09-10 13:48:14,490 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:14,490 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:14,492 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:14,533 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:14,533 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:14,534 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:14,535 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:14,539 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:14,751 - INFO: ITERATION 149 - src.models.run_tests.TestCases
+2021-09-10 13:48:14,751 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:14,752 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:14,754 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:14,796 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:14,796 - INFO: --- mutation activated - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:14,818 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:14,818 - INFO: --- mutation activated - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:14,838 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:14,841 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:14,844 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:15,056 - INFO: ITERATION 150 - src.models.run_tests.TestCases
+2021-09-10 13:48:15,056 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:15,057 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:15,058 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:15,101 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:15,101 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:15,101 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:15,103 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:15,106 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:15,321 - INFO: ITERATION 151 - src.models.run_tests.TestCases
+2021-09-10 13:48:15,321 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:15,321 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:15,323 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:15,364 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:15,364 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:15,365 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:15,366 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:15,370 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:15,578 - INFO: ITERATION 152 - src.models.run_tests.TestCases
+2021-09-10 13:48:15,579 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:15,579 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:15,581 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:15,621 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:15,621 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:15,622 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:15,623 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:15,627 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:15,833 - INFO: ITERATION 153 - src.models.run_tests.TestCases
+2021-09-10 13:48:15,833 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:15,834 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:15,835 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:15,875 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:15,875 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:15,875 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:15,877 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:15,880 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:16,081 - INFO: ITERATION 154 - src.models.run_tests.TestCases
+2021-09-10 13:48:16,081 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:16,082 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:16,084 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:16,122 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:16,122 - INFO: --- mutation activated - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:16,143 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:16,143 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:16,144 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:16,147 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:16,347 - INFO: ITERATION 155 - src.models.run_tests.TestCases
+2021-09-10 13:48:16,347 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:16,347 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:16,349 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:16,389 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:16,389 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:16,389 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:16,391 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:16,394 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:16,609 - INFO: ITERATION 156 - src.models.run_tests.TestCases
+2021-09-10 13:48:16,609 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:16,609 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:16,611 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:16,650 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:16,650 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:16,651 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:16,652 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:16,656 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:16,865 - INFO: ITERATION 157 - src.models.run_tests.TestCases
+2021-09-10 13:48:16,865 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:16,866 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:16,867 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:16,909 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:16,909 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:16,909 - INFO: --- mutation activated - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:16,931 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:16,933 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:16,937 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:17,142 - INFO: ITERATION 158 - src.models.run_tests.TestCases
+2021-09-10 13:48:17,142 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:17,143 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:17,145 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:17,184 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:17,184 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:17,184 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:17,186 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:17,189 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:17,389 - INFO: ITERATION 159 - src.models.run_tests.TestCases
+2021-09-10 13:48:17,389 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:17,390 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:17,392 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:17,433 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:17,433 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:17,433 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:17,435 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:17,438 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:17,642 - INFO: ITERATION 160 - src.models.run_tests.TestCases
+2021-09-10 13:48:17,643 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:17,643 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:17,645 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:17,684 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:17,685 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:17,685 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:17,686 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:17,689 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:17,928 - INFO: ITERATION 161 - src.models.run_tests.TestCases
+2021-09-10 13:48:17,928 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:17,929 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:17,930 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:17,973 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:17,973 - INFO: --- mutation activated - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:17,994 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:17,994 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:17,996 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:17,999 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:18,207 - INFO: ITERATION 162 - src.models.run_tests.TestCases
+2021-09-10 13:48:18,207 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:18,207 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:18,209 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:18,249 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:18,249 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:18,250 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:18,251 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:18,254 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:18,453 - INFO: ITERATION 163 - src.models.run_tests.TestCases
+2021-09-10 13:48:18,453 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:18,454 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:18,455 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:18,495 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:18,495 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:18,496 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:18,497 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:18,500 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:18,699 - INFO: ITERATION 164 - src.models.run_tests.TestCases
+2021-09-10 13:48:18,699 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:18,700 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:18,701 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:18,741 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:18,741 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:18,741 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:18,742 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:18,745 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:18,947 - INFO: ITERATION 165 - src.models.run_tests.TestCases
+2021-09-10 13:48:18,947 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:18,948 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:18,949 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:18,993 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:18,993 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:18,993 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:18,995 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:18,998 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:19,223 - INFO: ITERATION 166 - src.models.run_tests.TestCases
+2021-09-10 13:48:19,223 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:19,223 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:19,225 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:19,269 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:19,269 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:19,269 - INFO: --- mutation activated - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:19,289 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:19,291 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:19,294 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:19,521 - INFO: ITERATION 167 - src.models.run_tests.TestCases
+2021-09-10 13:48:19,521 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:19,522 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:19,525 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:19,565 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:19,565 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:19,565 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:19,567 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:19,570 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:19,778 - INFO: ITERATION 168 - src.models.run_tests.TestCases
+2021-09-10 13:48:19,778 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:19,778 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:19,780 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:19,821 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:19,822 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:19,822 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:19,824 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:19,827 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:20,037 - INFO: ITERATION 169 - src.models.run_tests.TestCases
+2021-09-10 13:48:20,037 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:20,037 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:20,039 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:20,080 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:20,080 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:20,080 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:20,082 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:20,085 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:20,292 - INFO: ITERATION 170 - src.models.run_tests.TestCases
+2021-09-10 13:48:20,292 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:20,292 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:20,294 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:20,334 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:20,334 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:20,334 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:20,336 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:20,339 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:20,545 - INFO: ITERATION 171 - src.models.run_tests.TestCases
+2021-09-10 13:48:20,545 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:20,545 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:20,547 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:20,587 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:20,587 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:20,587 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:20,589 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:20,592 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:20,799 - INFO: ITERATION 172 - src.models.run_tests.TestCases
+2021-09-10 13:48:20,799 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:20,800 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:20,802 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:20,842 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:20,842 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:20,842 - INFO: --- mutation activated - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:20,862 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:20,865 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:20,869 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:21,086 - INFO: ITERATION 173 - src.models.run_tests.TestCases
+2021-09-10 13:48:21,086 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:21,086 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:21,088 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:21,129 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:21,129 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:21,129 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:21,131 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:21,134 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:21,344 - INFO: ITERATION 174 - src.models.run_tests.TestCases
+2021-09-10 13:48:21,344 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:21,344 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:21,346 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:21,386 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:21,386 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:21,386 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:21,388 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:21,391 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:21,593 - INFO: ITERATION 175 - src.models.run_tests.TestCases
+2021-09-10 13:48:21,593 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:21,594 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:21,595 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:21,636 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:21,636 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:21,636 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:21,638 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:21,641 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:21,879 - INFO: ITERATION 176 - src.models.run_tests.TestCases
+2021-09-10 13:48:21,880 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:21,880 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:21,882 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:21,923 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:21,923 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:21,923 - INFO: --- mutation activated - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:21,944 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:21,946 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:21,950 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:22,164 - INFO: ITERATION 177 - src.models.run_tests.TestCases
+2021-09-10 13:48:22,164 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:22,164 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:22,167 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:22,208 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:22,208 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:22,208 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:22,210 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:22,213 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:22,420 - INFO: ITERATION 178 - src.models.run_tests.TestCases
+2021-09-10 13:48:22,420 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:22,420 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:22,422 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:22,463 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:22,463 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:22,463 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:22,465 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:22,469 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:22,685 - INFO: ITERATION 179 - src.models.run_tests.TestCases
+2021-09-10 13:48:22,685 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:22,686 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:22,687 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:22,732 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:22,732 - INFO: --- mutation activated - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:22,753 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:22,753 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:22,755 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:22,758 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:22,963 - INFO: ITERATION 180 - src.models.run_tests.TestCases
+2021-09-10 13:48:22,963 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:22,964 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:22,966 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:23,006 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:23,006 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:23,007 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:23,008 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:23,011 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:23,257 - INFO: ITERATION 181 - src.models.run_tests.TestCases
+2021-09-10 13:48:23,257 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:23,258 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:23,260 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:23,309 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:23,309 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:23,309 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:23,311 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:23,315 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:23,525 - INFO: ITERATION 182 - src.models.run_tests.TestCases
+2021-09-10 13:48:23,525 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:23,526 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:23,528 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:23,569 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:23,569 - INFO: --- mutation activated - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:23,590 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:23,591 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:23,592 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:23,596 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:23,821 - INFO: ITERATION 183 - src.models.run_tests.TestCases
+2021-09-10 13:48:23,821 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:23,822 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:23,823 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:23,863 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:23,864 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:23,864 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:23,866 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:23,870 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:24,082 - INFO: ITERATION 184 - src.models.run_tests.TestCases
+2021-09-10 13:48:24,082 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:24,083 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:24,084 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:24,125 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:24,125 - INFO: --- mutation activated - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:24,144 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:24,144 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:24,146 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:24,149 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:24,354 - INFO: ITERATION 185 - src.models.run_tests.TestCases
+2021-09-10 13:48:24,354 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:24,355 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:24,357 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:24,402 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:24,402 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:24,402 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:24,405 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:24,408 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:24,617 - INFO: ITERATION 186 - src.models.run_tests.TestCases
+2021-09-10 13:48:24,617 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:24,617 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:24,619 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:24,659 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:24,659 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:24,659 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:24,662 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:24,665 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:24,874 - INFO: ITERATION 187 - src.models.run_tests.TestCases
+2021-09-10 13:48:24,874 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:24,875 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:24,876 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:24,917 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:24,917 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:24,917 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:24,919 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:24,922 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:25,125 - INFO: ITERATION 188 - src.models.run_tests.TestCases
+2021-09-10 13:48:25,125 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:25,126 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:25,128 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:25,168 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:25,168 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:25,169 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:25,170 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:25,174 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:25,377 - INFO: ITERATION 189 - src.models.run_tests.TestCases
+2021-09-10 13:48:25,377 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:25,378 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:25,379 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:25,424 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:25,424 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:25,424 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:25,426 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:25,429 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:25,632 - INFO: ITERATION 190 - src.models.run_tests.TestCases
+2021-09-10 13:48:25,632 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:25,633 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:25,634 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:25,674 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:25,675 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:25,675 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:25,677 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:25,680 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:25,893 - INFO: ITERATION 191 - src.models.run_tests.TestCases
+2021-09-10 13:48:25,893 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:25,893 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:25,895 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:25,942 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:25,942 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:25,942 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:25,944 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:25,947 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:26,155 - INFO: ITERATION 192 - src.models.run_tests.TestCases
+2021-09-10 13:48:26,155 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:26,156 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:26,157 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:26,198 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:26,198 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:26,198 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:26,200 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:26,204 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:26,412 - INFO: ITERATION 193 - src.models.run_tests.TestCases
+2021-09-10 13:48:26,412 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:26,412 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:26,414 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:26,456 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:26,456 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:26,456 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:26,458 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:26,461 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:26,670 - INFO: ITERATION 194 - src.models.run_tests.TestCases
+2021-09-10 13:48:26,670 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:26,671 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:26,673 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:26,715 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:26,715 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:26,715 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:26,718 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:26,721 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:26,955 - INFO: ITERATION 195 - src.models.run_tests.TestCases
+2021-09-10 13:48:26,955 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:26,956 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:26,958 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:26,998 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:26,998 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:26,998 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:27,001 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:27,004 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:27,212 - INFO: ITERATION 196 - src.models.run_tests.TestCases
+2021-09-10 13:48:27,212 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:27,212 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:27,214 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:27,255 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:27,255 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:27,255 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:27,257 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:27,260 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:27,465 - INFO: ITERATION 197 - src.models.run_tests.TestCases
+2021-09-10 13:48:27,465 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:27,465 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:27,467 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:27,509 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:27,509 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:27,509 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:27,511 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:27,514 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:27,753 - INFO: ITERATION 198 - src.models.run_tests.TestCases
+2021-09-10 13:48:27,753 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:27,754 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:27,755 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:27,802 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:27,802 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:27,802 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:27,804 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:27,808 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:28,039 - INFO: ITERATION 199 - src.models.run_tests.TestCases
+2021-09-10 13:48:28,039 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:28,039 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:28,041 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:28,080 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:28,081 - INFO: --- mutation activated - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:28,102 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:28,102 - INFO: --- mutation activated - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:28,123 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:28,125 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:28,128 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
+2021-09-10 13:48:28,332 - INFO: ITERATION 200 - src.models.run_tests.TestCases
+2021-09-10 13:48:28,332 - INFO: -- crossover - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:28,333 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:28,335 - INFO: --- tournament_selection - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:28,389 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:28,390 - INFO: --- mutation activated - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:28,417 - INFO: -- mutation check - src.features.build_features.GeneticAlgorithmGenetics
+2021-09-10 13:48:28,417 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:28,419 - INFO: -- ZDT1 test - src.features.make_tests.TestCases
+2021-09-10 13:48:28,423 - INFO: - getting fitness - src.models.genetic_algorithm.GeneticAlgorithmMoga
