@@ -30,6 +30,8 @@ class MainController:
     def pipeline_control(self):
         monitor = pd.DataFrame()
 
+        rt = RunTests()
+
         if self.synch_data:
             self.logger.info('SYNC DATA')
 
@@ -42,7 +44,7 @@ class MainController:
             self.logger.info('--- GENETIC ALGORITHM: VEGA ---')
             if self.test_fxn:
                 for t in self.tests:
-                    monitor = self.run_tests('vega', t, monitor)
+                    monitor = rt.run_tests('vega', t, monitor)
 
             else:
                 ga = GeneticAlgorithmVega()
@@ -64,7 +66,7 @@ class MainController:
 
             if self.test_fxn:
                 for t in self.tests:
-                    monitor = self.run_tests('nsga2', t, monitor)
+                    monitor = rt.run_tests('nsga2', t, monitor)
 
             else:
                 ga = GeneticAlgorithmNsga2()
@@ -85,7 +87,7 @@ class MainController:
 
             if self.test_fxn:
                 for t in self.tests:
-                    monitor = self.run_tests('moga', t, monitor)
+                    monitor = rt.run_tests('moga', t, monitor)
 
             else:
                 ga = GeneticAlgorithmMoga()
@@ -104,22 +106,3 @@ class MainController:
 
         monitor.to_excel('data/interim/monitor.xlsx', index=False)
 
-    def run_tests(self, alg, test, monitor):
-        ga = RunTests()
-
-        if not os.path.exists(f"data/interim/{test}/{alg}"):
-            os.makedirs(f"data/interim/{test}/{alg}")
-
-        for s in range(config.SAMPLE):
-            start=datetime.datetime.now()
-            # TODO: Add number of tests to run
-            fitness_df=ga.make_ga_test(alg, test)
-            fitness_df.to_excel(f"data/interim/{test}/fitness_{alg}_{s}.xlsx", index=False)
-            finish=datetime.datetime.now()
-
-            temp = pd.DataFrame(data=[(f"{alg}_{test}", start, finish, (finish-start), s)],
-                    columns=['model', 'start', 'finish', 'diff','samplenumber'])
-
-            monitor=pd.concat([monitor, temp])
-
-        return monitor

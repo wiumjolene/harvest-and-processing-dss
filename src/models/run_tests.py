@@ -7,6 +7,8 @@ from src.features.build_features import GeneticAlgorithmGenetics
 import pandas as pd
 import numpy as np
 import logging
+import os
+import datetime
 
 
 class RunTests:
@@ -94,3 +96,23 @@ class RunTests:
             self.graph.scatter_plot2(fitness_df, filename_html, 'population', f"{alg_path}-final")
 
         return fitness_df
+
+    def run_tests(self, alg, test, monitor):
+        ga = RunTests()
+
+        if not os.path.exists(f"data/interim/{test}/{alg}"):
+            os.makedirs(f"data/interim/{test}/{alg}")
+
+        for s in range(config.SAMPLE):
+            start=datetime.datetime.now()
+            # TODO: Add number of tests to run
+            fitness_df=ga.make_ga_test(alg, test)
+            fitness_df.to_excel(f"data/interim/{test}/fitness_{alg}_{s}.xlsx", index=False)
+            finish=datetime.datetime.now()
+
+            temp = pd.DataFrame(data=[(f"{alg}_{test}", start, finish, (finish-start), s)],
+                    columns=['model', 'start', 'finish', 'diff','samplenumber'])
+
+            monitor=pd.concat([monitor, temp])
+
+        return monitor
