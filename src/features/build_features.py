@@ -416,18 +416,30 @@ class GeneticAlgorithmGenetics:
 
 
 class ParetoFeatures:
-    """ Class to manage pareto front. """
+    """ Class to manage pareto front """
     logger = logging.getLogger(f"{__name__}.ParetoFeatures")
 
     def non_dominated_sort(self, fitness_df):
         dominating_fits = defaultdict(int)  # n (The number of people that dominate you)
         dominated_fits = defaultdict(list)  # Sp (The people you dominate)
         
-        fitness_df['domcount'] = 0
-        fitness_df['id'] = fitness_df.index
-        fits = list(fitness_df.id)
+        #fitness_df = fitness_df.reset_index(drop=True)
 
+        fitness_df=fitness_df.groupby(['obj1', 'obj2', 'population'])['id'].min().reset_index(drop=False)
+
+        fitness_df['domcount'] = 0
+        
+        fits = list(fitness_df.id)
+        
+        #print(fitness_df.head(5))
+        fitness_df.set_index("id", inplace = True)
+        fitness_df['id'] = fitness_df.index
+
+        #print(fitness_df.head(5))
+        
         for i, id in enumerate(fits):
+            # print(fits)
+            # print(f"{i} - {id}")
             obj1 = fitness_df.at[id, 'obj1']
             obj2 = fitness_df.at[id, 'obj2']
 
@@ -437,6 +449,7 @@ class ParetoFeatures:
                 obj2x = fitness_df.at[idx, 'obj2']
                 
                 #if build_features.GeneticAlgorithmGenetics.dominates(objset1, objset2):
+                #if (obj1 <= obj1x and obj2 <= obj2x) and (obj1 < obj1x or obj2 < obj2x):
                 if (obj1 <= obj1x and obj2 <= obj2x) and (obj1 < obj1x or obj2 < obj2x):
                     dominating_fits[idx] += 1 
                     fitness_df.at[idx, 'domcount'] += 1
@@ -456,24 +469,33 @@ class ParetoFeatures:
         return fitness_df
 
     def calculate_hyperarea(self, fitness_df):
-        fitness_df = fitness_df.filter(['obj1', 'obj2', 'population'])
+        """
+        Calculate the area under the pareto front
+        relative to the min of each objective
+        """
+
+        fitness_df = fitness_df.filter(['id', 'obj1', 'obj2', 'population'])
 
         sets = ['yes', 'pareto']
         hyperarea = pd.DataFrame()
+
+        ref_obj2 = fitness_df.obj2.min()
+        ref_obj1 = fitness_df.obj1.min()
+        #ref_obj2 = 0
+        #ref_obj1 = 0
+
         for set in sets:
             set_df = fitness_df[fitness_df['population'] == set]
-            df = set_df.drop_duplicates()
-            df = self.non_dominated_sort(df)
+            
+            #df = set_df.drop_duplicates()  # FIXME: CANNOT REMOVE DUPLICATES ON ID
+            df = self.non_dominated_sort(set_df)
             df = df[df['front'] == 1].reset_index(drop=True)
             df = df.sort_values(by=['obj1','obj2'], ascending=[False,False]).reset_index(drop=True)
 
             name = df.population[0]
 
-            prev_obj2 = 0
-            prev_obj1 = 0
-
-            prev_obj2 = df.obj2.min()
-            prev_obj1 = df.obj1.min()
+            prev_obj2 = ref_obj2
+            prev_obj1 = ref_obj1
 
             area = 0
             for i in range(len(df)):
@@ -487,10 +509,10 @@ class ParetoFeatures:
                 prev_obj2 = objective2
                 #prev_obj1 = objective1
 
-            print(f"{name}: {area}")
-            temp = pd.DataFrame(data=[(name,area)],
-                    columns=['population','hyperarea'])
+            #print(f"{name}: {area}")
+            temp = pd.DataFrame(data=[(name, area)],
+                    columns=['population', 'hyperarea'])
 
-            hyperarea=pd.concat([hyperarea, temp])
+            hyperarea=pd.concat([hyperarea, temp]).reset_index(drop=True)
 
         return hyperarea

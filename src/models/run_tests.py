@@ -1,14 +1,17 @@
-from src.features.make_tests import Tests
-from src.features.build_features import Individual
-from src.models.genetic_algorithm import GeneticAlgorithmMoga, GeneticAlgorithmNsga2, GeneticAlgorithmVega
-from src.utils.visualize import Visualize
-from src.utils import config
-from src.features.build_features import GeneticAlgorithmGenetics
-import pandas as pd
-import numpy as np
+import datetime
 import logging
 import os
-import datetime
+
+import numpy as np
+import pandas as pd
+from src.features.build_features import (GeneticAlgorithmGenetics, Individual,
+                                         ParetoFeatures)
+from src.features.make_tests import Tests
+from src.models.genetic_algorithm import (GeneticAlgorithmMoga,
+                                          GeneticAlgorithmNsga2,
+                                          GeneticAlgorithmVega)
+from src.utils import config
+from src.utils.visualize import Visualize
 
 
 class RunTests:
@@ -66,6 +69,7 @@ class RunTests:
             if i % config.SHOWRATE == 0 and config.SHOW:
                 self.graph.scatter_plot2(fitness_df, filename_html, 'population', f"{alg_path}-{i}")
 
+        max_id = fitness_df.id.max() + 1
         t=Tests()
         # Get pareto optimal set
         for pp in range(config.POPUATION):
@@ -83,6 +87,7 @@ class RunTests:
 
             pareto = pd.DataFrame(fitness, columns=['obj1', 'obj2'])
             pareto['population'] = 'pareto'
+            pareto['id'] = max_id + pp
 
             fitness_df=fitness_df.append(pareto).reset_index(drop=True)
         
@@ -99,10 +104,12 @@ class RunTests:
 
     def run_tests(self, alg, test, monitor):
         ga = RunTests()
+        pt = ParetoFeatures()
 
         if not os.path.exists(f"data/interim/{test}/{alg}"):
             os.makedirs(f"data/interim/{test}/{alg}")
 
+        hyperarea = pd.DataFrame()
         for s in range(config.SAMPLE):
             start=datetime.datetime.now()
             # TODO: Add number of tests to run
@@ -115,4 +122,10 @@ class RunTests:
 
             monitor=pd.concat([monitor, temp])
 
+            hyperareat = pt.calculate_hyperarea(fitness_df)
+            hyperareat['sample'] = s
+            
+            hyperarea=pd.concat([hyperarea, hyperareat]).reset_index(drop=True)
+
+        hyperarea.to_excel(f"data/interim/{test}/hyperarea_{alg}.xlsx", index=False)
         return monitor

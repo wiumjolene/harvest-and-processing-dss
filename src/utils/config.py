@@ -1,7 +1,7 @@
 import math
 
 # show graphs
-SHOW=True
+SHOW=False
 SHOWRATE = 10000
 
 STDUNIT=4.5 # each stdunit is so many kg of produce
@@ -21,7 +21,7 @@ MUTATIONRATE=0.08
 MUTATIONRATE2=0.08
 CROSSOVERRATE=0.5
 POPUATION=80
-ITERATIONS=200
+ITERATIONS=1000
 
 
 ########################################################
@@ -34,7 +34,7 @@ SSHARE = 1/(math.sqrt(POPUATION)-1)
 # TESTS
 ########################################################
 D = 30
-SAMPLE = 2 # number of tests for t-test sample
+SAMPLE = 1 # number of tests for t-test sample
 
 # ssh root@159.65.247.178
 # cd phd/workdir/
