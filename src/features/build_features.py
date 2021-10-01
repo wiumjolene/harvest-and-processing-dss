@@ -1,15 +1,16 @@
 # -*- coding: utf-8 -*-
-import logging
-import os
-import pickle
-import random
-import sys
 import datetime
+import logging
+import random
+from collections import defaultdict
 
+import numpy as np
 import pandas as pd
+
 from src.data.make_dataset import ImportOptions
+from src.features.make_tests import Tests
 from src.utils import config
-from src.utils.visualize import Visualize 
+from src.utils.visualize import Visualize
 
 
 class Individual:
@@ -18,22 +19,44 @@ class Individual:
     individual_df = pd.DataFrame()
     dlistt=[]
 
-    def individual(self, number, alg, get_indiv=True, indiv=individual_df):
-        self.logger.info(f"- individual: {number}")
+    def individual(self, number, alg_path, get_indiv=True, indiv=individual_df, test=False, test_name='zdt1'):
+        """ Function to define indiv and fitness """
+        #self.logger.info(f"- individual: {number}")
+        if test:
+            t=Tests()
+            if get_indiv:
+                x = np.random.rand(config.D)
+                indiv = pd.DataFrame(x, columns=['value'])
+                indiv['time_id'] = indiv.index
 
-        if get_indiv:
-            indiv = self.make_individual()
+            else:
+                x = list(indiv.value)
 
-        fitness = self.make_fitness(indiv)
+            # Choose which test to use
+            if test_name == 'zdt1':
+                fitness = t.ZDT1(x)
+
+            if test_name == 'zdt2':
+                fitness = t.ZDT2(x)
+
+            if test_name == 'zdt3':
+                fitness = t.ZDT3(x)
+
+        else:
+            if get_indiv:
+                indiv = self.make_individual()
+
+            fitness = self.make_fitness(indiv)
 
         ind_fitness = pd.DataFrame(fitness, columns=['obj1', 'obj2'])
         ind_fitness['id'] = number
-        ind_fitness['datetime'] = datetime.datetime.now()
 
-        indiv.to_pickle(f"data/interim/{alg}/id_{number}") 
+        indiv.to_pickle(f"data/interim/{alg_path}/id_{number}", protocol = 5) 
         return ind_fitness
 
     def make_individual(self, get_dlist=True, dlist=dlistt):
+        """ Function to make problem specific  individual solution """
+
         self.logger.info('-> make_individual')
 
         # Import all data sets from pickel files.
@@ -171,8 +194,7 @@ class Individual:
     def make_fitness(self, individualdf):
         self.logger.info('-> make_fitness')
         options = ImportOptions()
-
-        # TODO: dont pull data everytime 
+ 
         pc_dic = options.pack_capacity()
         pc_df = pd.DataFrame.from_dict(pc_dic, orient='index')
 
@@ -209,12 +231,12 @@ class Population:
     indv = Individual()
     graph = Visualize()
 
-    def population(self, size, alg):
+    def population(self, size, alg_path):
         self.logger.info(f"population ({size})")
         pop=pd.DataFrame()
         
         for i in range(size):
-            ind = self.indv.individual(i, alg)
+            ind = self.indv.individual(i, alg_path)
             pop=pop.append(ind).reset_index(drop=True)
 
         pop['population'] = 'population'
@@ -231,8 +253,8 @@ class GeneticAlgorithmGenetics:
         self.logger.info(f"--- tournament_selection")
         fitness_df=fitness_df[fitness_df['population']!='none'].reset_index(drop=True)
 
-        high_fit1 = 0
-        high_fit2 = 0
+        high_fit1 = np.inf 
+        high_fit2 = np.inf 
 
         for _ in range(config.TOURSIZE):
             option_num = random.randint(0,len(fitness_df)-1)
@@ -240,89 +262,257 @@ class GeneticAlgorithmGenetics:
             fit1 = fitness_df.obj1[option_num]
             fit2 = fitness_df.obj2[option_num]
 
-            if fit1 >= high_fit1 or fit2 >= high_fit2:
+            if (fit1 <= high_fit1 and fit2 <= high_fit2) and (fit1 < high_fit1 or fit2 < high_fit2):  
                 high_fit1 = fit1
                 high_fit2 = fit2
                 parent = option_id
-
-        if high_fit1 == 0 and high_fit2 == 0:
-            parent = option_id
             
         parent_path = f"data/interim/{alg}/id_{parent}"
-        parent_df = pd.read_pickle(parent_path) 
+        parent_df = pd.read_pickle(parent_path)  # FIXME: Optimise
                 
         return parent_df
 
-    def mutation(self, df_mutate, times, alg):
+    def nondom_selection(self, fitness_df, alg):
+        """This selection method makes use of the nondominated soting front to choose 
+        parents. 
+        NB: Only for NSGA-II. Moga etc has different structure. 
+        TODO: Update for moga and VEGA. 
+        TODO: Also remember to swop crossover and pareto select for real iterations.
+        """
+
+        pareto_set = fitness_df[fitness_df['front']==1].reset_index(drop=True)
+        option_num = random.randint(0,len(pareto_set)-1)
+        option_id = pareto_set.at[option_num, 'id']
+        parent_path = f"data/interim/{alg}/id_{option_id}"
+        parent_df = pd.read_pickle(parent_path)  # FIXME: Optimise
+        #parent_df.to_excel(f"data/check/parent_{option_id}.xlsx")
+        return parent_df
+
+    def mutation(self, df_mutate, times, test):
         """ GA mutation function to diversify gene pool. """
 
         self.logger.info(f"-- mutation check")
-        mutation_random = random.randint(0,100)
+        ix = Individual()
 
-        if mutation_random <= config.MUTATIONRATE:
+        if random.random() <= config.MUTATIONRATE:
             self.logger.info(f"--- mutation activated")
 
-            # Get mutation point
-            mp = random.randint(0,len(times)-1)
-            mp_time = times[mp]
+            df_mutate1=pd.DataFrame()
+            for m in times:
+                df_gene = df_mutate[df_mutate['time_id'] == m]
+                if random.random() < config.MUTATIONRATE2:
+                    # If test then make new gene here
+                    if test:
+                        x = np.random.rand(1)
+                        df_gene = pd.DataFrame(x, columns=['value'])
+                        df_gene['time_id'] = m
+                    
+                    # Else get only gene alternate
+                    else:  
+                        demand_list = list(df_gene.demand_id.unique())
+                        df_gene = ix.make_individual(get_dlist=False, dlist=demand_list)  # FIXME:
 
-            df_genex = df_mutate[df_mutate['time_id'] == mp_time]
-            demand_list = list(df_genex.demand_id.unique())
-
-            ix = Individual()
-            df_genenew = ix.make_individual(get_dlist=False, dlist=demand_list)
-
-            df_mutate1 = df_mutate[df_mutate['time_id'] != mp_time]
-            df_mutate2 = pd.concat([df_mutate1, df_genenew]).reset_index(drop=True)
+                df_mutate1 = pd.concat([df_mutate1, df_gene]).reset_index(drop=True)
 
         else:
-            
-            df_mutate2 = df_mutate
+            df_mutate1 = df_mutate
 
-        return df_mutate2
+        return df_mutate1
 
-    def crossover(self, fitness_df, alg):
-        """ GA crossover genetic material for diversivication"""
-
+    def crossover(self, fitness_df, alg, test=False, test_name='zdt1'):
+        """ GA crossover genetic material for diversification"""
         self.logger.info(f"-- crossover")
 
         ix = Individual()
         max_id = fitness_df.id.max()
 
-        ddf_metadata = pd.read_pickle('data/processed/ddf_metadata')
-        times = list(ddf_metadata.time_id.unique())
+        if test:
+            times = list(range(config.D))
 
-        # Get cross over point
-        xp = random.randint(0,len(times)-1)
-        xp_time = times[xp]
+        else:
+            ddf_metadata = pd.read_pickle('data/processed/ddf_metadata')
+            times = list(ddf_metadata.time_id.unique())
 
         # Select parents with tournament
-        pareto_df = fitness_df[fitness_df['population'] != 'none'].reset_index(drop=True)
-        parent1 = self.tournament_selection(pareto_df, alg)
-        parent2 = self.tournament_selection(pareto_df, alg)
+        #if alg == 'zdt1/nsga2':  # TODO: make universal
+        if alg == '':
+            pareto_df = fitness_df[fitness_df['front'] == 1].reset_index(drop=True)
+            parent1 = self.nondom_selection(pareto_df, alg)
+            parent2 = self.nondom_selection(pareto_df, alg)
 
-        # Get parental parts
-        parent1a = parent1[parent1['time_id']<xp_time]
-        parent1b = parent1[parent1['time_id']>=xp_time]
+        else:
+            pareto_df = fitness_df[fitness_df['population'] != 'none'].reset_index(drop=True)
+            parent1 = self.tournament_selection(pareto_df, alg)
+            parent2 = self.tournament_selection(pareto_df, alg)
 
-        parent2a = parent2[parent2['time_id']<xp_time]
-        parent2b = parent2[parent2['time_id']>=xp_time]
+        # Uniform crossover
+        child1=pd.DataFrame()
+        child2=pd.DataFrame()
+        for g in times:
+            gene1 = parent1[parent1['time_id']==g]
+            gene2 = parent2[parent2['time_id']==g]
+            
+            if random.random() < config.CROSSOVERRATE:
+                child1 = pd.concat([child1,gene2]).reset_index(drop=True)
+                child2 = pd.concat([child2,gene1]).reset_index(drop=True)
 
-        # Create new children
-        child1 = pd.concat([parent1a, parent2b]).reset_index(drop=True)
-        child2 = pd.concat([parent2a, parent1b]).reset_index(drop=True)
+            else:
+                child1 = pd.concat([child1,gene1]).reset_index(drop=True)
+                child2 = pd.concat([child2,gene2]).reset_index(drop=True)                
 
-        # Bring mutatation opportunity in
-        child1 = self.mutation(child1, times, alg)
-        child2 = self.mutation(child2, times, alg)
+        # If test then make new test individual gene
+        if test:
+            # Bring mutatation opportunity in
+            child1 = self.mutation(child1, times, test=test)
+            child2 = self.mutation(child2, times, test=test)
 
-        # Register child on fitness_df
-        child1_f = ix.individual(max_id+1, alg, get_indiv=False, indiv=child1)
-        child2_f = ix.individual(max_id+2, alg, get_indiv=False, indiv=child2)
+            # Register child on fitness_df
+            #print(test_name)
+            child1_f = ix.individual(max_id+1, alg, get_indiv=False, indiv=child1, 
+                            test=test, test_name=test_name)
+            child2_f = ix.individual(max_id+2, alg, get_indiv=False, indiv=child2, 
+                            test=test, test_name=test_name) 
+
+        else:
+           # Bring mutatation opportunity in
+            child1 = self.mutation(child1, times, test=False)
+            child2 = self.mutation(child2, times, test=False)
+
+            # Register child on fitness_df
+            child1_f = ix.individual(max_id+1, alg, get_indiv=False, indiv=child1)
+            child2_f = ix.individual(max_id+2, alg, get_indiv=False, indiv=child2)
 
         child1_f['population'] = 'child'
         child2_f['population'] = 'child'
 
         fitness_df = pd.concat([fitness_df, child1_f, child2_f]).reset_index(drop=True)
-
         return fitness_df
+
+    def dominates(objset1, objset2, sign=[1, 1]):
+        """
+        DEPRICATED
+        Return true if each objective of *self* is not strictly worse than
+                the corresponding objective of *other* and at least one objective is
+                strictly better.
+            **no need to care about the equal cases
+            (Cuz equal cases mean they are non-dominators)
+        :param obj1: a list of multiple objective values
+        :type obj1: numpy.ndarray
+        :param obj2: a list of multiple objective values
+        :type obj2: numpy.ndarray
+        :param sign: target types. positive means maximize and otherwise minimize.
+        :type sign: list
+        FROM DEAP
+        """
+        #print(f"{objset1[0]},{objset1[1]} - {objset1[0]},{objset2[1]}")
+        indicator = False
+        for a, b, sign in zip(objset1, objset2, sign):
+            if a * sign < b * sign:
+                indicator = True
+            # if one of the objectives is dominated, then return False
+            elif a * sign > b * sign:
+                return False
+        return indicator
+
+
+class ParetoFeatures:
+    """ Class to manage pareto front """
+    logger = logging.getLogger(f"{__name__}.ParetoFeatures")
+
+    def non_dominated_sort(self, fitness_df):
+        dominating_fits = defaultdict(int)  # n (The number of people that dominate you)
+        dominated_fits = defaultdict(list)  # Sp (The people you dominate)
+        
+        #fitness_df = fitness_df.reset_index(drop=True)
+
+        fitness_df=fitness_df.groupby(['obj1', 'obj2', 'population'])['id'].min().reset_index(drop=False)
+
+        fitness_df['domcount'] = 0
+        
+        fits = list(fitness_df.id)
+        
+        #print(fitness_df.head(5))
+        fitness_df.set_index("id", inplace = True)
+        fitness_df['id'] = fitness_df.index
+
+        #print(fitness_df.head(5))
+        
+        for i, id in enumerate(fits):
+            # print(fits)
+            # print(f"{i} - {id}")
+            obj1 = fitness_df.at[id, 'obj1']
+            obj2 = fitness_df.at[id, 'obj2']
+
+            #for j in range(len(fitness_df)):
+            for idx in fits[i + 1:]:
+                obj1x = fitness_df.at[idx, 'obj1']
+                obj2x = fitness_df.at[idx, 'obj2']
+                
+                #if build_features.GeneticAlgorithmGenetics.dominates(objset1, objset2):
+                #if (obj1 <= obj1x and obj2 <= obj2x) and (obj1 < obj1x or obj2 < obj2x):
+                if (obj1 <= obj1x and obj2 <= obj2x) and (obj1 < obj1x or obj2 < obj2x):
+                    dominating_fits[idx] += 1 
+                    fitness_df.at[idx, 'domcount'] += 1
+                    dominated_fits[id].append(idx) 
+
+                #elif build_features.GeneticAlgorithmGenetics.dominates(objset2, objset1):  
+                if (obj1x <= obj1 and obj2x <= obj2) and (obj1x < obj1 or obj2x < obj2):
+                    dominating_fits[id] += 1
+                    fitness_df.at[id, 'domcount'] += 1
+                    dominated_fits[idx].append(id)    
+
+            if dominating_fits[id] == 0:
+                fitness_df.loc[(fitness_df.index==id), 'front'] = 1
+                #front.append(id)
+
+        #fitness_df['rank'] = fitness_df['domcount'] + 1
+        return fitness_df
+
+    def calculate_hyperarea(self, fitness_df):
+        """
+        Calculate the area under the pareto front
+        relative to the min of each objective
+        """
+
+        fitness_df = fitness_df.filter(['id', 'obj1', 'obj2', 'population'])
+
+        sets = ['yes', 'pareto']
+        hyperarea = pd.DataFrame()
+
+        ref_obj2 = fitness_df.obj2.min()
+        ref_obj1 = fitness_df.obj1.min()
+        #ref_obj2 = 0
+        #ref_obj1 = 0
+
+        for set in sets:
+            set_df = fitness_df[fitness_df['population'] == set]
+            
+            #df = set_df.drop_duplicates()  # FIXME: CANNOT REMOVE DUPLICATES ON ID
+            df = self.non_dominated_sort(set_df)
+            df = df[df['front'] == 1].reset_index(drop=True)
+            df = df.sort_values(by=['obj1','obj2'], ascending=[False,False]).reset_index(drop=True)
+
+            name = df.population[0]
+
+            prev_obj2 = ref_obj2
+            prev_obj1 = ref_obj1
+
+            area = 0
+            for i in range(len(df)):
+                objective1 = df.obj1[i]
+                objective2 = df.obj2[i]
+
+                objective2_diff = abs(objective2 - prev_obj2)
+                objective1_diff = abs(objective1 - prev_obj1)
+                area = area + (objective1_diff * objective2_diff)      
+
+                prev_obj2 = objective2
+                #prev_obj1 = objective1
+
+            #print(f"{name}: {area}")
+            temp = pd.DataFrame(data=[(name, area)],
+                    columns=['population', 'hyperarea'])
+
+            hyperarea=pd.concat([hyperarea, temp]).reset_index(drop=True)
+
+        return hyperarea

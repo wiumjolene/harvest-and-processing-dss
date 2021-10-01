@@ -9,12 +9,14 @@ import pandas as pd
 import math
 import sys
 import os
+from collections import defaultdict
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
 from src.utils.visualize import Visualize
 from src.utils import config
 from src.models.run_tests import RunTests
+from src.features import build_features 
 
 graph = Visualize()
 rt = RunTests()
@@ -41,32 +43,40 @@ fitness_df = fitness_df[fitness_df['population'] != 'none'].reset_index(drop=Tru
 # 1. Assign rank based on non-dominated
 #    - rank(indiv, generation) = 1 + number of indivs that dominate indiv
 ##############################################################################
-domination = {}
-# Initiate domination count and dominated by list
-for i in range(len(fitness_df)):
-    id = fitness_df.id[i]
-    obj1 = fitness_df.obj1[i]
-    obj2 = fitness_df.obj2[i]
-    domcount = 1  # number of sols that dominate cursol
-    domset = []  # set of sols cursol dominates
+dominating_fits = defaultdict(int)  # n (The number of people that dominate you)
+dominated_fits = defaultdict(list)  # Sp (The people you dominate)
+fits = list(fitness_df.id)
+fitness_df=fitness_df.set_index('id')
+fitness_df['id'] = fitness_df.index
+fitness_df['domcount'] = 0
 
-    for j in range(i + 1, len(fitness_df)):
-        idx = fitness_df.id[j]
+for i, id in enumerate(fits):
+    obj1 = fitness_df.at[id, 'obj1']
+    obj2 = fitness_df.at[id, 'obj2']
 
-        if idx != id:
-            obj1x = fitness_df.obj1[j]
-            obj2x = fitness_df.obj2[j]      
+    #for j in range(len(fitness_df)):
+    for idx in fits[i + 1:]:
+        obj1x = fitness_df.at[idx, 'obj1']
+        obj2x = fitness_df.at[idx, 'obj2']
 
-            if (obj1x <= obj1 and obj2x <= obj2) and (obj1x < obj1 or obj2x < obj2):
-                domcount = domcount + 1
-            else:
-                domset.append(idx)
+        objset1 = (obj1, obj2)
+        objset2 = (obj1x, obj2x)
+        
+        if build_features.GeneticAlgorithmGenetics.dominates(objset1, objset2):
+        #if (obj1 <= obj1x and obj2 <= obj2x) and (obj1 < obj1x or obj2 < obj2x):
+            dominating_fits[idx] += 1 
+            fitness_df.at[idx, 'domcount'] += 1
+            dominated_fits[id].append(idx) 
 
-    domination.update({id:domset})
-    fitness_df.loc[(fitness_df['id']==id), 'rank'] = domcount
-#graph.scatter_plot2(fitness_df,'moga.html','rank')
+        elif build_features.GeneticAlgorithmGenetics.dominates(objset2, objset1):  
+        #if (obj1x <= obj1 and obj2x <= obj2) and (obj1x < obj1 or obj2x < obj2):
+            dominating_fits[id] += 1
+            fitness_df.at[id, 'domcount'] += 1
+            dominated_fits[idx].append(id)    
 
+fitness_df['rank'] = fitness_df['domcount'] + 1
 fitness_df.to_excel('check1.xlsx')
+print('yes')
 
 ##############################################################################
 # 2. PARETO RANKING
@@ -77,12 +87,12 @@ N = len(fitness_df)
 
 for r in ranks:
     solk = len(fitness_df[fitness_df['rank']==r]) - 1
-    nk = len(fitness_df[fitness_df['rank'] < r])
+    nk = len(fitness_df[fitness_df['rank'] <= (r-1)])
     fitness_df.loc[(fitness_df['rank']==r), 'solk'] = solk
     fitness_df.loc[(fitness_df['rank']==r), 'nk'] = nk
     
 fitness_df['fitness'] = N - fitness_df['nk'] - (fitness_df['solk'] * 0.5)
-
+fitness_df.to_excel('check2.xlsx')
 ##############################################################################
 # 3. STANDARD FITNESS SHARE
 ##############################################################################
@@ -128,13 +138,14 @@ for r in ranks:
 
 # 3.4 Finally, the assigned fitness is reduced by dividing the fitness Fi given 
 #       in step 2 by the niche count as follows
-fitness_df['fitness']=fitness_df['fitness']/fitness_df['nc']
+fitness_df['fitness2']=fitness_df['fitness']/fitness_df['nc']
+fitness_df.to_excel('check3.xlsx')
 
-fitness_df = fitness_df.sort_values(by=['fitness']).reset_index(drop=True)
+fitness_df = fitness_df.sort_values(by=['fitness2'], ascending=[False]).reset_index(drop=True)
 fitness_df.loc[(fitness_df.index<=config.POPUATION),'population']='yes'
 fitness_df.loc[(fitness_df.index>config.POPUATION),'population']='none'
 
-
+fitness_df.to_excel('check4.xlsx')
 graph.scatter_plot2(fitness_df,'moga.html','population','title')
 
 
