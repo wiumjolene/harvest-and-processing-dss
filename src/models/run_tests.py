@@ -4,6 +4,8 @@ import os
 
 import numpy as np
 import pandas as pd
+import pingouin
+
 from src.features.build_features import (GeneticAlgorithmGenetics, Individual,
                                          ParetoFeatures)
 from src.features.make_tests import Tests
@@ -55,7 +57,11 @@ class RunTests:
         for i in range(config.ITERATIONS):
             self.logger.info(f"ITERATION {i}")
 
+            self.logger.debug(f"- starting crossover")
+
             fitness_df = self.gag.crossover(fitness_df, alg_path, test=True, test_name=test_name)
+
+            self.logger.debug(f"- initiate pareto check")
 
             if alg == 'vega':
                 fitness_df = self.ga1.pareto_vega(fitness_df)
@@ -127,5 +133,42 @@ class RunTests:
             
             hyperarea=pd.concat([hyperarea, hyperareat]).reset_index(drop=True)
 
+        #hyperarea = hyperarea.pivot(index="sample", columns="population", values="hyperarea")
         hyperarea.to_excel(f"data/interim/{test}/hyperarea_{alg}.xlsx", index=False)
+        stats = StatsTests()
+        stats.run_friedman(hyperarea, alg, test)
         return monitor
+
+
+class StatsTests:
+    """ Class to manage Friedman tests 
+    and evaluate statistical significance. """
+    logger = logging.getLogger(f"{__name__}.StatsTests")
+
+    def run_friedman(self, hyperarea, alg, test):
+        """
+        Pingouin package. Data in long format.
+
+        The default assumption, or null hypothesis, 
+        is that the multiple paired samples have the 
+        same distribution. A rejection of the null 
+        hypothesis indicates that one of the paired 
+        samples has a different distribution.
+        """
+        pgRes = pingouin.friedman(data=hyperarea,
+                        dv='hyperarea',
+                        within='population',
+                        subject='sample',
+                        method='chisq')
+
+        print(pgRes)
+
+        alpha = 0.05
+        if pgRes['p-unc'][0] > alpha:
+            print('Same distributions (fail to reject H0)')
+        else:
+            print('Different distributions (reject H0)')
+
+        pgRes.to_excel(f"data/interim/{test}/result_friedman_{alg}.xlsx")
+
+        return

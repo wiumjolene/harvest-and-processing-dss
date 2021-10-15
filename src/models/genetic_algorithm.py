@@ -22,16 +22,16 @@ class GeneticAlgorithmVega:
 
     def vega(self):
         """ Function that manages the GA. """
-        self.logger.info(f"Vector Evaluated Genetic Algorthm")
+        self.logger.debug(f"Vector Evaluated Genetic Algorthm")
         
         p = Population()
         init_pop = p.population(config.POPUATION, 'vega')
         fitness_df = init_pop
         fitness_df['population'] = 'yes'
 
-        self.logger.info(f"starting VEGA search")
+        self.logger.debug(f"starting VEGA search")
         for _ in range(config.ITERATIONS):
-            self.logger.info(f"ITERATION {_}")
+            self.logger.debug(f"ITERATION {_}")
             fitness_df = self.gag.crossover(fitness_df, 'vega')
             fitness_df = self.pareto_vega(fitness_df)
 
@@ -53,7 +53,7 @@ class GeneticAlgorithmVega:
         """ Decide if new child is worthy of pareto membership 
         Shaffer 1985
         """
-        self.logger.info(f"- getting fitness")
+        self.logger.debug(f"- getting fitness")
         popsize = config.POPUATION
 
         fitness_df['population'] = 'none'
@@ -88,7 +88,7 @@ class GeneticAlgorithmNsga2:
 
     def nsga2(self):
         """ Function that manages the NSGA2. """
-        self.logger.info(f"Non Dominated Sorting Genetic Algorithm")
+        self.logger.debug(f"Non Dominated Sorting Genetic Algorithm")
         
         p = Population()
         init_pop = p.population(config.POPUATION * 2, 'nsga2')
@@ -97,13 +97,13 @@ class GeneticAlgorithmNsga2:
         # Make child pop out of main population
         #while len(fitness_df) < (config.POPUATION * 2):
         #    fitness_df = self.gag.crossover(fitness_df, 'nsga2')
-        #    self.logger.info(f"making child pop 2n {len(fitness_df)}")
+        #    self.logger.debug(f"making child pop 2n {len(fitness_df)}")
 
         fitness_df['population'] = 'yes'
 
-        self.logger.info(f"starting NSGA2 search")
+        self.logger.debug(f"starting NSGA2 search")
         for _ in range(config.ITERATIONS):
-            self.logger.info(f"ITERATION {_}")
+            self.logger.debug(f"ITERATION {_}")
             fitness_df = self.gag.crossover(fitness_df, 'nsga2')
             fitness_df = self.pareto_nsga2(fitness_df)
 
@@ -124,7 +124,7 @@ class GeneticAlgorithmNsga2:
     def crowding_distance(self, fitness_df, fc, size):
         # TODO: Use 'at' instead of loc to improve speed
         """ Crowding distance sorting """ 
-        self.logger.info(f"-- crowding distance activated")
+        self.logger.debug(f"-- crowding distance activated")
 
         fitness_dff = fitness_df[fitness_df['front']==fc].reset_index(drop=True)
 
@@ -167,14 +167,14 @@ class GeneticAlgorithmNsga2:
         """ Decide if new child is worthy of pareto membership 
         Deb 2002
         """
-        self.logger.info(f"- getting fitness")
+        self.logger.debug(f"- getting fitness")
 
         fitness_df['population'] = 'none'
         fitness_df['domcount'] = 0 
         front = []
         fits = list(fitness_df.id)
         # Initiate domination count and dominated by list
-        self.logger.info(f"-- getting domcount")
+        self.logger.debug(f"-- getting domcount")
 
         dominating_fits = defaultdict(int)  # n (The number of people that dominate you)
         dominated_fits = defaultdict(list)  # Sp (The people you dominate)
@@ -209,7 +209,7 @@ class GeneticAlgorithmNsga2:
         ###################################################
         # Get front count and determine population status #
         ###################################################
-        self.logger.info(f"-- getting front count")
+        self.logger.debug(f"-- getting front count")
 
         # Size of selected solutions
         size = len(fitness_df[fitness_df['front'] == 1])
@@ -273,7 +273,7 @@ class GeneticAlgorithmMoga:
 
     def moga(self):
         """ Function that manages the MOGA. """
-        self.logger.info(f"Multi Objective Genetic Algorithm")
+        self.logger.debug(f"Multi Objective Genetic Algorithm")
         
         p = Population()
         init_pop = p.population(config.POPUATION, 'moga')
@@ -281,9 +281,9 @@ class GeneticAlgorithmMoga:
 
         fitness_df['population'] = 'yes'
 
-        self.logger.info(f"starting MOGA search")
+        self.logger.debug(f"starting MOGA search")
         for _ in range(config.ITERATIONS):
-            self.logger.info(f"ITERATION {_}")
+            self.logger.debug(f"ITERATION {_}")
             fitness_df = self.gag.crossover(fitness_df, 'moga')
             fitness_df = self.pareto_moga(fitness_df)
 
@@ -303,7 +303,7 @@ class GeneticAlgorithmMoga:
 
     def pareto_moga(self, fitness_df):
         # TODO: Update with 'at' instead of 'loc' for speed.
-        self.logger.info(f"- getting fitness")
+        self.logger.debug(f"- getting fitness")
 
         fitness_df = fitness_df[fitness_df['population'] != 'none'].reset_index(drop=True)
         fitness_df= fitness_df.sort_values(by=['obj1','obj2']).reset_index(drop=True)

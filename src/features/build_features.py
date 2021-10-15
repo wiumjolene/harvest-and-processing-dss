@@ -21,7 +21,7 @@ class Individual:
 
     def individual(self, number, alg_path, get_indiv=True, indiv=individual_df, test=False, test_name='zdt1'):
         """ Function to define indiv and fitness """
-        #self.logger.info(f"- individual: {number}")
+        #self.logger.debug(f"- individual: {number}")
         if test:
             t=Tests()
             if get_indiv:
@@ -57,7 +57,7 @@ class Individual:
     def make_individual(self, get_dlist=True, dlist=dlistt):
         """ Function to make problem specific  individual solution """
 
-        self.logger.info('-> make_individual')
+        self.logger.debug('-> make_individual')
 
         # Import all data sets from pickel files.
         options = ImportOptions()
@@ -192,7 +192,7 @@ class Individual:
         return individualdf
 
     def make_fitness(self, individualdf):
-        self.logger.info('-> make_fitness')
+        self.logger.debug('-> make_fitness')
         options = ImportOptions()
  
         pc_dic = options.pack_capacity()
@@ -232,7 +232,7 @@ class Population:
     graph = Visualize()
 
     def population(self, size, alg_path):
-        self.logger.info(f"population ({size})")
+        self.logger.debug(f"population ({size})")
         pop=pd.DataFrame()
         
         for i in range(size):
@@ -250,7 +250,7 @@ class GeneticAlgorithmGenetics:
     def tournament_selection(self, fitness_df, alg):
         """ GA: choose parents to take into crossover"""
 
-        self.logger.info(f"--- tournament_selection")
+        self.logger.debug(f"--- tournament_selection")
         fitness_df=fitness_df[fitness_df['population']!='none'].reset_index(drop=True)
 
         high_fit1 = np.inf 
@@ -291,11 +291,11 @@ class GeneticAlgorithmGenetics:
     def mutation(self, df_mutate, times, test):
         """ GA mutation function to diversify gene pool. """
 
-        self.logger.info(f"-- mutation check")
+        self.logger.debug(f"-- mutation check")
         ix = Individual()
 
         if random.random() <= config.MUTATIONRATE:
-            self.logger.info(f"--- mutation activated")
+            self.logger.debug(f"--- mutation activated")
 
             df_mutate1=pd.DataFrame()
             for m in times:
@@ -321,7 +321,7 @@ class GeneticAlgorithmGenetics:
 
     def crossover(self, fitness_df, alg, test=False, test_name='zdt1'):
         """ GA crossover genetic material for diversification"""
-        self.logger.info(f"-- crossover")
+        self.logger.debug(f"-- crossover")
 
         ix = Individual()
         max_id = fitness_df.id.max()
@@ -345,7 +345,31 @@ class GeneticAlgorithmGenetics:
             parent1 = self.tournament_selection(pareto_df, alg)
             parent2 = self.tournament_selection(pareto_df, alg)
 
-        # Uniform crossover
+        # Uniform crossover 
+        self.logger.debug(f"--- uniform crossover")
+        
+        index = []      
+        for _ in times:
+            if random.random() < config.CROSSOVERRATE:
+                index.append(True)
+            
+            else:
+                index.append(False)
+        
+        parent1['index'] = index
+        parent1 = parent1.set_index('index')
+        parent2['index'] = index
+        parent2 = parent2.set_index('index')
+
+        child1a = parent1.loc[True]
+        child1b = parent1.loc[False]
+        child2a = parent2.loc[True]
+        child2b = parent2.loc[False]
+
+        child1 = pd.concat([child1a,child2a]).reset_index(drop=True)
+        child2 = pd.concat([child1b,child2b]).reset_index(drop=True)
+
+        """
         child1=pd.DataFrame()
         child2=pd.DataFrame()
         for g in times:
@@ -359,7 +383,7 @@ class GeneticAlgorithmGenetics:
             else:
                 child1 = pd.concat([child1,gene1]).reset_index(drop=True)
                 child2 = pd.concat([child2,gene2]).reset_index(drop=True)                
-
+        """
         # If test then make new test individual gene
         if test:
             # Bring mutatation opportunity in
@@ -422,20 +446,12 @@ class ParetoFeatures:
     def non_dominated_sort(self, fitness_df):
         dominating_fits = defaultdict(int)  # n (The number of people that dominate you)
         dominated_fits = defaultdict(list)  # Sp (The people you dominate)
-        
-        #fitness_df = fitness_df.reset_index(drop=True)
 
         fitness_df=fitness_df.groupby(['obj1', 'obj2', 'population'])['id'].min().reset_index(drop=False)
-
         fitness_df['domcount'] = 0
-        
         fits = list(fitness_df.id)
-        
-        #print(fitness_df.head(5))
         fitness_df.set_index("id", inplace = True)
         fitness_df['id'] = fitness_df.index
-
-        #print(fitness_df.head(5))
         
         for i, id in enumerate(fits):
             # print(fits)
@@ -449,13 +465,11 @@ class ParetoFeatures:
                 obj2x = fitness_df.at[idx, 'obj2']
                 
                 #if build_features.GeneticAlgorithmGenetics.dominates(objset1, objset2):
-                #if (obj1 <= obj1x and obj2 <= obj2x) and (obj1 < obj1x or obj2 < obj2x):
                 if (obj1 <= obj1x and obj2 <= obj2x) and (obj1 < obj1x or obj2 < obj2x):
                     dominating_fits[idx] += 1 
                     fitness_df.at[idx, 'domcount'] += 1
                     dominated_fits[id].append(idx) 
-
-                #elif build_features.GeneticAlgorithmGenetics.dominates(objset2, objset1):  
+ 
                 if (obj1x <= obj1 and obj2x <= obj2) and (obj1x < obj1 or obj2x < obj2):
                     dominating_fits[id] += 1
                     fitness_df.at[id, 'domcount'] += 1
@@ -479,20 +493,22 @@ class ParetoFeatures:
         sets = ['yes', 'pareto']
         hyperarea = pd.DataFrame()
 
-        ref_obj2 = fitness_df.obj2.min()
-        ref_obj1 = fitness_df.obj1.min()
+        #ref_obj2 = fitness_df.obj2.min()
+        #ref_obj1 = fitness_df.obj1.min()
         #ref_obj2 = 0
         #ref_obj1 = 0
 
         for set in sets:
             set_df = fitness_df[fitness_df['population'] == set]
             
-            #df = set_df.drop_duplicates()  # FIXME: CANNOT REMOVE DUPLICATES ON ID
             df = self.non_dominated_sort(set_df)
             df = df[df['front'] == 1].reset_index(drop=True)
             df = df.sort_values(by=['obj1','obj2'], ascending=[False,False]).reset_index(drop=True)
 
             name = df.population[0]
+
+            ref_obj2 = fitness_df.obj2.min()
+            ref_obj1 = fitness_df.obj1.min()
 
             prev_obj2 = ref_obj2
             prev_obj1 = ref_obj1
@@ -516,3 +532,5 @@ class ParetoFeatures:
             hyperarea=pd.concat([hyperarea, temp]).reset_index(drop=True)
 
         return hyperarea
+
+
