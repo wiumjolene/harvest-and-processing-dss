@@ -1,8 +1,8 @@
 import math
 
 # show graphs
-SHOW=False  #TODO:
-SHOWRATE = 10000
+SHOW=True  #TODO:
+SHOWRATE = 2000
 
 STDUNIT=4.5 # each stdunit is so many kg of produce
 GIVEAWAY=0.05 # % giveaway
@@ -20,8 +20,8 @@ TOURSIZE=3  # NB NSGI2 requires binary tournament selection
 MUTATIONRATE=0.08
 MUTATIONRATE2=0.08
 CROSSOVERRATE=0.5
-POPUATION=100 #TODO:
-ITERATIONS=10 #TODO:
+POPUATION=80 #TODO:
+ITERATIONS=10000 #TODO:
 
 
 ########################################################

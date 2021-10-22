@@ -42,6 +42,10 @@ class Individual:
             if test_name == 'zdt3':
                 fitness = t.ZDT3(x)
 
+            if (len(x) < config.D or len(x) > config.D):  #FIXME: Test code
+                print(f"number {number}: len {len(x)}")
+                exit()
+
         else:
             if get_indiv:
                 indiv = self.make_individual()
@@ -50,7 +54,7 @@ class Individual:
 
         ind_fitness = pd.DataFrame(fitness, columns=['obj1', 'obj2'])
         ind_fitness['id'] = number
-
+        
         indiv.to_pickle(f"data/interim/{alg_path}/id_{number}", protocol = 5) 
         return ind_fitness
 
@@ -262,13 +266,16 @@ class GeneticAlgorithmGenetics:
             fit1 = fitness_df.obj1[option_num]
             fit2 = fitness_df.obj2[option_num]
 
-            if (fit1 <= high_fit1 and fit2 <= high_fit2) and (fit1 < high_fit1 or fit2 < high_fit2):  
+            if ((fit1 <= high_fit1 and fit2 <= high_fit2) and (fit1 < high_fit1 or fit2 < high_fit2)):  
                 high_fit1 = fit1
                 high_fit2 = fit2
                 parent = option_id
             
         parent_path = f"data/interim/{alg}/id_{parent}"
         parent_df = pd.read_pickle(parent_path)  # FIXME: Optimise
+        parent_df = parent_df.sort_values(by=['time_id'])
+
+        #print(f"{parent_path} - {len(parent_df)}")
                 
         return parent_df
 
@@ -290,21 +297,24 @@ class GeneticAlgorithmGenetics:
 
     def mutation(self, df_mutate, times, test):
         """ GA mutation function to diversify gene pool. """
-
+        
         self.logger.debug(f"-- mutation check")
         ix = Individual()
 
         if random.random() <= config.MUTATIONRATE:
             self.logger.debug(f"--- mutation activated")
-
+            #print(f"{len(times)} - {len(df_mutate)}") # FIXME:
+            #print(df_mutate)
+            
             df_mutate1=pd.DataFrame()
             for m in times:
                 df_gene = df_mutate[df_mutate['time_id'] == m]
+
                 if random.random() < config.MUTATIONRATE2:
                     # If test then make new gene here
                     if test:
-                        x = np.random.rand(1)
-                        df_gene = pd.DataFrame(x, columns=['value'])
+                        x = np.random.rand()
+                        df_gene = pd.DataFrame(data=[x], columns=['value'])
                         df_gene['time_id'] = m
                     
                     # Else get only gene alternate
@@ -314,9 +324,12 @@ class GeneticAlgorithmGenetics:
 
                 df_mutate1 = pd.concat([df_mutate1, df_gene]).reset_index(drop=True)
 
+            #print(f"df_mutate1 - {len(df_mutate1)}")
+
         else:
             df_mutate1 = df_mutate
 
+        
         return df_mutate1
 
     def crossover(self, fitness_df, alg, test=False, test_name='zdt1'):
@@ -327,7 +340,8 @@ class GeneticAlgorithmGenetics:
         max_id = fitness_df.id.max()
 
         if test:
-            times = list(range(config.D))
+            times = list(range(config.D)) # FIXME: ????
+            #times = list(range(len(fitness_df)))
 
         else:
             ddf_metadata = pd.read_pickle('data/processed/ddf_metadata')
@@ -347,6 +361,8 @@ class GeneticAlgorithmGenetics:
 
         # Uniform crossover 
         self.logger.debug(f"--- uniform crossover")
+        # FIXME: Not sure if this will work for real problem as 
+        # times = unique and there might be several for one time?
         
         index = []      
         for _ in times:
@@ -355,6 +371,7 @@ class GeneticAlgorithmGenetics:
             
             else:
                 index.append(False)
+
         
         parent1['index'] = index
         parent1 = parent1.set_index('index')
@@ -366,8 +383,16 @@ class GeneticAlgorithmGenetics:
         child2a = parent2.loc[True]
         child2b = parent2.loc[False]
 
-        child1 = pd.concat([child1a,child2a]).reset_index(drop=True)
-        child2 = pd.concat([child1b,child2b]).reset_index(drop=True)
+        child1 = pd.concat([child1a,child2b]).reset_index(drop=True)
+        child2 = pd.concat([child1b,child2a]).reset_index(drop=True)
+
+        #if len(child1) > config.D:
+        #    print(len(child1))
+        #    exit()
+
+        #if len(child2) > config.D:
+        #    print(len(child2))
+        #    exit()
 
         """
         child1=pd.DataFrame()

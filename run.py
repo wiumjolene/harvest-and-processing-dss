@@ -5,7 +5,7 @@ from src.utils.controller import MainController
 if __name__ == '__main__':
     log_fmt = '%(asctime)s - %(levelname)s: %(message)s - %(name)s'
     #logging.basicConfig(filename='log.log', filemode='w', level=logging.DEBUG, format=log_fmt)
-    logging.basicConfig(level=logging.DEBUG, format=log_fmt)
+    logging.basicConfig(level=logging.INFO, format=log_fmt)
 
     mc = MainController()
     mc.pipeline_control()
@@ -14,15 +14,12 @@ if __name__ == '__main__':
 
 """
 Updates
+Updates
 - Add non dominated sorting
 
 TODO:
-- dont save indiv - carry on in population.
-- compare NSGA to DEAP
+15 October 2021: something is wrong with individual. I think it has something to do
+with crossover and the filtering of booleans?
 
-
-Thoughts
-
-crossover and mutation not strong enough
-use DEAP nsgaii in nsgaii to see why not getting over issues
+See how indiv was created
 """
