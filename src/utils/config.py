@@ -1,7 +1,7 @@
 import math
 
 # show graphs
-SHOW=True  #TODO:
+SHOW=False  #TODO:
 SHOWRATE = 2000
 
 STDUNIT=4.5 # each stdunit is so many kg of produce
@@ -21,7 +21,7 @@ MUTATIONRATE=0.08
 MUTATIONRATE2=0.08
 CROSSOVERRATE=0.5
 POPUATION=80 #TODO:
-ITERATIONS=10000 #TODO:
+ITERATIONS=5000 #TODO:
 
 
 ########################################################

@@ -386,13 +386,6 @@ class GeneticAlgorithmGenetics:
         child1 = pd.concat([child1a,child2b]).reset_index(drop=True)
         child2 = pd.concat([child1b,child2a]).reset_index(drop=True)
 
-        #if len(child1) > config.D:
-        #    print(len(child1))
-        #    exit()
-
-        #if len(child2) > config.D:
-        #    print(len(child2))
-        #    exit()
 
         """
         child1=pd.DataFrame()

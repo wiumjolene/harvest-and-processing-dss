@@ -124,10 +124,12 @@ class GeneticAlgorithmNsga2:
     def crowding_distance(self, fitness_df, fc, size):
         """ Crowding distance sorting """ 
         self.logger.debug(f"-- crowding distance activated")
-
+        #fitness_df.to_excel('three.xlsx')
         fitness_dff = fitness_df[fitness_df['front']==fc].reset_index(drop=True)
         fitness_dff['cdist'] = 0
 
+        #print(fitness_dff)
+        
         # Evaluate how much space is available for the crowding distance
         if fc==1:
             space = config.POPUATION
@@ -135,8 +137,8 @@ class GeneticAlgorithmNsga2:
         else:
             space = config.POPUATION - size
 
+        #print(f"front: {fc}, size: {size}, space: {space}")
         objs = ['obj1', 'obj2']
-        
         for m in objs:
             # Sort by objective (m) 
             fitness_dff = fitness_dff.sort_values(by=m, ascending=True).reset_index(drop=True)
@@ -162,18 +164,16 @@ class GeneticAlgorithmNsga2:
 
             fitness_dff['cdist'] = cdists
                         
-
         fitness_dff = fitness_dff.sort_values(by=['cdist'], ascending=False).reset_index(drop=True)
-        fitness_dff.loc[(fitness_dff.index < space),'population']='yes'
+        fitness_dff.loc[(fitness_dff.index < (space - 1)),'population'] = 'yes'
 
-        fitness_df = fitness_df[fitness_df['front']!=fc].reset_index(drop=True)
-        fitness_df = pd.concat([fitness_df,fitness_dff]).reset_index(drop=True)
+        fitness_df2 = fitness_df[fitness_df['front']!=fc].reset_index(drop=True)
+        fitness_df3 = pd.concat([fitness_df2, fitness_dff]).reset_index(drop=True)
 
-        fitness_df = fitness_df.set_index('id')
-        fitness_df['id'] = fitness_df.index
+        fitness_df3 = fitness_df3.set_index('id')
+        fitness_df3['id'] = fitness_df3.index
 
-        return fitness_df
-
+        return fitness_df3
 
     def crowding_distance2(self, fitness_df, fc, size):
         # TODO: Use 'at' instead of loc to improve speed
@@ -219,6 +219,9 @@ class GeneticAlgorithmNsga2:
 
     def get_domcount(self, fitness_df):
         front = []
+
+        fitness_df = fitness_df.sort_values(by=['id']).reset_index(drop=True)
+
         fits = list(fitness_df.id)
 
         fitness_df['population'] = 'none'
@@ -231,20 +234,19 @@ class GeneticAlgorithmNsga2:
 
         obj1s = fitness_df['obj1'].values
         obj2s = fitness_df['obj2'].values
-
         for i, id in enumerate(fits):
+            obj1 = obj1s[i]
+            obj2 = obj2s[i]
 
             for ix, idx in enumerate(fits[i + 1:]):
+                obj1x = obj1s[i + ix + 1]
+                obj2x = obj2s[i + ix + 1]
                 
-                if ((obj1s[i] <= obj1s[i + ix] and obj2s[i] <= obj2s[i + ix]) 
-                    and (obj1s[i] < obj1s[i + ix] or obj2s[i] < obj2s[i + ix])):
-                    
-                    dominating_fits[i + ix] += 1 
+                if ((obj1 <= obj1x and obj2 <= obj2x) and (obj1 < obj1x or obj2 < obj2x)):
+                    dominating_fits[i + ix + 1] += 1 
                     dominated_fits[id].append(idx) 
-        
-                if ((obj1s[i] >= obj1s[i + ix] and obj2s[i] >= obj2s[i + ix]) 
-                    and (obj1s[i] > obj1s[i + ix] or obj2s[i] > obj2s[i + ix])):
-                    
+
+                if ((obj1 >= obj1x and obj2 >= obj2x) and (obj1 > obj1x or obj2 > obj2x)):
                     dominating_fits[i] += 1
                     dominated_fits[idx].append(id)    
 
@@ -299,12 +301,11 @@ class GeneticAlgorithmNsga2:
                 fitness_df.loc[(fitness_df.index==id), 'front'] = 1
                 front.append(id)
         """
+        fitness_df = fitness_df[['id','obj1','obj2']]
         doms = self.get_domcount(fitness_df)
         fitness_df = doms[0]
         front = doms[1]
         dominated_fits = doms[2]
-
-
 
         ###################################################
         # Get front count and determine population status #
@@ -341,27 +342,49 @@ class GeneticAlgorithmNsga2:
                             q1.append(q)
                             fitness_df.at[q, 'front'] = fc
 
+                
+                #print(f"pre: {size}; frontsize: {len(front)}; leg: {size + len(front)}")
                 # Only for as many fronts as needed to fill popsize
-                if size + len(front) > config.POPUATION:
+                if (size + len(front)) < config.POPUATION:
+                    #print(f"-- normal")
+                    fitness_df.loc[(fitness_df['front']==fc), 'population'] = 'yes'
+                    fc = fc + 1
+
+                # Only for as many fronts as needed to fill popsize
+                if ((size + len(front)) > config.POPUATION and len(q1) > 0):
+                #if ((size + len(front)) > config.POPUATION and len(front) > 0):
+                # TODO: This migh be an issue: check len(q1)
+                    #print(f"-- crowding_distance")
+                    #print(front)
                     fitness_df=self.crowding_distance(fitness_df, fc, size)
                     front = []
                     q1 = []
                     break
 
-                elif size + len(front) == config.POPUATION:
+                if (size + len(front)) == config.POPUATION:
+                    #print(f"-- equal")
                     fitness_df.loc[(fitness_df['front']==fc), 'population'] = 'yes'
                     front = []
                     q1 = []
                     break
 
-                else:
-                    fitness_df.loc[(fitness_df['front']==fc), 'population'] = 'yes'
-
-                fc = fc + 1
-                front = q1
                 size = size + len(front)
+                front = q1
 
-        fitness_df['front'] = fitness_df['front'].fillna(99)  # FIXME: Why will there be nulls?
+                #print(f"post: {size}")
+
+                #else:
+                #    fitness_df.loc[(fitness_df['front']==fc), 'population'] = 'yes'
+
+                #    print(f"pre: {size}")
+                    
+                #    fc = fc + 1
+                #    size = size + len(front)
+                #    front = q1
+
+                #    print(f"post: {size}")
+
+        #fitness_df['front'] = fitness_df['front'].fillna(99)  # FIXME: Why will there be nulls?
         fitness_df=fitness_df[fitness_df['population']=='yes'].reset_index(drop=True)
         return fitness_df
 

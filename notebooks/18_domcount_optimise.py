@@ -8,6 +8,7 @@ fitness_df = pd.read_excel(path)
 
 fitness_df = fitness_df[fitness_df['population'] == 'yes']
 
+fitness_df = fitness_df[['id','obj1','obj2']]
 fitness_df['population'] = 'none'
 fitness_df['domcount'] = 0 
 
@@ -26,20 +27,19 @@ def one(fitness_df):
 
     obj1s = fitness_df['obj1'].values
     obj2s = fitness_df['obj2'].values
-
     for i, id in enumerate(fits):
+        obj1 = obj1s[i]
+        obj2 = obj2s[i]
 
         for ix, idx in enumerate(fits[i + 1:]):
+            obj1x = obj1s[i + ix + 1]
+            obj2x = obj2s[i + ix + 1]
             
-            if ((obj1s[i] <= obj1s[i + ix] and obj2s[i] <= obj2s[i + ix]) 
-                and (obj1s[i] < obj1s[i + ix] or obj2s[i] < obj2s[i + ix])):
-                
-                dominating_fits[i + ix] += 1 
+            if ((obj1 <= obj1x and obj2 <= obj2x) and (obj1 < obj1x or obj2 < obj2x)):
+                dominating_fits[i + ix + 1] += 1 
                 dominated_fits[id].append(idx) 
-    
-            if ((obj1s[i] >= obj1s[i + ix] and obj2s[i] >= obj2s[i + ix]) 
-                and (obj1s[i] > obj1s[i + ix] or obj2s[i] > obj2s[i + ix])):
-                
+
+            if ((obj1 >= obj1x and obj2 >= obj2x) and (obj1 > obj1x or obj2 > obj2x)):
                 dominating_fits[i] += 1
                 dominated_fits[idx].append(id)    
 
@@ -48,6 +48,7 @@ def one(fitness_df):
 
     fitness_df['domcount'] = dominating_fits
     fitness_df.loc[(fitness_df.domcount==0), 'front'] = 1
+
     return fitness_df
 
 
@@ -85,11 +86,11 @@ def two(fitness_df):
         if dominating_fits[id] == 0:
             fitness_df.loc[(fitness_df.index==id), 'front'] = 1
             front.append(id)
-
+    #print(dominated_fits)
     return fitness_df
 
 
-number = 100
+number = 5000
 
 start = time.time()
 for _ in range(number):
