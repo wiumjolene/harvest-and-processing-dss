@@ -1,8 +1,8 @@
 import math
 
 # show graphs
-SHOW=False  #TODO:
-SHOWRATE = 2000
+SHOW=True  #TODO:
+SHOWRATE = 10000
 
 STDUNIT=4.5 # each stdunit is so many kg of produce
 GIVEAWAY=0.05 # % giveaway
@@ -17,11 +17,11 @@ ZAR_KM=3.16/1000
 # GA CONFIG
 ########################################################
 TOURSIZE=3  # NB NSGI2 requires binary tournament selection
-MUTATIONRATE=0.08
+MUTATIONRATE=0.05
 MUTATIONRATE2=0.08
-CROSSOVERRATE=0.5
+CROSSOVERRATE=0.6
 POPUATION=80 #TODO:
-ITERATIONS=5000 #TODO:
+ITERATIONS=25000 #TODO:
 
 
 ########################################################
@@ -34,4 +34,7 @@ SSHARE = 1/(math.sqrt(POPUATION)-1)
 # TESTS
 ########################################################
 D = 30
-SAMPLE = 1 # number of tests for t-test sample #TODO:
+
+SAMPLESTART = 2
+SAMPLEEND = 5 # number of tests for t-test sample #TODO:
+

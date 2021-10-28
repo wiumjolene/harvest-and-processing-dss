@@ -252,19 +252,29 @@ class GeneticAlgorithmGenetics:
     logger = logging.getLogger(f"{__name__}.GeneticAlgorithmGenetics")
 
     def tournament_selection(self, fitness_df, alg):
-        """ GA: choose parents to take into crossover"""
-
+        """ 
+        GA: choose parents to take into crossover
+        
+        """
         self.logger.debug(f"--- tournament_selection")
         fitness_df=fitness_df[fitness_df['population']!='none'].reset_index(drop=True)
 
         high_fit1 = np.inf 
         high_fit2 = np.inf 
 
+        objs1 = fitness_df.obj1.values
+        objs2 = fitness_df.obj2.values
+        ids = fitness_df.id.values
+
         for _ in range(config.TOURSIZE):
             option_num = random.randint(0,len(fitness_df)-1)
-            option_id = fitness_df.id[option_num]
-            fit1 = fitness_df.obj1[option_num]
-            fit2 = fitness_df.obj2[option_num]
+            #option_id = fitness_df.id[option_num]
+            #fit1 = fitness_df.obj1[option_num]
+            #fit2 = fitness_df.obj2[option_num]
+
+            option_id = ids[option_num]
+            fit1 = objs1[option_num]
+            fit2 = objs2[option_num]
 
             if ((fit1 <= high_fit1 and fit2 <= high_fit2) and (fit1 < high_fit1 or fit2 < high_fit2)):  
                 high_fit1 = fit1
@@ -272,10 +282,8 @@ class GeneticAlgorithmGenetics:
                 parent = option_id
             
         parent_path = f"data/interim/{alg}/id_{parent}"
-        parent_df = pd.read_pickle(parent_path)  # FIXME: Optimise
+        parent_df = pd.read_pickle(parent_path)
         parent_df = parent_df.sort_values(by=['time_id'])
-
-        #print(f"{parent_path} - {len(parent_df)}")
                 
         return parent_df
 
@@ -303,8 +311,50 @@ class GeneticAlgorithmGenetics:
 
         if random.random() <= config.MUTATIONRATE:
             self.logger.debug(f"--- mutation activated")
-            #print(f"{len(times)} - {len(df_mutate)}") # FIXME:
-            #print(df_mutate)
+            
+            df_mutate1=pd.DataFrame()
+            mutate = []
+            for m in times:
+                #df_gene = df_mutate[df_mutate['time_id'] == m]
+                update = False
+
+                if random.random() < config.MUTATIONRATE2:
+                    update = True
+                    
+                    # If test then make new gene here
+                    if test:
+                        x = np.random.rand()
+                        df_gene = pd.DataFrame(data=[x], columns=['value'])
+                        df_gene['time_id'] = m
+                        df_mutate1 = pd.concat([df_mutate1, df_gene]).reset_index(drop=True)
+                    
+                    # Else get only gene alternate
+                    else:  
+                        demand_list = list(df_gene.demand_id.unique())
+                        df_gene = ix.make_individual(get_dlist=False, dlist=demand_list)  # FIXME:
+                        df_mutate1 = pd.concat([df_mutate1, df_gene]).reset_index(drop=True)
+                        
+                mutate.append(update)
+                
+            df_mutate['mutate'] = mutate
+            df_mutate = df_mutate.set_index('mutate')
+            df_keep = df_mutate.loc[False]
+            df_mutate1 = pd.concat([df_mutate1, df_keep]).reset_index(drop=True)
+
+
+        else:
+            df_mutate1 = df_mutate
+            
+        return df_mutate1
+
+    def mutation_DEPRICATED(self, df_mutate, times, test):
+        """ GA mutation function to diversify gene pool. """
+        
+        self.logger.debug(f"-- mutation check")
+        ix = Individual()
+
+        if random.random() <= config.MUTATIONRATE:
+            self.logger.debug(f"--- mutation (DEPRICATED) activated")
             
             df_mutate1=pd.DataFrame()
             for m in times:
@@ -328,8 +378,7 @@ class GeneticAlgorithmGenetics:
 
         else:
             df_mutate1 = df_mutate
-
-        
+            
         return df_mutate1
 
     def crossover(self, fitness_df, alg, test=False, test_name='zdt1'):
@@ -340,8 +389,79 @@ class GeneticAlgorithmGenetics:
         max_id = fitness_df.id.max()
 
         if test:
-            times = list(range(config.D)) # FIXME: ????
-            #times = list(range(len(fitness_df)))
+            times = list(range(config.D))
+
+        else:
+            ddf_metadata = pd.read_pickle('data/processed/ddf_metadata')
+            times = list(ddf_metadata.time_id.unique())
+
+        # Select parents with tournament
+        pareto_df = fitness_df[fitness_df['population'] != 'none'].reset_index(drop=True)
+        parent1 = self.tournament_selection(pareto_df, alg)
+        parent2 = self.tournament_selection(pareto_df, alg)
+
+        # Uniform crossover 
+        self.logger.debug(f"--- uniform crossover")
+        # FIXME: Not sure if this will work for real problem as 
+        # times = unique and there might be several for one time?
+        
+        index = []      
+        for _ in times:
+            if random.random() < config.CROSSOVERRATE:
+                index.append(True)
+            
+            else:
+                index.append(False)
+
+        parent1['index'] = index
+        parent1 = parent1.set_index('index')
+        parent2['index'] = index
+        parent2 = parent2.set_index('index')
+
+        child1a = parent1.loc[True]
+        child1b = parent1.loc[False]
+        child2a = parent2.loc[True]
+        child2b = parent2.loc[False]
+
+        child1 = pd.concat([child1a,child2b]).reset_index(drop=True)
+        child2 = pd.concat([child1b,child2a]).reset_index(drop=True)
+
+        # If test then make new test individual gene
+        if test:
+            # Bring mutatation opportunity in
+            child1 = self.mutation(child1, times, test=test)
+            child2 = self.mutation(child2, times, test=test)
+
+            # Register child on fitness_df
+            child1_f = ix.individual(max_id+1, alg, get_indiv=False, indiv=child1, 
+                            test=test, test_name=test_name)
+            child2_f = ix.individual(max_id+2, alg, get_indiv=False, indiv=child2, 
+                            test=test, test_name=test_name) 
+
+        else:
+           # Bring mutatation opportunity in
+            child1 = self.mutation(child1, times, test=False)
+            child2 = self.mutation(child2, times, test=False)
+
+            # Register child on fitness_df
+            child1_f = ix.individual(max_id+1, alg, get_indiv=False, indiv=child1)
+            child2_f = ix.individual(max_id+2, alg, get_indiv=False, indiv=child2)
+
+        child1_f['population'] = 'child'
+        child2_f['population'] = 'child'
+
+        fitness_df = pd.concat([fitness_df, child1_f, child2_f]).reset_index(drop=True)
+        return fitness_df
+
+    def crossover_DEPRICATED(self, fitness_df, alg, test=False, test_name='zdt1'):
+        """ GA crossover genetic material for diversification"""
+        self.logger.debug(f"-- crossover")
+
+        ix = Individual()
+        max_id = fitness_df.id.max()
+
+        if test:
+            times = list(range(config.D))
 
         else:
             ddf_metadata = pd.read_pickle('data/processed/ddf_metadata')
@@ -363,31 +483,7 @@ class GeneticAlgorithmGenetics:
         self.logger.debug(f"--- uniform crossover")
         # FIXME: Not sure if this will work for real problem as 
         # times = unique and there might be several for one time?
-        
-        index = []      
-        for _ in times:
-            if random.random() < config.CROSSOVERRATE:
-                index.append(True)
-            
-            else:
-                index.append(False)
 
-        
-        parent1['index'] = index
-        parent1 = parent1.set_index('index')
-        parent2['index'] = index
-        parent2 = parent2.set_index('index')
-
-        child1a = parent1.loc[True]
-        child1b = parent1.loc[False]
-        child2a = parent2.loc[True]
-        child2b = parent2.loc[False]
-
-        child1 = pd.concat([child1a,child2b]).reset_index(drop=True)
-        child2 = pd.concat([child1b,child2a]).reset_index(drop=True)
-
-
-        """
         child1=pd.DataFrame()
         child2=pd.DataFrame()
         for g in times:
@@ -401,7 +497,7 @@ class GeneticAlgorithmGenetics:
             else:
                 child1 = pd.concat([child1,gene1]).reset_index(drop=True)
                 child2 = pd.concat([child2,gene2]).reset_index(drop=True)                
-        """
+
         # If test then make new test individual gene
         if test:
             # Bring mutatation opportunity in
@@ -432,7 +528,6 @@ class GeneticAlgorithmGenetics:
 
     def dominates(objset1, objset2, sign=[1, 1]):
         """
-        DEPRICATED
         Return true if each objective of *self* is not strictly worse than
                 the corresponding objective of *other* and at least one objective is
                 strictly better.
@@ -472,17 +567,13 @@ class ParetoFeatures:
         fitness_df['id'] = fitness_df.index
         
         for i, id in enumerate(fits):
-            # print(fits)
-            # print(f"{i} - {id}")
             obj1 = fitness_df.at[id, 'obj1']
             obj2 = fitness_df.at[id, 'obj2']
 
-            #for j in range(len(fitness_df)):
             for idx in fits[i + 1:]:
                 obj1x = fitness_df.at[idx, 'obj1']
                 obj2x = fitness_df.at[idx, 'obj2']
                 
-                #if build_features.GeneticAlgorithmGenetics.dominates(objset1, objset2):
                 if (obj1 <= obj1x and obj2 <= obj2x) and (obj1 < obj1x or obj2 < obj2x):
                     dominating_fits[idx] += 1 
                     fitness_df.at[idx, 'domcount'] += 1
@@ -495,12 +586,10 @@ class ParetoFeatures:
 
             if dominating_fits[id] == 0:
                 fitness_df.loc[(fitness_df.index==id), 'front'] = 1
-                #front.append(id)
 
-        #fitness_df['rank'] = fitness_df['domcount'] + 1
         return fitness_df
 
-    def calculate_hyperarea(self, fitness_df):
+    def calculate_hyperarea_DEPRICATED(self, fitness_df):
         """
         Calculate the area under the pareto front
         relative to the min of each objective
@@ -521,27 +610,31 @@ class ParetoFeatures:
             
             df = self.non_dominated_sort(set_df)
             df = df[df['front'] == 1].reset_index(drop=True)
-            df = df.sort_values(by=['obj1','obj2'], ascending=[False,False]).reset_index(drop=True)
+            df = df.sort_values(by=['obj1','obj2'], ascending=[True,False]).reset_index(drop=True)
 
             name = df.population[0]
 
-            ref_obj2 = fitness_df.obj2.min()
-            ref_obj1 = fitness_df.obj1.min()
+            #ref_obj2 = df.obj2.min()
+            ref_obj2 = 0
+            ref_obj1 = df.obj1.min()
 
             prev_obj2 = ref_obj2
             prev_obj1 = ref_obj1
 
             area = 0
-            for i in range(len(df)):
+            for i in range(1, len(df) - 1):
+                
                 objective1 = df.obj1[i]
                 objective2 = df.obj2[i]
 
-                objective2_diff = abs(objective2 - prev_obj2)
+                print(f"{i} - {objective1} - {objective2}")
+
                 objective1_diff = abs(objective1 - prev_obj1)
+                objective2_diff = abs(objective2 - prev_obj2)
                 area = area + (objective1_diff * objective2_diff)      
 
-                prev_obj2 = objective2
-                #prev_obj1 = objective1
+                #prev_obj2 = 0
+                prev_obj1 = objective1
 
             #print(f"{name}: {area}")
             temp = pd.DataFrame(data=[(name, area)],
@@ -551,4 +644,41 @@ class ParetoFeatures:
 
         return hyperarea
 
+    def calculate_hyperarea(self, fitness_df):
+        """
+        Calculate the area under the pareto front
+        relative to the min of each objective
+        """
+        fitness_df = fitness_df.filter(['id', 'obj1', 'obj2', 'population'])
+
+        sets = ['yes', 'pareto']
+        hyperarea = pd.DataFrame()
+
+        for set in sets:
+            set_df = fitness_df[fitness_df['population'] == set]
+            
+            df = self.non_dominated_sort(set_df)
+            df = df[df['front'] == 1].reset_index(drop=True)
+            df = df.sort_values(by=['obj1','obj2'], ascending=[True,False]).reset_index(drop=True)
+
+            objs1 = df.obj1.values
+            objs2 = df.obj2.values
+            ids = df.id.values
+            area = 0
+            for count, id in enumerate(ids):
+                print(f"{count} of {len(ids)}")
+
+                if (count == 0 or count == (len(ids)-1)):
+                    continue
+
+                else:
+                    objective1_diff = abs(objs1[count] - objs1[count - 1])
+                    area = area + (objective1_diff * objs2[count])
+
+            temp = pd.DataFrame(data=[(set, area)],
+                    columns=['population', 'hyperarea'])
+
+            hyperarea=pd.concat([hyperarea, temp]).reset_index(drop=True)
+
+        return hyperarea
 

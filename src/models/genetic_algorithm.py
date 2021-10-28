@@ -175,7 +175,7 @@ class GeneticAlgorithmNsga2:
 
         return fitness_df3
 
-    def crowding_distance2(self, fitness_df, fc, size):
+    def crowding_distance_DEPRICATED(self, fitness_df, fc, size):
         # TODO: Use 'at' instead of loc to improve speed
         """ Crowding distance sorting """ 
         self.logger.debug(f"-- crowding distance activated")
@@ -219,7 +219,6 @@ class GeneticAlgorithmNsga2:
 
     def get_domcount(self, fitness_df):
         front = []
-
         fitness_df = fitness_df.sort_values(by=['id']).reset_index(drop=True)
 
         fits = list(fitness_df.id)
@@ -242,11 +241,13 @@ class GeneticAlgorithmNsga2:
                 obj1x = obj1s[i + ix + 1]
                 obj2x = obj2s[i + ix + 1]
                 
-                if ((obj1 <= obj1x and obj2 <= obj2x) and (obj1 < obj1x or obj2 < obj2x)):
+                if build_features.GeneticAlgorithmGenetics.dominates((obj1, obj2), (obj1x, obj2x)):
+                #if ((obj1 <= obj1x and obj2 <= obj2x) and (obj1 < obj1x or obj2 < obj2x)):
                     dominating_fits[i + ix + 1] += 1 
                     dominated_fits[id].append(idx) 
 
-                if ((obj1 >= obj1x and obj2 >= obj2x) and (obj1 > obj1x or obj2 > obj2x)):
+                if build_features.GeneticAlgorithmGenetics.dominates((obj1x, obj2x), (obj1, obj2)):
+                #if ((obj1 >= obj1x and obj2 >= obj2x) and (obj1 > obj1x or obj2 > obj2x)):
                     dominating_fits[i] += 1
                     dominated_fits[idx].append(id)    
 
@@ -266,41 +267,6 @@ class GeneticAlgorithmNsga2:
         # Initiate domination count and dominated by list
         self.logger.debug(f"-- getting domcount")
 
-        """
-        fitness_df['population'] = 'none'
-        fitness_df['domcount'] = 0 
-        front = []
-        fits = list(fitness_df.id)
-
-        dominating_fits = defaultdict(int)  # n (The number of people that dominate you)
-        dominated_fits = defaultdict(list)  # Sp (The people you dominate)
-        fitness_df=fitness_df.set_index('id')
-        fitness_df['id'] = fitness_df.index
-        
-        for i, id in enumerate(fits):
-            obj1 = fitness_df.at[id, 'obj1']
-            obj2 = fitness_df.at[id, 'obj2']
-
-            for idx in fits[i + 1:]:
-                obj1x = fitness_df.at[idx, 'obj1']
-                obj2x = fitness_df.at[idx, 'obj2']
-                
-                #if build_features.GeneticAlgorithmGenetics.dominates(objset1, objset2):
-                if (obj1 <= obj1x and obj2 <= obj2x) and (obj1 < obj1x or obj2 < obj2x):
-                    dominating_fits[idx] += 1 
-                    fitness_df.at[idx, 'domcount'] += 1
-                    dominated_fits[id].append(idx) 
-
-                #elif build_features.GeneticAlgorithmGenetics.dominates(objset2, objset1):  
-                if (obj1x <= obj1 and obj2x <= obj2) and (obj1x < obj1 or obj2x < obj2):
-                    dominating_fits[id] += 1
-                    fitness_df.at[id, 'domcount'] += 1
-                    dominated_fits[idx].append(id)    
-
-            if dominating_fits[id] == 0:
-                fitness_df.loc[(fitness_df.index==id), 'front'] = 1
-                front.append(id)
-        """
         fitness_df = fitness_df[['id','obj1','obj2']]
         doms = self.get_domcount(fitness_df)
         fitness_df = doms[0]
@@ -342,11 +308,8 @@ class GeneticAlgorithmNsga2:
                             q1.append(q)
                             fitness_df.at[q, 'front'] = fc
 
-                
-                #print(f"pre: {size}; frontsize: {len(front)}; leg: {size + len(front)}")
                 # Only for as many fronts as needed to fill popsize
                 if (size + len(front)) < config.POPUATION:
-                    #print(f"-- normal")
                     fitness_df.loc[(fitness_df['front']==fc), 'population'] = 'yes'
                     fc = fc + 1
 
@@ -354,15 +317,12 @@ class GeneticAlgorithmNsga2:
                 if ((size + len(front)) > config.POPUATION and len(q1) > 0):
                 #if ((size + len(front)) > config.POPUATION and len(front) > 0):
                 # TODO: This migh be an issue: check len(q1)
-                    #print(f"-- crowding_distance")
-                    #print(front)
                     fitness_df=self.crowding_distance(fitness_df, fc, size)
                     front = []
                     q1 = []
                     break
 
                 if (size + len(front)) == config.POPUATION:
-                    #print(f"-- equal")
                     fitness_df.loc[(fitness_df['front']==fc), 'population'] = 'yes'
                     front = []
                     q1 = []
@@ -371,20 +331,6 @@ class GeneticAlgorithmNsga2:
                 size = size + len(front)
                 front = q1
 
-                #print(f"post: {size}")
-
-                #else:
-                #    fitness_df.loc[(fitness_df['front']==fc), 'population'] = 'yes'
-
-                #    print(f"pre: {size}")
-                    
-                #    fc = fc + 1
-                #    size = size + len(front)
-                #    front = q1
-
-                #    print(f"post: {size}")
-
-        #fitness_df['front'] = fitness_df['front'].fillna(99)  # FIXME: Why will there be nulls?
         fitness_df=fitness_df[fitness_df['population']=='yes'].reset_index(drop=True)
         return fitness_df
 

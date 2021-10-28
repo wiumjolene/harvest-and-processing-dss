@@ -15,3 +15,4 @@ fitness_df = pd.read_excel(path)
 
 pt = ParetoFeatures()
 hyperarea = pt.calculate_hyperarea(fitness_df)
+print(hyperarea)

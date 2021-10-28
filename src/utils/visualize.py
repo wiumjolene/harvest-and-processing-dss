@@ -26,8 +26,11 @@ class Visualize:
 
     def scatter_plot2(self, df, filename, colour, title):
 
-        df=df.rename(columns={"obj1": "total_cost", "obj2": "total_dev"})
-        fig = px.scatter(df, x="total_cost", y="total_dev", color=colour,
+        #df=df.rename(columns={"obj1": "total_cost", "obj2": "total_dev"})
+        #fig = px.scatter(df, x="total_cost", y="total_dev", color=colour,
+        #                hover_data=['id'], title=title)
+
+        fig = px.scatter(df, x="obj1", y="obj2", color=colour,
                         hover_data=['id'], title=title)
 
         fig.update_traces(marker=dict(size=16))

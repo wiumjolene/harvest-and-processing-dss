@@ -61,8 +61,10 @@ class RunTests:
 
             fitness_df = self.gag.crossover(fitness_df, alg_path, test=True, test_name=test_name)
 
-            self.logger.debug(f"- initiate pareto check")
+            #fitness_df = fitness_df.drop_duplicates(['obj1', 'obj2'], keep='first').reset_index(drop=True)
+            #fitness_df=fitness_df.groupby(['obj1', 'obj2'])['id'].min().reset_index(drop=False)
 
+            self.logger.debug(f"- initiate pareto check")
             if alg == 'vega':
                 fitness_df = self.ga1.pareto_vega(fitness_df)
 
@@ -98,10 +100,7 @@ class RunTests:
             fitness_df=fitness_df.append(pareto).reset_index(drop=True)
         
         init_pop['population'] = 'initial'
-        fitness_df=fitness_df.append(init_pop).reset_index(drop=True)
-
-        # FIXME: moved over to run tests
-        #fitness_df.to_excel(f"data/interim/{test_name}/fitness_nsga2.xlsx", index=False)
+        #fitness_df=fitness_df.append(init_pop).reset_index(drop=True)
         
         if config.SHOW:
             self.graph.scatter_plot2(fitness_df, filename_html, 'population', f"{alg_path}-final")
@@ -116,7 +115,7 @@ class RunTests:
             os.makedirs(f"data/interim/{test}/{alg}")
 
         hyperarea = pd.DataFrame()
-        for s in range(config.SAMPLE):
+        for s in range(config.SAMPLESTART, config.SAMPLEEND):
             start=datetime.datetime.now()
             # TODO: Add number of tests to run
             fitness_df=ga.make_ga_test(alg, test)
@@ -159,7 +158,9 @@ class StatsTests:
                         dv='hyperarea',
                         within='population',
                         subject='sample',
-                        method='chisq')
+                        method='chisq'
+                        #method='f'
+                        )
 
         print(pgRes)
 
