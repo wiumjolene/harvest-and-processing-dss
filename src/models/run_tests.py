@@ -117,7 +117,6 @@ class RunTests:
         hyperarea = pd.DataFrame()
         for s in range(config.SAMPLESTART, config.SAMPLEEND):
             start=datetime.datetime.now()
-            # TODO: Add number of tests to run
             fitness_df=ga.make_ga_test(alg, test)
             fitness_df.to_excel(f"data/interim/{test}/fitness_{alg}_{s}.xlsx", index=False)
             finish=datetime.datetime.now()
@@ -132,7 +131,6 @@ class RunTests:
             
             hyperarea=pd.concat([hyperarea, hyperareat]).reset_index(drop=True)
 
-        #hyperarea = hyperarea.pivot(index="sample", columns="population", values="hyperarea")
         hyperarea.to_excel(f"data/interim/{test}/hyperarea_{alg}.xlsx", index=False)
         stats = StatsTests()
         stats.run_friedman(hyperarea, alg, test)

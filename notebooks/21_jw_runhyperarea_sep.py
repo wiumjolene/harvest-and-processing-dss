@@ -16,14 +16,16 @@ alg = 'nsga2'
 
 pt = ParetoFeatures()
 
-pareto = pd.read_excel(os.path.join(base,f"fitness_nsga2_{0}.xlsx"))
+pareto = pd.read_excel(os.path.join(base,f"fitness_nsga2_{2}.xlsx"))
 pareto = pareto[pareto['population'] == 'pareto']
 
 hyperarea = pd.DataFrame()
 all = pd.DataFrame()
-for s in range(0,1):
+for s in range(0,10):
     fitness_df = pd.read_excel(os.path.join(base,f"fitness_nsga2_{s}.xlsx"))
-    fitness_df = fitness_df[fitness_df['population'] == 'yes']
+    #fitness_df = fitness_df[fitness_df['population'] == 'pareto']
+    #fitness_df['population'] = 'yes'
+
     fitness_df = fitness_df.drop_duplicates(['obj1', 'obj2'], keep='first').reset_index(drop=True)
 
     fitness_df = pd.concat([pareto, fitness_df]).reset_index(drop=True)
@@ -36,10 +38,8 @@ for s in range(0,1):
     hyperarea=pd.concat([hyperarea, hyperareat]).reset_index(drop=True)
     all=pd.concat([all, fitness_df]).reset_index(drop=True)
 
-#hyperarea = hyperarea.pivot(index="sample", columns="population", values="hyperarea")
 hyperarea.to_excel(os.path.join(base,f"hyperarea_{alg}_NEW.xlsx"), index=False)
 all.to_excel(os.path.join(base,f"all_fitness_{alg}.xlsx"), index=False)
-
 
 stats = StatsTests()
 stats.run_friedman(hyperarea, alg, test)

@@ -69,7 +69,11 @@ class CreateOptions:
                                             'ready': ready}})
 
         # Save nb datasets to processed for use in algorithms
-        outfile = open('data/processed/ddic_dp','wb')
+        outfile = open('data/processed/ddic_dp','wb') #FIXME: Why is the name and the dic different?
+        pickle.dump(ddic_metadata,outfile)
+        outfile.close()
+
+        outfile = open('data/processed/ddic_metadata','wb')
         pickle.dump(ddic_metadata,outfile)
         outfile.close()
 
@@ -86,7 +90,7 @@ class CreateOptions:
         return 
 
     def get_demand_plan(self): 
-        """ Extract demand requirment from database. """
+        """ Extract demand requirement from database. """
         self.logger.info('- get_demand_plan')
 
         s = f"""SELECT 
@@ -271,3 +275,76 @@ class ImportOptions:
         data = pickle.load(infile)
         infile.close()
         return data
+
+
+class PrepManPlan:
+    """ Class to prepare Manual PackPlan for comparison"""
+    logger = logging.getLogger(f"{__name__}.CreateOptions")
+    co = CreateOptions()
+    database_instance = DatabaseModelsClass('PHDDATABASE_URL')
+
+    def prep_man_plan(self):
+        df_ft = self.get_fc_from_to()
+        df_pc = self.co.get_pack_capacity()
+        dic_speed = self.co.get_speed()
+
+    def get_fc_from_to(self):
+        self.logger.info('- get_from_to')
+        sql_query = """
+            SELECT f_from_to.packhouse_id, dim_block.fc_id, AVG(km) as km
+            FROM dss.f_from_to
+            LEFT JOIN dss.dim_block ON (dim_block.id = f_from_to.block_id)
+            GROUP BY f_from_to.packhouse_id, dim_block.fc_id;
+        """
+        df = self.database_instance.select_query(query_str=sql_query)
+        return df
+
+    def kobus_plan(self):
+        sql_query = """
+            SELECT pd.demandid as demand_id
+                    , f_pack_capacity.id as pc
+                    -- , dim_fc.id as fc_id
+                    -- , dim_packhouse.id as packhouse_id
+                    -- , dim_week.id as time_id
+                    -- , pack_type.id as pack_type_id
+                    -- , dim_va.id as va_id
+                    , (pd.qty_kg * -1) as kg
+                    , (pd.qty_standardctns * -1) as stdunits
+                    , distance.km
+                    , (pd.qty_kg * -1) * distance.km as 'kgkm'
+                    , IF(f_speed.speed is NULL, 12, f_speed.speed) as speed
+                    -- , pd.variety
+                    -- , pd.format
+                    -- , pd.packweek
+                    -- , pd.packsite
+                    -- , pd.grower
+            FROM dss.planning_data pd
+            LEFT JOIN dim_fc ON (pd.grower = dim_fc.name)
+            LEFT JOIN dim_packhouse ON (pd.packsite = dim_packhouse.name)
+            LEFT JOIN (SELECT id, upper(name) as name FROM dss.dim_pack_type) pack_type  
+                ON (pd.format = pack_type.name)
+            LEFT JOIN dim_va ON (pd.variety = dim_va.name)
+            LEFT JOIN dim_week ON (pd.packweek = dim_week.week)
+            LEFT JOIN (SELECT f_from_to.packhouse_id, dim_block.fc_id, AVG(f_from_to.km) as km
+                            FROM dss.f_from_to
+                            LEFT JOIN dim_block ON (dim_block.id = f_from_to.block_id)
+                            GROUP BY f_from_to.packhouse_id, dim_block.fc_id) distance 
+                            ON (distance.packhouse_id = dim_packhouse.id 
+                                AND distance.fc_id = dim_fc.id)
+            LEFT JOIN f_speed 
+				ON (f_speed.packhouse_id = dim_packhouse.id 
+                    AND f_speed.packtype_id = pack_type.id 
+					AND f_speed.va_id = dim_va.id)
+			LEFT JOIN f_pack_capacity
+				ON (f_pack_capacity.packhouse_id = dim_packhouse.id 
+					AND f_pack_capacity.pack_type_id = pack_type.id
+                    AND f_pack_capacity.packweek = dim_week.week)
+            WHERE extract_datetime = (SELECT max(extract_datetime) FROM dss.planning_data)
+            AND recordtype = 'PLANNED'
+            AND extract_datetime = '2021-11-08 13:29:36';  
+        """
+        
+        df = self.database_instance.select_query(query_str=sql_query)
+        df['packhours'] = df['kg']*(1*config.GIVEAWAY)*df['speed']/60  # TODO: CHECK CALC!!!!
+
+        return df

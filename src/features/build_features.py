@@ -21,7 +21,7 @@ class Individual:
 
     def individual(self, number, alg_path, get_indiv=True, indiv=individual_df, test=False, test_name='zdt1'):
         """ Function to define indiv and fitness """
-        #self.logger.debug(f"- individual: {number}")
+        self.logger.debug(f"- individual: {number}")
         if test:
             t=Tests()
             if get_indiv:
@@ -210,11 +210,16 @@ class Individual:
         individualdf2 = individualdf.groupby('pc')['demand_id'].nunique()
         individualdf2 = individualdf2.reset_index(drop=False)
         individualdf3 = individualdf2.merge(pc_df, left_on='pc', right_on='id', how='left')
-        individualdf3['changes'] = individualdf3['stdunits_hour'] * individualdf3['demand_id'] 
 
-        total_cost = ((individualdf.packhours.sum() \
-                        + individualdf3.changes.sum())*config.ZAR_HR) \
-                        + (individualdf.kgkm.sum()*config.ZAR_KM)
+        # FIXME: Bring something in to account for number of changes
+        #individualdf3['changes'] = individualdf3['stdunits_hour'] * individualdf3['demand_id'] 
+
+        #total_cost = ((individualdf.packhours.sum() \
+        #                + individualdf3.changes.sum())*config.ZAR_HR) \
+        #                + (individualdf.kgkm.sum()*config.ZAR_KM)
+
+        total_cost = ((individualdf.packhours.sum()*config.ZAR_HR) \
+                        + (individualdf.kgkm.sum()*config.ZAR_KM))
 
         individualdf2 = individualdf.groupby('demand_id')['kg'].sum()
         individualdf2 = individualdf2.reset_index(drop=False)
@@ -666,7 +671,6 @@ class ParetoFeatures:
             ids = df.id.values
             area = 0
             for count, id in enumerate(ids):
-                print(f"{count} of {len(ids)}")
 
                 if (count == 0 or count == (len(ids)-1)):
                     continue
@@ -680,5 +684,6 @@ class ParetoFeatures:
 
             hyperarea=pd.concat([hyperarea, temp]).reset_index(drop=True)
 
+        print(hyperarea)
         return hyperarea
 

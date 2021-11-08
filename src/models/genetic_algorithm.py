@@ -13,6 +13,7 @@ from src.features.build_features import GeneticAlgorithmGenetics
 from src.features import build_features
 from src.utils.visualize import Visualize
 from src.utils import config
+from src.data.make_dataset import PrepManPlan
 
 
 class GeneticAlgorithmVega:
@@ -85,6 +86,8 @@ class GeneticAlgorithmNsga2:
     logger = logging.getLogger(f"{__name__}.GeneticAlgorithmNsga2")
     gag = GeneticAlgorithmGenetics()
     graph = Visualize()
+    manplan = PrepManPlan()
+    indiv = Individual()
 
     def nsga2(self):
         """ Function that manages the NSGA2. """
@@ -107,10 +110,19 @@ class GeneticAlgorithmNsga2:
             fitness_df = self.gag.crossover(fitness_df, 'nsga2')
             fitness_df = self.pareto_nsga2(fitness_df)
 
+        kobus_plan = self.manplan.kobus_plan()
+        kobus_fit = self.indiv.individual(1000000, 
+                    alg_path = 'nsga2', 
+                    get_indiv=False, 
+                    indiv=kobus_plan, 
+                    test=False)
+        kobus_fit['population'] = 'manplan'
+        kobus_fit['result'] = 'manplan'
+
         init_pop['result'] = 'init pop'
         fitness_df['result'] = 'final result'
         
-        fitness_df = pd.concat([fitness_df, init_pop])        
+        fitness_df = pd.concat([fitness_df, init_pop, kobus_fit])        
         
         fitness_df.to_excel('data/interim/fitness_nsga2.xlsx', index=False)
         filename_html = 'reports/figures/genetic_algorithm_nsga2.html'
@@ -158,7 +170,12 @@ class GeneticAlgorithmNsga2:
                 else:
                     oneup = vals[i-1]
                     onedown = vals[i+1]
-                    distance = (onedown - oneup) / (max - min)
+
+                    if (max - min) > 0:
+                        distance = (onedown - oneup) / (max - min)
+                    
+                    else:
+                        distance = (onedown - oneup) / (min)
 
                     cdists[i] = cdists[i] + distance
 

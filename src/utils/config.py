@@ -18,10 +18,10 @@ ZAR_KM=3.16/1000
 ########################################################
 TOURSIZE=3  # NB NSGI2 requires binary tournament selection
 MUTATIONRATE=0.05
-MUTATIONRATE2=0.08
+MUTATIONRATE2=0.05
 CROSSOVERRATE=0.6
-POPUATION=80 #TODO:
-ITERATIONS=25000 #TODO:
+POPUATION=2 #TODO:
+ITERATIONS=0 #TODO:
 
 
 ########################################################
@@ -35,6 +35,6 @@ SSHARE = 1/(math.sqrt(POPUATION)-1)
 ########################################################
 D = 30
 
-SAMPLESTART = 2
-SAMPLEEND = 5 # number of tests for t-test sample #TODO:
+SAMPLESTART = 0
+SAMPLEEND = 1 # number of tests for t-test sample #TODO:
 
