@@ -20,8 +20,8 @@ TOURSIZE=3  # NB NSGI2 requires binary tournament selection
 MUTATIONRATE=0.05
 MUTATIONRATE2=0.05
 CROSSOVERRATE=0.6
-POPUATION=2 #TODO:
-ITERATIONS=0 #TODO:
+POPUATION=80 #TODO:
+ITERATIONS=10000 #TODO:
 
 
 ########################################################

@@ -13,7 +13,7 @@ class Tests:
     # ZDT1
     ###############################################################
     def ZDT1(self, x):
-        self.logger.debug(f"-- ZDT1 test")
+        self.logger.debug(f"-- ZDT1 test: len = {len(x)}")
         f1 = x[0]  # objective 1
         g = 1 + ((9 / (config.D - 1)) * (np.sum(x[1:])))
         f2 = g * (1- (np.sqrt(f1/g))) # objective 2

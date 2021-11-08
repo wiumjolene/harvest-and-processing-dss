@@ -23,7 +23,7 @@ class MainController:
     nsga2 = True
     moga = False
 
-    test_fxn = False
+    test_fxn = True
     tests = ['zdt1', 'zdt2', 'zdt3']
     tests = ['zdt1']
 

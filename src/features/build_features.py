@@ -321,10 +321,10 @@ class GeneticAlgorithmGenetics:
             mutate = []
             for m in times:
                 #df_gene = df_mutate[df_mutate['time_id'] == m]
-                update = False
+                update = 0
 
                 if random.random() < config.MUTATIONRATE2:
-                    update = True
+                    update = 1
                     
                     # If test then make new gene here
                     if test:
@@ -340,17 +340,26 @@ class GeneticAlgorithmGenetics:
                         df_mutate1 = pd.concat([df_mutate1, df_gene]).reset_index(drop=True)
                         
                 mutate.append(update)
-                
-            df_mutate['mutate'] = mutate
-            df_mutate = df_mutate.set_index('mutate')
-            df_keep = df_mutate.loc[False]
-            df_mutate1 = pd.concat([df_mutate1, df_keep]).reset_index(drop=True)
 
+            time_crossover = pd.DataFrame(
+                {'time_id': times,
+                'filter': mutate
+                })
+            df_mutate = pd.merge(df_mutate, time_crossover, on=['time_id'],how='left')
+
+            #df_mutate['mutate'] = mutate
+            #df_mutate = df_mutate.set_index('mutate')
+            #df_keep = df_mutate.loc[False]
+            df_keep = df_mutate.loc[(df_mutate['filter'] == 0)]
+            #df_mutate1 = df_mutate1.loc[(df_mutate1['filter'] == 1)]
+
+            df_mutate2 = pd.concat([df_mutate1, df_keep]).reset_index(drop=True)
+            df_mutate2 = df_mutate2.drop(['filter'], axis=1)
 
         else:
-            df_mutate1 = df_mutate
+            df_mutate2 = df_mutate
             
-        return df_mutate1
+        return df_mutate2
 
     def mutation_DEPRICATED(self, df_mutate, times, test):
         """ GA mutation function to diversify gene pool. """
@@ -387,7 +396,7 @@ class GeneticAlgorithmGenetics:
         return df_mutate1
 
     def crossover(self, fitness_df, alg, test=False, test_name='zdt1'):
-        """ GA crossover genetic material for diversification"""
+        """ GA crossover genetic material for diversification """
         self.logger.debug(f"-- crossover")
 
         ix = Individual()
@@ -410,26 +419,85 @@ class GeneticAlgorithmGenetics:
         # FIXME: Not sure if this will work for real problem as 
         # times = unique and there might be several for one time?
         
-        index = []      
+        filter = []      
         for _ in times:
             if random.random() < config.CROSSOVERRATE:
-                index.append(True)
+                filter.append(1)
             
             else:
-                index.append(False)
+                filter.append(0)
 
-        parent1['index'] = index
-        parent1 = parent1.set_index('index')
-        parent2['index'] = index
-        parent2 = parent2.set_index('index')
+        time_crossover = pd.DataFrame(
+            {'time_id': times,
+            'filter': filter
+            })
 
-        child1a = parent1.loc[True]
-        child1b = parent1.loc[False]
-        child2a = parent2.loc[True]
-        child2b = parent2.loc[False]
+
+        parent1 = pd.merge(parent1, time_crossover, on=['time_id'],how='left')
+        parent1['parent'] = 'parent1'
+
+        parent2 = pd.merge(parent2, time_crossover, on=['time_id'],how='left')
+        parent2['parent'] = 'parent2'
+
+        child1a = parent1.loc[(parent1['filter'] == 1)]
+        child1b = parent1.loc[(parent1['filter'] == 0)]
+        child2a = parent2.loc[(parent2['filter'] == 1)]
+        child2b = parent2.loc[(parent2['filter'] == 0)]
 
         child1 = pd.concat([child1a,child2b]).reset_index(drop=True)
         child2 = pd.concat([child1b,child2a]).reset_index(drop=True)
+
+        child1 = child1.drop(['filter'], axis=1)
+        child2 = child2.drop(['filter'], axis=1)
+
+        if len(child1) > 30 or len(child2) > 30:
+            print("OPTION1")
+            print(f"parent1: {len(parent1)}")
+            print(f"parent2: {len(parent2)}")
+            print(f"child1: {len(child1)}")
+            print(f"child2: {len(child2)}")
+
+            print(times)
+            print(filter)
+            print(time_crossover)
+
+            print('#### PARENT1')
+            print(parent1)
+            print('#### PARENT2')
+            print(parent2)
+
+            print('#### child1')
+            print(child1)
+            print('#### child2')
+            print(child2)
+
+            exit()
+
+        child1_c = child1.groupby('time_id')['value'].count()
+        child2_c = child2.groupby('time_id')['value'].count()
+
+        if len(child1_c) < 30 or len(child2_c) < 30:
+            print("OPTION2")
+            print(f"parent1: {len(parent1)}")
+            print(f"parent2: {len(parent2)}")
+            print(f"child1: {len(child1)}")
+            print(f"child2: {len(child2)}")
+
+            print(times)
+            print(filter)
+            print(time_crossover)
+
+            print('#### PARENT1')
+            print(parent1)
+            print('#### PARENT2')
+            print(parent2)
+
+            print('#### child1')
+            print(child1)
+            print('#### child2')
+            print(child2)
+
+            exit()
 
         # If test then make new test individual gene
         if test:
