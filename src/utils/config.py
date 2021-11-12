@@ -8,7 +8,7 @@ STDUNIT=4.5 # each stdunit is so many kg of produce
 GIVEAWAY=0.05 # % giveaway
 TRUCK=1500 # 1 * truck carries so many kg of produce
 LUG=11 # weight (kg) of a lug
-SEASON=2020
+SEASON=2022
 
 ZAR_HR=20
 ZAR_KM=3.16/1000
@@ -22,8 +22,8 @@ MUTATIONRATE2=0.05
 #MUTATIONRATE=1
 #MUTATIONRATE2=0.1
 CROSSOVERRATE=0.6
-POPUATION=80 #TODO:
-ITERATIONS=5000 #TODO:
+POPUATION=10 #TODO:
+ITERATIONS=300 #TODO:
 
 
 ########################################################

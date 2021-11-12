@@ -100,18 +100,16 @@ class CreateOptions:
                 fdp.pack_type_id,
                 fdp.priority,
                 fdp.arrivalweek,
-                w.id AS arrival_time_id,
+                fdp.packweek,
                 fdp.stdunits,
                 fdp.transitdays,
-                w.id - (ceiling(fdp.transitdays/7) * 7) as time_id
+                w.id as time_id
             FROM
                 dss.f_demand_plan fdp
                     LEFT JOIN
-                dim_week w ON fdp.arrivalweek = w.week
-            WHERE w.season = {config.SEASON}
-            AND w.id in (341, 348, 355, 362)
+                dim_week w ON (fdp.packweek = w.week);
             """
-            # FIXME: Delete week limitation
+            # FIXME: Checks week id
 
         df_dp = self.database_instance.select_query(query_str=s)
         df_dp['kg'] = df_dp['stdunits'] * config.STDUNIT * (1 + config.GIVEAWAY)
@@ -123,11 +121,16 @@ class CreateOptions:
         """ Get harvest estimate. """
         self.logger.info('- get_harvest_estimate')
 
-        s= f"""SELECT he.id, he.va_id, va.vacat_id, he.block_id, w.id AS time_id, he.kg_raw as kg
+        s= f"""SELECT he.id
+                , he.va_id
+                , va.vacat_id
+                , he.block_id
+                , w.id AS time_id
+                , he.kg_raw as kg
             FROM dss.f_harvest_estimate he
             LEFT JOIN dim_week w ON he.packweek = w.week
             LEFT JOIN dim_va va ON he.va_id = va.id
-            WHERE kg_raw>0 AND w.season={config.SEASON};
+            WHERE kg_raw>0;
             """
 
         df_he = self.database_instance.select_query(query_str=s)
@@ -157,8 +160,7 @@ class CreateOptions:
         FROM
             dss.f_pack_capacity pc
                 LEFT JOIN
-            dim_week w ON pc.packweek = w.week
-            WHERE w.season = {config.SEASON};
+            dim_week w ON pc.packweek = w.week;
             """
 
         df_pc = self.database_instance.select_query(query_str=s)
@@ -339,9 +341,9 @@ class PrepManPlan:
 				ON (f_pack_capacity.packhouse_id = dim_packhouse.id 
 					AND f_pack_capacity.pack_type_id = pack_type.id
                     AND f_pack_capacity.packweek = dim_week.week)
-            WHERE extract_datetime = (SELECT max(extract_datetime) FROM dss.planning_data)
-            AND recordtype = 'PLANNED'
-            AND extract_datetime = '2021-11-08 13:29:36';  
+            -- WHERE extract_datetime = '2021-11-08 13:29:36'
+            WHERE recordtype = 'PLANNED'
+            AND extract_datetime = (SELECT MAX(extract_datetime) FROM dss.planning_data)
         """
         
         df = self.database_instance.select_query(query_str=sql_query)

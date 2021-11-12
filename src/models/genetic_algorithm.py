@@ -111,6 +111,7 @@ class GeneticAlgorithmNsga2:
             fitness_df = self.pareto_nsga2(fitness_df)
 
         kobus_plan = self.manplan.kobus_plan()
+        kobus_plan.to_excel('data/interim/kobus_plan.xlsx', index=False)
         kobus_fit = self.indiv.individual(1000000, 
                     alg_path = 'nsga2', 
                     get_indiv=False, 

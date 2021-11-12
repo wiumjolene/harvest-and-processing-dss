@@ -59,7 +59,7 @@ class Individual:
         return ind_fitness
 
     def make_individual(self, get_dlist=True, dlist=dlistt):
-        """ Function to make problem specific  individual solution """
+        """ Function to make problem specific individual solution """
 
         self.logger.debug('-> make_individual')
 
@@ -72,7 +72,8 @@ class Individual:
            
         else:  # Or use custom list
             dlist_allocate = dlist
-
+        
+        self.logger.debug('--> import options')
         ddf_he = options.demand_harvest()
         ddf_he['evaluated'] = 0
         ddf_pc = options.demand_capacity()
@@ -82,8 +83,10 @@ class Individual:
         dic_speed = options.speed()
 
         individualdf = pd.DataFrame()
-
+        self.logger.debug(f"--> loop through new dlist_allocate ({len(dlist_allocate)})")
         while len(dlist_allocate) > 0:
+            #self.logger.debug(f"---> get new allocation")
+
             # Randomly choose which d to allocate first
             dpos = random.randint(0, len(dlist_allocate)-1)
             d = dlist_allocate[dpos]
@@ -308,7 +311,7 @@ class GeneticAlgorithmGenetics:
         #parent_df.to_excel(f"data/check/parent_{option_id}.xlsx")
         return parent_df
 
-    def mutation(self, df_mutate, times, test):
+    def mutation_OLD(self, df_mutate, times, test):
         """ GA mutation function to diversify gene pool. """
         
         self.logger.debug(f"-- mutation check")
@@ -351,7 +354,7 @@ class GeneticAlgorithmGenetics:
             
         return df_mutate1
 
-    def mutation_NEW(self, df_mutate, times, test):
+    def mutation(self, df_mutate, times, test):
         """ GA mutation function to diversify gene pool. """
         
         self.logger.debug(f"-- mutation check")
@@ -381,6 +384,7 @@ class GeneticAlgorithmGenetics:
                     
                     # Else get only gene alternate
                     else:  
+                        df_gene = df_mutate[df_mutate['time_id'] == m]
                         demand_list = list(df_gene.demand_id.unique())
                         df_gene = ix.make_individual(get_dlist=False, dlist=demand_list)
                         df_mutate1 = pd.concat([df_mutate1, df_gene]).reset_index(drop=True)
@@ -437,7 +441,7 @@ class GeneticAlgorithmGenetics:
             
         return df_mutate1
 
-    def crossover(self, fitness_df, alg, test=False, test_name='zdt1'):
+    def crossover_OLD(self, fitness_df, alg, test=False, test_name='zdt1'):
         """ GA crossover genetic material for diversification"""
         self.logger.debug(f"-- crossover")
 
@@ -509,7 +513,7 @@ class GeneticAlgorithmGenetics:
         fitness_df = pd.concat([fitness_df, child1_f, child2_f]).reset_index(drop=True)
         return fitness_df
 
-    def crossover_NEW(self, fitness_df, alg, test=False, test_name='zdt1'):
+    def crossover(self, fitness_df, alg, test=False, test_name='zdt1'):
         """ GA crossover genetic material for diversification """
         self.logger.debug(f"-- crossover")
 
