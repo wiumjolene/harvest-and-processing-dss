@@ -3,6 +3,7 @@ import datetime
 import logging
 import random
 from collections import defaultdict
+import os
 
 import numpy as np
 import pandas as pd
@@ -55,7 +56,9 @@ class Individual:
         ind_fitness = pd.DataFrame(fitness, columns=['obj1', 'obj2'])
         ind_fitness['id'] = number
         
-        indiv.to_pickle(f"data/interim/{alg_path}/id_{number}", protocol = 5) 
+        #indiv.to_pickle(f"data/interim/{alg_path}/id_{number}", protocol = 5) 
+        path=os.path.join('data','interim',f"{alg_path}",f"id_{number}")
+        indiv.to_pickle(path, protocol=5)
         return ind_fitness
 
     def make_individual(self, get_dlist=True, dlist=dlistt):
@@ -276,14 +279,12 @@ class GeneticAlgorithmGenetics:
 
         for _ in range(config.TOURSIZE):
             option_num = random.randint(0,len(fitness_df)-1)
-            #option_id = fitness_df.id[option_num]
-            #fit1 = fitness_df.obj1[option_num]
-            #fit2 = fitness_df.obj2[option_num]
 
             option_id = ids[option_num]
             fit1 = objs1[option_num]
             fit2 = objs2[option_num]
 
+            #if self.dominates((fit1, fit2), (high_fit1, high_fit2)):
             if ((fit1 <= high_fit1 and fit2 <= high_fit2) and (fit1 < high_fit1 or fit2 < high_fit2)):  
                 high_fit1 = fit1
                 high_fit2 = fit2
@@ -311,7 +312,7 @@ class GeneticAlgorithmGenetics:
         #parent_df.to_excel(f"data/check/parent_{option_id}.xlsx")
         return parent_df
 
-    def mutation_OLD(self, df_mutate, times, test):
+    def mutation_INDEXSCRAMBLE(self, df_mutate, times, test):
         """ GA mutation function to diversify gene pool. """
         
         self.logger.debug(f"-- mutation check")
@@ -364,84 +365,62 @@ class GeneticAlgorithmGenetics:
             self.logger.debug(f"--- mutation activated")
             
             df_mutate1=pd.DataFrame()
-            mutate = []
-            mutated_genes = []
+            #mutate = []
+            mutates = [] #new
+
+            times_check = list(df_mutate.time_id.unique())
+            if len(times) != len(times_check):
+                exit()
+           
+            times.sort()
+            df_mutate=df_mutate.sort_values(by=['time_id']).reset_index(drop=True)
+            #df_mutate['status'] = 'original'
+
+            #print(times)
+            #print(df_mutate)
+
             for m in times:
                 self.logger.debug(f"---- mutation for {m}")
-                update = 0
+                update = True
 
                 if random.random() < config.MUTATIONRATE2:
-                    update = 1
+                    update = False
                     
-                    # If test then make new gene here
-                    if test:
-                        x = np.random.rand()
-                        self.logger.debug(f"----> mutation for {m}: {x}")
-                        mutated_genes.append([x, m])
-                        #df_gene = pd.DataFrame(data=[x], columns=['value'])
-                        #df_gene['time_id'] = m
-                        #df_mutate1 = pd.concat([df_mutate1, df_gene]).reset_index(drop=True)
-                    
-                    # Else get only gene alternate
-                    else:  
-                        df_gene = df_mutate[df_mutate['time_id'] == m]
-                        demand_list = list(df_gene.demand_id.unique())
-                        df_gene = ix.make_individual(get_dlist=False, dlist=demand_list)
-                        df_mutate1 = pd.concat([df_mutate1, df_gene]).reset_index(drop=True)
-                        
-                mutate.append(update)
-
-            time_crossover = pd.DataFrame({'time_id': times,'filter': mutate})
-            df_mutate = pd.merge(df_mutate, time_crossover, on=['time_id'],how='left')
-            df_keep = df_mutate.loc[(df_mutate['filter'] == 0)]
-            df_keep = df_keep.drop(['filter'], axis=1)
-
-            if test:
-                df_mutate1 = pd.DataFrame(data=mutated_genes, columns=['value', 'time_id'])
-
-            df_mutate2 = pd.concat([df_mutate1, df_keep]).reset_index(drop=True)
-            
-        else:
-            self.logger.debug(f"--- mutation skipped")
-            df_mutate2 = df_mutate
-                        
-        return df_mutate2
-
-    def mutation_DEPRICATED(self, df_mutate, times, test):
-        """ GA mutation function to diversify gene pool. """
-        
-        self.logger.debug(f"-- mutation check")
-        ix = Individual()
-
-        if random.random() <= config.MUTATIONRATE:
-            self.logger.debug(f"--- mutation (DEPRICATED) activated")
-            
-            df_mutate1=pd.DataFrame()
-            for m in times:
-                df_gene = df_mutate[df_mutate['time_id'] == m]
-
-                if random.random() < config.MUTATIONRATE2:
                     # If test then make new gene here
                     if test:
                         x = np.random.rand()
                         df_gene = pd.DataFrame(data=[x], columns=['value'])
                         df_gene['time_id'] = m
+                        df_gene['status'] = 'mutated'
+                        df_mutate1 = pd.concat([df_mutate1, df_gene]).reset_index(drop=True)
                     
                     # Else get only gene alternate
-                    else:  
-                        demand_list = list(df_gene.demand_id.unique())
-                        df_gene = ix.make_individual(get_dlist=False, dlist=demand_list)  # FIXME:
-
-                df_mutate1 = pd.concat([df_mutate1, df_gene]).reset_index(drop=True)
-
-            #print(f"df_mutate1 - {len(df_mutate1)}")
+                    else: 
+                        df_gener =  df_mutate[df_mutate['time_id']==m] #new
+                        demand_list = list(df_gener.demand_id.unique())
+                        df_gene = ix.make_individual(get_dlist=False, dlist=demand_list)
+                        df_mutate1 = pd.concat([df_mutate1, df_gene]).reset_index(drop=True)
+                        
+                #mutate.append(update) # new
+                mutates.append([update, m])
+                
+            mutated = pd.DataFrame(data=mutates, columns=['mutate', 'time_id']) # new
+            df_mutate = pd.merge(df_mutate, mutated, on=['time_id'], how='left') # new
+            df_keep = df_mutate[df_mutate["mutate"]] # new
+            
+            df_mutate1 = pd.concat([df_mutate1, df_keep]).reset_index(drop=True)
+            df_mutate1=df_mutate1.drop(columns=['mutate'])
+            #print(df_mutate1)
 
         else:
             df_mutate1 = df_mutate
-            
+
+        path=os.path.join('data','raw', f"mutation.xlsx")
+        #df_mutate1.to_excel(path)
+
         return df_mutate1
 
-    def crossover_OLD(self, fitness_df, alg, test=False, test_name='zdt1'):
+    def crossover_INDEXSCRAMBLE(self, fitness_df, alg, test=False, test_name='zdt1'):
         """ GA crossover genetic material for diversification"""
         self.logger.debug(f"-- crossover")
 
@@ -486,6 +465,16 @@ class GeneticAlgorithmGenetics:
         child1 = pd.concat([child1a,child2b]).reset_index(drop=True)
         child2 = pd.concat([child1b,child2a]).reset_index(drop=True)
 
+        path=os.path.join('data','raw', f"parent1.xlsx")
+        #parent1.to_excel(path)
+        path=os.path.join('data','raw', f"parent2.xlsx")
+        #parent2.to_excel(path)
+
+        path=os.path.join('data','raw', f"child1.xlsx")
+        #child1.to_excel(path)
+        path=os.path.join('data','raw', f"child2.xlsx")
+        #child2.to_excel(path)
+
         # If test then make new test individual gene
         if test:
             # Bring mutatation opportunity in
@@ -514,128 +503,64 @@ class GeneticAlgorithmGenetics:
         return fitness_df
 
     def crossover(self, fitness_df, alg, test=False, test_name='zdt1'):
-        """ GA crossover genetic material for diversification """
-        self.logger.debug(f"-- crossover")
-
-        ix = Individual()
-        max_id = fitness_df.id.max()
-
-        if test:
-            times = list(range(config.D))
-
-        else:
-            ddf_metadata = pd.read_pickle('data/processed/ddf_metadata')
-            times = list(ddf_metadata.time_id.unique())
-
-        # Select parents with tournament
-        pareto_df = fitness_df[fitness_df['population'] != 'none'].reset_index(drop=True)
-        parent1 = self.tournament_selection(pareto_df, alg)
-        parent2 = self.tournament_selection(pareto_df, alg)
-
-        # Uniform crossover 
-        self.logger.debug(f"--- uniform crossover")
-        
-        filter = []      
-        for _ in times:
-            if random.random() < config.CROSSOVERRATE:
-                filter.append(1)
-            
-            else:
-                filter.append(0)
-
-        time_crossover = pd.DataFrame(
-            {'time_id': times,
-            'filter': filter
-            })
-
-        parent1 = pd.merge(parent1, time_crossover, on=['time_id'],how='left')
-        parent1['parent'] = 'parent1'
-
-        parent2 = pd.merge(parent2, time_crossover, on=['time_id'],how='left')
-        parent2['parent'] = 'parent2'
-
-        child1a = parent1.loc[(parent1['filter'] == 1)]
-        child1b = parent1.loc[(parent1['filter'] == 0)]
-        child2a = parent2.loc[(parent2['filter'] == 1)]
-        child2b = parent2.loc[(parent2['filter'] == 0)]
-
-        child1 = pd.concat([child1a,child2b]).reset_index(drop=True)
-        child2 = pd.concat([child1b,child2a]).reset_index(drop=True)
-
-        child1 = child1.drop(['filter'], axis=1)
-        child2 = child2.drop(['filter'], axis=1)
-
-        # If test then make new test individual gene
-        if test:
-            # Bring mutatation opportunity in
-            child1 = self.mutation(child1, times, test=test)
-            child2 = self.mutation(child2, times, test=test)
-
-            # Register child on fitness_df
-            child1_f = ix.individual(max_id+1, alg, get_indiv=False, indiv=child1, 
-                            test=test, test_name=test_name)
-            child2_f = ix.individual(max_id+2, alg, get_indiv=False, indiv=child2, 
-                            test=test, test_name=test_name) 
-
-        else:
-           # Bring mutatation opportunity in
-            child1 = self.mutation(child1, times, test=False)
-            child2 = self.mutation(child2, times, test=False)
-
-            # Register child on fitness_df
-            child1_f = ix.individual(max_id+1, alg, get_indiv=False, indiv=child1)
-            child2_f = ix.individual(max_id+2, alg, get_indiv=False, indiv=child2)
-
-        child1_f['population'] = 'child'
-        child2_f['population'] = 'child'
-
-        fitness_df = pd.concat([fitness_df, child1_f, child2_f]).reset_index(drop=True)
-        return fitness_df
-
-    def crossover_DEPRICATED(self, fitness_df, alg, test=False, test_name='zdt1'):
         """ GA crossover genetic material for diversification"""
         self.logger.debug(f"-- crossover")
 
         ix = Individual()
         max_id = fitness_df.id.max()
 
-        if test:
-            times = list(range(config.D))
-
-        else:
-            ddf_metadata = pd.read_pickle('data/processed/ddf_metadata')
-            times = list(ddf_metadata.time_id.unique())
-
         # Select parents with tournament
-        #if alg == 'zdt1/nsga2':  # TODO: make universal
-        if alg == '':
-            pareto_df = fitness_df[fitness_df['front'] == 1].reset_index(drop=True)
-            parent1 = self.nondom_selection(pareto_df, alg)
-            parent2 = self.nondom_selection(pareto_df, alg)
+        #pareto_df = fitness_df[fitness_df['population'] != 'none'].reset_index(drop=True)
+        parent1 = self.tournament_selection(fitness_df, alg)
+        parent2 = self.tournament_selection(fitness_df, alg)
 
-        else:
-            pareto_df = fitness_df[fitness_df['population'] != 'none'].reset_index(drop=True)
-            parent1 = self.tournament_selection(pareto_df, alg)
-            parent2 = self.tournament_selection(pareto_df, alg)
+        #parent1 = self.nondom_selection(pareto_df, alg)
+        #parent2 = self.nondom_selection(pareto_df, alg)
+
+        parent1['status'] = 'parent1'
+        parent2['status'] = 'parent2'
+
+        times = list(parent1.time_id.unique())
+        times_check = list(parent2.time_id.unique())
+
+        if len(times) != len(times_check):
+            exit()
 
         # Uniform crossover 
         self.logger.debug(f"--- uniform crossover")
-        # FIXME: Not sure if this will work for real problem as 
-        # times = unique and there might be several for one time?
-
-        child1=pd.DataFrame()
-        child2=pd.DataFrame()
-        for g in times:
-            gene1 = parent1[parent1['time_id']==g]
-            gene2 = parent2[parent2['time_id']==g]
-            
+        
+        crossover = []      
+        for _ in times:
             if random.random() < config.CROSSOVERRATE:
-                child1 = pd.concat([child1,gene2]).reset_index(drop=True)
-                child2 = pd.concat([child2,gene1]).reset_index(drop=True)
-
+                crossover.append([True, _])
+            
             else:
-                child1 = pd.concat([child1,gene1]).reset_index(drop=True)
-                child2 = pd.concat([child2,gene2]).reset_index(drop=True)                
+                crossover.append([False, _])
+                
+        crossoverd = pd.DataFrame(data=crossover, columns=['crossover', 'time_id']) # new
+        parent1 = pd.merge(parent1, crossoverd, on=['time_id'], how='left') # new
+        parent2 = pd.merge(parent2, crossoverd, on=['time_id'], how='left') # new
+
+        child1a = parent1[parent1["crossover"]] # new
+        child1b = parent1[~parent1["crossover"]] # new
+        child2a = parent2[parent2["crossover"]] # new
+        child2b = parent2[~parent2["crossover"]] # new
+
+        child1 = pd.concat([child1a,child2b]).reset_index(drop=True)
+        child2 = pd.concat([child1b,child2a]).reset_index(drop=True)
+
+        child1=child1.drop(columns=['crossover'])
+        child2=child2.drop(columns=['crossover'])
+
+        path=os.path.join('data','raw', f"parent1.xlsx")
+        #parent1.to_excel(path)
+        path=os.path.join('data','raw', f"parent2.xlsx")
+        #parent2.to_excel(path)
+
+        path=os.path.join('data','raw', f"child1.xlsx")
+        #child1.to_excel(path)
+        path=os.path.join('data','raw', f"child2.xlsx")
+        #child2.to_excel(path)
 
         # If test then make new test individual gene
         if test:
@@ -644,7 +569,6 @@ class GeneticAlgorithmGenetics:
             child2 = self.mutation(child2, times, test=test)
 
             # Register child on fitness_df
-            #print(test_name)
             child1_f = ix.individual(max_id+1, alg, get_indiv=False, indiv=child1, 
                             test=test, test_name=test_name)
             child2_f = ix.individual(max_id+2, alg, get_indiv=False, indiv=child2, 
@@ -663,9 +587,15 @@ class GeneticAlgorithmGenetics:
         child2_f['population'] = 'child'
 
         fitness_df = pd.concat([fitness_df, child1_f, child2_f]).reset_index(drop=True)
+
+        path=os.path.join('data','raw', f"child1_m.xlsx")
+        #child1.to_excel(path)
+        path=os.path.join('data','raw', f"child2_m.xlsx")
+        #child2.to_excel(path)
+
         return fitness_df
 
-    def dominates(objset1, objset2, sign=[1, 1]):
+    def dominates_TRUNCATE(objset1, objset2, sign=[1, 1]):
         """
         Return true if each objective of *self* is not strictly worse than
                 the corresponding objective of *other* and at least one objective is
@@ -680,7 +610,6 @@ class GeneticAlgorithmGenetics:
         :type sign: list
         FROM DEAP
         """
-        #print(f"{objset1[0]},{objset1[1]} - {objset1[0]},{objset2[1]}")
         indicator = False
         for a, b, sign in zip(objset1, objset2, sign):
             if a * sign < b * sign:
@@ -688,6 +617,10 @@ class GeneticAlgorithmGenetics:
             # if one of the objectives is dominated, then return False
             elif a * sign > b * sign:
                 return False
+
+            elif a * sign == b * sign:
+                return False
+                
         return indicator
 
 

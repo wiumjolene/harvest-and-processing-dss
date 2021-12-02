@@ -17,13 +17,13 @@ class MainController:
     """ Decide which parts of the module to update. """
     logger = logging.getLogger(f"{__name__}.MainController")
     synch_data = False
-    make_data = True
+    make_data = False
 
     vega = False
     nsga2 = True
     moga = False
 
-    test_fxn = False
+    test_fxn = True
     tests = ['zdt1', 'zdt2', 'zdt3']
     tests = ['zdt1']
 

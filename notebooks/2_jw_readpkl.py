@@ -25,10 +25,10 @@ infile = open(path + r'\data\processed\dic_speed','rb')
 dic_speed = pickle.load(infile)
 infile.close()
 
-print(dic_speed)
+#print(dic_speed)
 
 #infile = open(f"{path}\data\interim\nsga2\id_0",'rb')
-infile = open(path + r'\data\interim\nsga2\id_0','rb')
+infile = open(path + r'\data\interim\nsga2\id_1138','rb')
 individualdf = pickle.load(infile)
 infile.close()
 

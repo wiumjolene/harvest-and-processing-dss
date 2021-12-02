@@ -18,6 +18,7 @@ class CreateOptions:
         df_dp = self.get_demand_plan()
         df_he = self.get_harvest_estimate()
         df_pc = self.get_pack_capacity()
+        #print(df_pc)
         self.get_from_to()
         self.get_speed()
 
@@ -69,21 +70,33 @@ class CreateOptions:
                                             'ready': ready}})
 
         # Save nb datasets to processed for use in algorithms
-        outfile = open('data/processed/ddic_dp','wb') #FIXME: Why is the name and the dic different?
+        path = os.path.join('data','processed','ddic_dp')
+        #outfile = open('data/processed/ddic_dp','wb') #FIXME: Why is the name and the dic different?
+        outfile = open(path,'wb') #FIXME: Why is the name and the dic different?
         pickle.dump(ddic_metadata,outfile)
         outfile.close()
 
-        outfile = open('data/processed/ddic_metadata','wb')
+        path = os.path.join('data','processed','ddic_metadata')
+        #outfile = open('data/processed/ddic_metadata','wb')
+        outfile = open(path,'wb')
         pickle.dump(ddic_metadata,outfile)
         outfile.close()
 
-        df_dp.to_pickle('data/processed/ddf_metadata')
+        path = os.path.join('data','processed','ddf_metadata')
+        #df_dp.to_pickle('data/processed/ddf_metadata')
+        df_dp.to_pickle(path)
 
-        ddf_he.to_pickle('data/processed/ddf_he')
+        #ddf_he.to_pickle('data/processed/ddf_he')
+        path = os.path.join('data','processed','ddf_he')
+        ddf_he.to_pickle(path)
 
-        ddf_pc.to_pickle('data/processed/ddf_pc')
+        #ddf_pc.to_pickle('data/processed/ddf_pc')
+        path = os.path.join('data','processed','ddf_pc')
+        ddf_pc.to_pickle(path)
 
-        outfile = open('data/processed/dlist_ready','wb')
+        #outfile = open('data/processed/dlist_ready','wb')
+        path = os.path.join('data','processed','dlist_ready')
+        outfile = open(path,'wb')
         pickle.dump(dlist_ready,outfile)
         outfile.close()
 
@@ -140,7 +153,9 @@ class CreateOptions:
         df_he['kg_rem'] = df_he['kg']
 
         he_dic = df_he.to_dict(orient='index')
-        outfile = open('data/processed/he_dic','wb')
+
+        path = os.path.join('data','processed','he_dic')
+        outfile = open(path,'wb')
         pickle.dump(he_dic,outfile)
         outfile.close()
         return df_he
@@ -166,11 +181,14 @@ class CreateOptions:
         df_pc = self.database_instance.select_query(query_str=s)
         df_pc = df_pc.set_index('id')
         df_pc['id'] = df_pc.index
-        df_pc['stdunits'] = df_pc['kg'] / config.STDUNIT
+        #df_pc['stdunits'] = df_pc['kg'] / config.STDUNIT
+        df_pc['kg'] = df_pc['stdunits'] * config.STDUNIT
         df_pc['kg_rem'] = df_pc['kg']
         
         pc_dic = df_pc.to_dict(orient='index')
-        outfile = open('data/processed/pc_dic','wb')
+        path = os.path.join('data','processed','pc_dic')
+        #outfile = open('data/processed/pc_dic','wb')
+        outfile = open(path,'wb')
         pickle.dump(pc_dic,outfile)
         outfile.close()
         return df_pc 
@@ -181,10 +199,14 @@ class CreateOptions:
 
         s = """SELECT packhouse_id,
                 block_id,
-                km FROM dss.f_from_to;"""
+                km 
+                FROM dss.f_from_to
+                WHERE allowed=1;"""
 
         df_ft = self.database_instance.select_query(query_str=s)
-        df_ft.to_pickle('data/processed/ft_df')
+        path = os.path.join('data','processed','ft_df')
+        df_ft.to_pickle(path)
+        #df_ft.to_pickle('data/processed/ft_df')
         
         return  
 
@@ -218,7 +240,9 @@ class CreateOptions:
                 dic_packtypes.update({pt:dic_vas})
             dic_speed.update({p:dic_packtypes})
 
-        outfile = open('data/processed/dic_speed','wb')
+        path = os.path.join('data','processed','dic_speed')
+        outfile = open(path,'wb')
+        #outfile = open('data/processed/dic_speed','wb')
         pickle.dump(dic_speed,outfile)
         outfile.close()
         return
@@ -231,49 +255,65 @@ class ImportOptions:
     path = os.path.dirname(path)
 
     def demand_harvest(self):
-        infile = open(f"{self.path}/data/processed/ddf_he",'rb')
+        #infile = open(f"{self.path}/data/processed/ddf_he",'rb')
+        path=os.path.join('data','processed','ddf_he')
+        infile = open(path,'rb')
         data = pickle.load(infile)
         infile.close()
         return data
 
     def demand_capacity(self):
-        infile = open(f"{self.path}/data/processed/ddf_pc",'rb')
+        path=os.path.join('data','processed','ddf_pc')
+        infile = open(path,'rb')
+        #infile = open(f"{self.path}/data/processed/ddf_pc",'rb')
         data = pickle.load(infile)
         infile.close()
         return data
 
     def demand_metadata(self):
-        infile = open(f"{self.path}/data/processed/ddic_metadata",'rb')
+        path=os.path.join('data','processed','ddic_metadata')
+        infile = open(path,'rb')
+        #infile = open(f"{self.path}/data/processed/ddic_metadata",'rb')
         data = pickle.load(infile)
         infile.close()
         return data
 
     def demand_ready(self):
-        infile = open(f"{self.path}/data/processed/dlist_ready",'rb')
+        path=os.path.join('data','processed','dlist_ready')
+        infile = open(path,'rb')
+        #infile = open(f"{self.path}/data/processed/dlist_ready",'rb')
         data = pickle.load(infile)
         infile.close()
         return data
 
     def harvest_estimate(self):
-        infile = open(f"{self.path}/data/processed/he_dic",'rb')
+        path=os.path.join('data','processed','he_dic')
+        infile = open(path,'rb')
+        #infile = open(f"{self.path}/data/processed/he_dic",'rb')
         data = pickle.load(infile)
         infile.close()
         return data
 
     def pack_capacity(self):
-        infile = open(f"{self.path}/data/processed/pc_dic",'rb')
+        path=os.path.join('data','processed','pc_dic')
+        infile = open(path,'rb')
+        #infile = open(f"{self.path}/data/processed/pc_dic",'rb')
         data = pickle.load(infile)
         infile.close()
         return data
 
     def from_to(self):
-        infile = open(f"{self.path}/data/processed/ft_df",'rb')
+        #infile = open(f"{self.path}/data/processed/ft_df",'rb')
+        path=os.path.join('data','processed','ft_df')
+        infile = open(path,'rb')
         data = pickle.load(infile)
         infile.close()
         return data
 
     def speed(self):
-        infile = open(f"{self.path}/data/processed/dic_speed",'rb')
+        #infile = open(f"{self.path}/data/processed/dic_speed",'rb')
+        path=os.path.join('data','processed','dic_speed')
+        infile = open(path,'rb')
         data = pickle.load(infile)
         infile.close()
         return data
@@ -296,6 +336,7 @@ class PrepManPlan:
             SELECT f_from_to.packhouse_id, dim_block.fc_id, AVG(km) as km
             FROM dss.f_from_to
             LEFT JOIN dss.dim_block ON (dim_block.id = f_from_to.block_id)
+            WHERE allowed=1
             GROUP BY f_from_to.packhouse_id, dim_block.fc_id;
         """
         df = self.database_instance.select_query(query_str=sql_query)

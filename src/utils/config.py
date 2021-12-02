@@ -16,15 +16,15 @@ ZAR_KM=3.16/1000
 ########################################################
 # GA CONFIG
 ########################################################
-TOURSIZE=3  # NB NSGI2 requires binary tournament selection
-MUTATIONRATE=0.05
-MUTATIONRATE2=0.05
-#MUTATIONRATE=1
-#MUTATIONRATE2=0.1
-CROSSOVERRATE=0.6
-POPUATION=10 #TODO:
-ITERATIONS=300 #TODO:
+TOURSIZE=2  # NB NSGI2 requires binary tournament selection
 
+MUTATIONRATE=0.12
+MUTATIONRATE2=0.08
+
+CROSSOVERRATE=0.5
+
+POPUATION=120 #TODO:
+ITERATIONS=20000 #TODO:
 
 ########################################################
 # MOGA CONFIG

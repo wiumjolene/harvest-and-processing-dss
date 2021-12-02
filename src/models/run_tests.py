@@ -4,7 +4,7 @@ import os
 
 import numpy as np
 import pandas as pd
-import pingouin
+#import pingouin
 
 from src.features.build_features import (GeneticAlgorithmGenetics, Individual,
                                          ParetoFeatures)
@@ -61,9 +61,6 @@ class RunTests:
 
             fitness_df = self.gag.crossover(fitness_df, alg_path, test=True, test_name=test_name)
 
-            #fitness_df = fitness_df.drop_duplicates(['obj1', 'obj2'], keep='first').reset_index(drop=True)
-            #fitness_df=fitness_df.groupby(['obj1', 'obj2'])['id'].min().reset_index(drop=False)
-
             self.logger.debug(f"- initiate pareto check")
             if alg == 'vega':
                 fitness_df = self.ga1.pareto_vega(fitness_df)
@@ -79,9 +76,15 @@ class RunTests:
 
         max_id = fitness_df.id.max() + 1
         t=Tests()
+
         # Get pareto optimal set
         for pp in range(config.POPUATION):
             x = np.random.rand(config.D)
+            pareto_indivst=pd.DataFrame(data=x,columns=['value'])
+            pareto_indivst['time_id']=pareto_indivst.index
+            pareto_indivst['id']=max_id + pp
+            path=os.path.join('data','interim',f"{alg_path}",f"id_{max_id + pp}")
+            pareto_indivst.to_pickle(path, protocol=5)
 
             # Choose which test to use
             if test_name == 'zdt1':
@@ -101,7 +104,7 @@ class RunTests:
         
         init_pop['population'] = 'initial'
         #fitness_df=fitness_df.append(init_pop).reset_index(drop=True)
-        
+
         if config.SHOW:
             self.graph.scatter_plot2(fitness_df, filename_html, 'population', f"{alg_path}-final")
 
@@ -133,7 +136,7 @@ class RunTests:
 
         hyperarea.to_excel(f"data/interim/{test}/hyperarea_{alg}.xlsx", index=False)
         stats = StatsTests()
-        stats.run_friedman(hyperarea, alg, test)
+        #stats.run_friedman(hyperarea, alg, test)
         return monitor
 
 
@@ -152,22 +155,22 @@ class StatsTests:
         hypothesis indicates that one of the paired 
         samples has a different distribution.
         """
-        pgRes = pingouin.friedman(data=hyperarea,
-                        dv='hyperarea',
-                        within='population',
-                        subject='sample',
-                        method='chisq'
-                        #method='f'
-                        )
+        #pgRes = pingouin.friedman(data=hyperarea,
+        #                dv='hyperarea',
+        #                within='population',
+        #                subject='sample',
+        #                method='chisq'
+        #                #method='f'
+        #                )
 
-        print(pgRes)
+        #print(pgRes)
 
-        alpha = 0.05
-        if pgRes['p-unc'][0] > alpha:
-            print('Same distributions (fail to reject H0)')
-        else:
-            print('Different distributions (reject H0)')
+        #alpha = 0.05
+        #if pgRes['p-unc'][0] > alpha:
+        #    print('Same distributions (fail to reject H0)')
+        #else:
+        #    print('Different distributions (reject H0)')
 
-        pgRes.to_excel(f"data/interim/{test}/result_friedman_{alg}.xlsx")
+        #pgRes.to_excel(f"data/interim/{test}/result_friedman_{alg}.xlsx")
 
         return

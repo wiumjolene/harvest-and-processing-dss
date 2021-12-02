@@ -97,11 +97,6 @@ class GeneticAlgorithmNsga2:
         init_pop = p.population(config.POPUATION * 2, 'nsga2')
         fitness_df = init_pop
 
-        # Make child pop out of main population
-        #while len(fitness_df) < (config.POPUATION * 2):
-        #    fitness_df = self.gag.crossover(fitness_df, 'nsga2')
-        #    self.logger.debug(f"making child pop 2n {len(fitness_df)}")
-
         fitness_df['population'] = 'yes'
 
         self.logger.debug(f"starting NSGA2 search")
@@ -140,8 +135,6 @@ class GeneticAlgorithmNsga2:
         #fitness_df.to_excel('three.xlsx')
         fitness_dff = fitness_df[fitness_df['front']==fc].reset_index(drop=True)
         fitness_dff['cdist'] = 0
-
-        #print(fitness_dff)
         
         # Evaluate how much space is available for the crowding distance
         if fc==1:
@@ -184,6 +177,7 @@ class GeneticAlgorithmNsga2:
                         
         fitness_dff = fitness_dff.sort_values(by=['cdist'], ascending=False).reset_index(drop=True)
         fitness_dff.loc[(fitness_dff.index < (space - 1)),'population'] = 'yes'
+        fitness_dff=fitness_dff[fitness_dff.index < (space - 1)]
 
         fitness_df2 = fitness_df[fitness_df['front']!=fc].reset_index(drop=True)
         fitness_df3 = pd.concat([fitness_df2, fitness_dff]).reset_index(drop=True)
@@ -194,7 +188,6 @@ class GeneticAlgorithmNsga2:
         return fitness_df3
 
     def crowding_distance_DEPRICATED(self, fitness_df, fc, size):
-        # TODO: Use 'at' instead of loc to improve speed
         """ Crowding distance sorting """ 
         self.logger.debug(f"-- crowding distance activated")
 
@@ -210,7 +203,6 @@ class GeneticAlgorithmNsga2:
         objs = ['obj1', 'obj2']
         fitness_df['cdist'] = 0
         for m in objs:
-            # Sort by objective (m) 
             df = fitness_dff.sort_values(by=m, ascending=True).reset_index(drop=True) 
 
             for i in range(len(df)):
@@ -259,13 +251,15 @@ class GeneticAlgorithmNsga2:
                 obj1x = obj1s[i + ix + 1]
                 obj2x = obj2s[i + ix + 1]
                 
-                if build_features.GeneticAlgorithmGenetics.dominates((obj1, obj2), (obj1x, obj2x)):
-                #if ((obj1 <= obj1x and obj2 <= obj2x) and (obj1 < obj1x or obj2 < obj2x)):
+                #if build_features.GeneticAlgorithmGenetics.dominates((obj1, obj2), (obj1x, obj2x)):
+                if ((obj1 <= obj1x and obj2 <= obj2x) and (obj1 < obj1x or obj2 < obj2x)):
+                #if (obj1 < obj1x and obj2 < obj2x):
                     dominating_fits[i + ix + 1] += 1 
                     dominated_fits[id].append(idx) 
 
-                if build_features.GeneticAlgorithmGenetics.dominates((obj1x, obj2x), (obj1, obj2)):
-                #if ((obj1 >= obj1x and obj2 >= obj2x) and (obj1 > obj1x or obj2 > obj2x)):
+                #if build_features.GeneticAlgorithmGenetics.dominates((obj1x, obj2x), (obj1, obj2)):
+                if ((obj1 >= obj1x and obj2 >= obj2x) and (obj1 > obj1x or obj2 > obj2x)):
+                #if (obj1 > obj1x and obj2 > obj2x):
                     dominating_fits[i] += 1
                     dominated_fits[idx].append(id)    
 
@@ -286,6 +280,7 @@ class GeneticAlgorithmNsga2:
         self.logger.debug(f"-- getting domcount")
 
         fitness_df = fitness_df[['id','obj1','obj2']]
+        fitness_df=fitness_df.drop_duplicates(subset=['id','obj1','obj2'], keep='last')
         doms = self.get_domcount(fitness_df)
         fitness_df = doms[0]
         front = doms[1]
@@ -333,8 +328,6 @@ class GeneticAlgorithmNsga2:
 
                 # Only for as many fronts as needed to fill popsize
                 if ((size + len(front)) > config.POPUATION and len(q1) > 0):
-                #if ((size + len(front)) > config.POPUATION and len(front) > 0):
-                # TODO: This migh be an issue: check len(q1)
                     fitness_df=self.crowding_distance(fitness_df, fc, size)
                     front = []
                     q1 = []
