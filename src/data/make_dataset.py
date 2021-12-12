@@ -106,7 +106,8 @@ class CreateOptions:
         """ Extract demand requirement from database. """
         self.logger.info('- get_demand_plan')
 
-        s = f"""SELECT 
+        s = f"""
+        SELECT 
                 fdp.id,
                 fdp.client_id,
                 fdp.vacat_id,
@@ -120,9 +121,9 @@ class CreateOptions:
             FROM
                 dss.f_demand_plan fdp
                     LEFT JOIN
-                dim_week w ON (fdp.packweek = w.week);
+                dim_week w ON (fdp.packweek = w.week)
+                WHERE packweek in ('21-50','21-51','21-52','22-01');
             """
-            # FIXME: Checks week id
 
         df_dp = self.database_instance.select_query(query_str=s)
         df_dp['kg'] = df_dp['stdunits'] * config.STDUNIT * (1 + config.GIVEAWAY)
@@ -134,16 +135,20 @@ class CreateOptions:
         """ Get harvest estimate. """
         self.logger.info('- get_harvest_estimate')
 
-        s= f"""SELECT he.id
+        s= f"""
+            SELECT he.id
                 , he.va_id
                 , va.vacat_id
                 , he.block_id
                 , w.id AS time_id
                 , he.kg_raw as kg
             FROM dss.f_harvest_estimate he
-            LEFT JOIN dim_week w ON he.packweek = w.week
-            LEFT JOIN dim_va va ON he.va_id = va.id
-            WHERE kg_raw>0;
+            LEFT JOIN dim_week w ON (he.packweek = w.week)
+            LEFT JOIN dim_va va ON (he.va_id = va.id)
+            LEFT JOIN dim_block ON (he.block_id = dim_block.id)
+            LEFT JOIN dim_fc ON (dim_block.fc_id=dim_fc.id)
+            WHERE kg_raw>0
+            AND dim_fc.packtopackplans=1;
             """
 
         df_he = self.database_instance.select_query(query_str=s)
@@ -385,6 +390,8 @@ class PrepManPlan:
             -- WHERE extract_datetime = '2021-11-08 13:29:36'
             WHERE recordtype = 'PLANNED'
             AND extract_datetime = (SELECT MAX(extract_datetime) FROM dss.planning_data)
+            AND f_pack_capacity.stdunits is not null
+            AND pd.packweek in ('21-50','21-51','21-52','22-01');
         """
         
         df = self.database_instance.select_query(query_str=sql_query)

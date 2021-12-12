@@ -54,12 +54,17 @@ class RunTests:
 
         filename_html = f"reports/figures/genetic_algorithm_{test_name}_{alg}.html"
 
+        #avobs=[]
         for i in range(config.ITERATIONS):
             self.logger.info(f"ITERATION {i}")
 
             self.logger.debug(f"- starting crossover")
 
             fitness_df = self.gag.crossover(fitness_df, alg_path, test=True, test_name=test_name)
+            av_obj1=fitness_df['obj1'].mean()
+            av_obj2=fitness_df['obj2'].mean()
+            #avobs.append([av_obj1,av_obj2])
+
 
             self.logger.debug(f"- initiate pareto check")
             if alg == 'vega':
@@ -105,6 +110,9 @@ class RunTests:
         init_pop['population'] = 'initial'
         #fitness_df=fitness_df.append(init_pop).reset_index(drop=True)
 
+        #avobsdf=pd.DataFrame(data=avobs,columns=['obj1','obj2'])
+        #avobsdf.to_excel('avobsdf.xlsx')
+        
         if config.SHOW:
             self.graph.scatter_plot2(fitness_df, filename_html, 'population', f"{alg_path}-final")
 

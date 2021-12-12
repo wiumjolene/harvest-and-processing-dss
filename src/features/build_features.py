@@ -160,6 +160,7 @@ class Individual:
 
                             try:
                                 speed = dic_speed[packhouse_id][packtype_id][va_id]
+                                
                             except:
                                 speed = 12
 
@@ -262,6 +263,17 @@ class Population:
 class GeneticAlgorithmGenetics:
     logger = logging.getLogger(f"{__name__}.GeneticAlgorithmGenetics")
 
+
+    def selection(self, fitness_df, alg):
+
+        if config.SELECTION == 'tournament':
+            fitness_df=self.tournament_selection(fitness_df, fitness_df, alg)
+
+        if config.SELECTION == 'nondom':
+            fitness_df=self.nondom_selection(fitness_df, fitness_df, alg)
+
+        return fitness_df 
+
     def tournament_selection(self, fitness_df, alg):
         """ 
         GA: choose parents to take into crossover
@@ -269,6 +281,7 @@ class GeneticAlgorithmGenetics:
         """
         self.logger.debug(f"--- tournament_selection")
         fitness_df=fitness_df[fitness_df['population']!='none'].reset_index(drop=True)
+        #fitness_df=fitness_df[fitness_df['front']==1].reset_index(drop=True)
 
         high_fit1 = np.inf 
         high_fit2 = np.inf 
@@ -312,7 +325,7 @@ class GeneticAlgorithmGenetics:
         #parent_df.to_excel(f"data/check/parent_{option_id}.xlsx")
         return parent_df
 
-    def mutation_INDEXSCRAMBLE(self, df_mutate, times, test):
+    def mutation_TRUNCATE(self, df_mutate, times, test):
         """ GA mutation function to diversify gene pool. """
         
         self.logger.debug(f"-- mutation check")
@@ -368,9 +381,6 @@ class GeneticAlgorithmGenetics:
             #mutate = []
             mutates = [] #new
 
-            times_check = list(df_mutate.time_id.unique())
-            if len(times) != len(times_check):
-                exit()
            
             times.sort()
             df_mutate=df_mutate.sort_values(by=['time_id']).reset_index(drop=True)
@@ -420,7 +430,7 @@ class GeneticAlgorithmGenetics:
 
         return df_mutate1
 
-    def crossover_INDEXSCRAMBLE(self, fitness_df, alg, test=False, test_name='zdt1'):
+    def crossover_TRUNCATE(self, fitness_df, alg, test=False, test_name='zdt1'):
         """ GA crossover genetic material for diversification"""
         self.logger.debug(f"-- crossover")
 
@@ -502,7 +512,7 @@ class GeneticAlgorithmGenetics:
         fitness_df = pd.concat([fitness_df, child1_f, child2_f]).reset_index(drop=True)
         return fitness_df
 
-    def crossover(self, fitness_df, alg, test=False, test_name='zdt1'):
+    def crossover_BITFLIP(self, fitness_df, alg, test=False, test_name='zdt1'):
         """ GA crossover genetic material for diversification"""
         self.logger.debug(f"-- crossover")
 
@@ -511,11 +521,11 @@ class GeneticAlgorithmGenetics:
 
         # Select parents with tournament
         #pareto_df = fitness_df[fitness_df['population'] != 'none'].reset_index(drop=True)
-        parent1 = self.tournament_selection(fitness_df, alg)
-        parent2 = self.tournament_selection(fitness_df, alg)
+        #parent1 = self.tournament_selection(fitness_df, alg)
+        #parent2 = self.tournament_selection(fitness_df, alg)
 
-        #parent1 = self.nondom_selection(pareto_df, alg)
-        #parent2 = self.nondom_selection(pareto_df, alg)
+        parent1 = self.nondom_selection(fitness_df, alg)
+        parent2 = self.nondom_selection(fitness_df, alg)
 
         parent1['status'] = 'parent1'
         parent2['status'] = 'parent2'
@@ -594,6 +604,111 @@ class GeneticAlgorithmGenetics:
         #child2.to_excel(path)
 
         return fitness_df
+
+    def crossover_CROSSGEN(self, fitness_df, alg, test=False, test_name='zdt1'):
+        """ GA crossover genetic material for diversification"""
+        self.logger.debug(f"-- crossover")
+
+        ix = Individual()
+        max_id = fitness_df.id.max()
+
+        # Select parents with tournament
+        #pareto_df = fitness_df[fitness_df['population'] != 'none'].reset_index(drop=True)
+        #parent1 = self.tournament_selection(fitness_df, alg)
+        #parent2 = self.tournament_selection(fitness_df, alg)
+
+        parent1 = self.nondom_selection(fitness_df, alg)
+        parent2 = self.nondom_selection(fitness_df, alg)
+
+        parent1['status'] = 'parent1'
+        parent2['status'] = 'parent2'
+
+        times = list(parent1.time_id.unique())
+        times_check = list(parent2.time_id.unique())
+
+        if len(times) != len(times_check):
+            exit()
+
+        # Uniform crossover 
+        self.logger.debug(f"--- uniform crossover")
+        
+        #times=[110,1,2,3,4,5,6,7,8,9]
+        crossover = []
+        r = random.randint(0, len(times)-1)
+
+        for count, _ in enumerate(times):
+            if count <= r:
+                crossover.append([True, _])
+            
+            else:
+                crossover.append([False, _])
+                
+        crossoverd = pd.DataFrame(data=crossover, columns=['crossover', 'time_id']) # new
+        parent1 = pd.merge(parent1, crossoverd, on=['time_id'], how='left') # new
+        parent2 = pd.merge(parent2, crossoverd, on=['time_id'], how='left') # new
+
+        child1a = parent1[parent1["crossover"]] # new
+        child1b = parent1[~parent1["crossover"]] # new
+        child2a = parent2[parent2["crossover"]] # new
+        child2b = parent2[~parent2["crossover"]] # new
+
+        child1 = pd.concat([child1a,child2b]).reset_index(drop=True)
+        child2 = pd.concat([child1b,child2a]).reset_index(drop=True)
+
+        child1=child1.drop(columns=['crossover'])
+        child2=child2.drop(columns=['crossover'])
+
+        path=os.path.join('data','raw', f"parent1.xlsx")
+        #parent1.to_excel(path)
+        path=os.path.join('data','raw', f"parent2.xlsx")
+        #parent2.to_excel(path)
+
+        path=os.path.join('data','raw', f"child1.xlsx")
+        #child1.to_excel(path)
+        path=os.path.join('data','raw', f"child2.xlsx")
+        #child2.to_excel(path)
+
+        # If test then make new test individual gene
+        if test:
+            # Bring mutatation opportunity in
+            child1 = self.mutation(child1, times, test=test)
+            child2 = self.mutation(child2, times, test=test)
+
+            # Register child on fitness_df
+            child1_f = ix.individual(max_id+1, alg, get_indiv=False, indiv=child1, 
+                            test=test, test_name=test_name)
+            child2_f = ix.individual(max_id+2, alg, get_indiv=False, indiv=child2, 
+                            test=test, test_name=test_name) 
+
+        else:
+           # Bring mutatation opportunity in
+            child1 = self.mutation(child1, times, test=False)
+            child2 = self.mutation(child2, times, test=False)
+
+            # Register child on fitness_df
+            child1_f = ix.individual(max_id+1, alg, get_indiv=False, indiv=child1)
+            child2_f = ix.individual(max_id+2, alg, get_indiv=False, indiv=child2)
+
+        child1_f['population'] = 'child'
+        child2_f['population'] = 'child'
+
+        fitness_df = pd.concat([fitness_df, child1_f, child2_f]).reset_index(drop=True)
+
+        path=os.path.join('data','raw', f"child1_m.xlsx")
+        #child1.to_excel(path)
+        path=os.path.join('data','raw', f"child2_m.xlsx")
+        #child2.to_excel(path)
+
+        return fitness_df
+
+    def crossover(self, fitness_df, alg, test, test_name):
+        if config.CROSSOVERTYPE == 'crossover_BITFLIP':
+            fitness_df=self.crossover_BITFLIP(fitness_df, alg, test, test_name)
+
+        if config.CROSSOVERTYPE == 'crossover_CROSSGEN':
+            fitness_df=self.crossover_CROSSGEN(fitness_df, alg, test, test_name)
+
+        return fitness_df   
 
     def dominates_TRUNCATE(objset1, objset2, sign=[1, 1]):
         """

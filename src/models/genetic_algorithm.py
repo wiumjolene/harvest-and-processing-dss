@@ -170,6 +170,7 @@ class GeneticAlgorithmNsga2:
                     
                     else:
                         distance = (onedown - oneup) / (min)
+                        #distance = 0
 
                     cdists[i] = cdists[i] + distance
 
@@ -252,14 +253,14 @@ class GeneticAlgorithmNsga2:
                 obj2x = obj2s[i + ix + 1]
                 
                 #if build_features.GeneticAlgorithmGenetics.dominates((obj1, obj2), (obj1x, obj2x)):
-                if ((obj1 <= obj1x and obj2 <= obj2x) and (obj1 < obj1x or obj2 < obj2x)):
-                #if (obj1 < obj1x and obj2 < obj2x):
+                #if ((obj1 <= obj1x and obj2 <= obj2x) and (obj1 < obj1x or obj2 < obj2x)):
+                if (obj1 <= obj1x and obj2 < obj2x):
                     dominating_fits[i + ix + 1] += 1 
                     dominated_fits[id].append(idx) 
 
                 #if build_features.GeneticAlgorithmGenetics.dominates((obj1x, obj2x), (obj1, obj2)):
-                if ((obj1 >= obj1x and obj2 >= obj2x) and (obj1 > obj1x or obj2 > obj2x)):
-                #if (obj1 > obj1x and obj2 > obj2x):
+                #if ((obj1 >= obj1x and obj2 >= obj2x) and (obj1 > obj1x or obj2 > obj2x)):
+                if (obj1 >= obj1x and obj2 > obj2x):
                     dominating_fits[i] += 1
                     dominated_fits[idx].append(id)    
 
@@ -268,6 +269,43 @@ class GeneticAlgorithmNsga2:
 
         fitness_df['domcount'] = dominating_fits
         fitness_df.loc[(fitness_df.domcount==0), 'front'] = 1
+        return fitness_df, front, dominated_fits
+
+    def get_domcount_BEKKER(self, fitness_df):
+        front = []
+        fitness_df = fitness_df.sort_values(by=['obj1'], ascending=[False]).reset_index(drop=True)
+
+        fitness_df['population'] = 'none'
+
+        dominating_fits=[] # n (The number of people that dominate you)
+        dominated_fits = defaultdict(list)  # Sp (The people you dominate)
+
+        ids = fitness_df['id'].values
+        obj2s = fitness_df['obj2'].values
+
+        for i in range(0, len(obj2s)):
+            penalty=0
+            
+            for j in range(i+1, len(obj2s)):
+                id=ids[i]
+                idx=ids[j]
+
+                if obj2s[i] >= obj2s[j]:
+                    penalty=penalty+1
+
+                if obj2s[i] < obj2s[j]:
+                    dominated_fits[id].append(idx)
+
+            dominating_fits.append(penalty)
+
+            if penalty == 0:
+                front.append(id)
+
+        fitness_df['domcount'] = dominating_fits
+        fitness_df.loc[(fitness_df.domcount==0), 'front'] = 1
+        fitness_df = fitness_df.sort_values(by=['domcount'], ascending=[True]).reset_index(drop=True)
+        fitness_df=fitness_df.set_index('id')
+        fitness_df['id'] = fitness_df.index
         return fitness_df, front, dominated_fits
 
     def pareto_nsga2(self, fitness_df):
@@ -280,7 +318,7 @@ class GeneticAlgorithmNsga2:
         self.logger.debug(f"-- getting domcount")
 
         fitness_df = fitness_df[['id','obj1','obj2']]
-        fitness_df=fitness_df.drop_duplicates(subset=['id','obj1','obj2'], keep='last')
+        fitness_df=fitness_df.drop_duplicates(subset=['obj1','obj2'], keep='last')
         doms = self.get_domcount(fitness_df)
         fitness_df = doms[0]
         front = doms[1]
@@ -298,9 +336,10 @@ class GeneticAlgorithmNsga2:
         if size > config.POPUATION:
             fitness_df=self.crowding_distance(fitness_df, 1, size)
 
-        elif size == config.POPUATION:
+        else: # size == config.POPUATION:
             fitness_df.loc[(fitness_df['front']==1), 'population'] = 'yes'
 
+        """
         # Else continue assigning fronts to solutions
         else:
             fitness_df.loc[(fitness_df['front']==1), 'population'] = 'yes'
@@ -341,6 +380,7 @@ class GeneticAlgorithmNsga2:
 
                 size = size + len(front)
                 front = q1
+                """
 
         fitness_df=fitness_df[fitness_df['population']=='yes'].reset_index(drop=True)
         return fitness_df

@@ -16,14 +16,19 @@ ZAR_KM=3.16/1000
 ########################################################
 # GA CONFIG
 ########################################################
+SELECTION='tournament'
+#SELECTION='nondom'
 TOURSIZE=2  # NB NSGI2 requires binary tournament selection
 
 MUTATIONRATE=0.12
 MUTATIONRATE2=0.08
 
-CROSSOVERRATE=0.5
+CROSSOVERRATE=0.35
+CROSSOVERTYPE='crossover_BITFLIP'
+#CROSSOVERTYPE='crossover_CROSSGEN'
 
-POPUATION=120 #TODO:
+
+POPUATION=1000 #TODO:
 ITERATIONS=20000 #TODO:
 
 ########################################################

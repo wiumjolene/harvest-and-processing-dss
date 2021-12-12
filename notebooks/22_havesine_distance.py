@@ -1,12 +1,13 @@
 import haversine as hs
 import pandas as pd
-from src.utils.connect import DatabaseModelsClass
+from connect import DatabaseModelsClass
 
 db = DatabaseModelsClass('PHDDATABASE_URL')
 def get_packhouse():
     sql = """
         SELECT id, longitude, latitude 
-        FROM dss.dim_packhouse;
+        FROM dss.dim_packhouse
+        WHERE id = 38;
     """
     df = db.select_query(sql)
     return(df)
@@ -14,7 +15,8 @@ def get_packhouse():
 def get_block():
     sql = """
         SELECT id, longitude, latitude 
-        FROM dss.dim_block;
+        FROM dss.dim_block
+        WHERE id = 94;
     """
     df = db.select_query(sql)
     return(df)
