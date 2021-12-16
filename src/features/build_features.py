@@ -22,7 +22,7 @@ class Individual:
 
     def individual(self, number, alg_path, get_indiv=True, indiv=individual_df, test=False, test_name='zdt1'):
         """ Function to define indiv and fitness """
-        self.logger.debug(f"- individual: {number}")
+        self.logger.info(f"- individual: {number}")
         if test:
             t=Tests()
             if get_indiv:
@@ -43,7 +43,7 @@ class Individual:
             if test_name == 'zdt3':
                 fitness = t.ZDT3(x)
 
-            if (len(x) < config.D or len(x) > config.D):  #FIXME: Test code
+            if (len(x) < config.D or len(x) > config.D): 
                 print(f"number {number}: len {len(x)}")
                 exit()
 
@@ -67,6 +67,7 @@ class Individual:
         self.logger.debug('-> make_individual')
 
         # Import all data sets from pickel files.
+        self.logger.debug('--> get demand options')
         options = ImportOptions()
 
         # Get all demands ready for allocation
@@ -79,6 +80,7 @@ class Individual:
         self.logger.debug('--> import options')
         ddf_he = options.demand_harvest()
         ddf_he['evaluated'] = 0
+        
         ddf_pc = options.demand_capacity()
         ddic_metadata = options.demand_metadata()
         he_dic = options.harvest_estimate()
@@ -88,7 +90,7 @@ class Individual:
         individualdf = pd.DataFrame()
         self.logger.debug(f"--> loop through new dlist_allocate ({len(dlist_allocate)})")
         while len(dlist_allocate) > 0:
-            #self.logger.debug(f"---> get new allocation")
+            self.logger.debug(f"---> get new allocation")
 
             # Randomly choose which d to allocate first
             dpos = random.randint(0, len(dlist_allocate)-1)
@@ -101,19 +103,22 @@ class Individual:
             indd_kgkm = []
             indd_hrs = []
             while dkg > 0:
+                self.logger.debug(f"----> dkg ({dkg}) for demand: {d}")
                 # Filter demand_he table according to d and kg.
                 # Check that combination of d_he has not yet been used.
                 ddf_het = ddf_he[(ddf_he['demand_id']==d)&(ddf_he['kg_rem']>0)& \
                     (ddf_he['evaluated']==0)]
-                    
+                
                 dhes = ddf_het['id'].tolist()
                 dhe_kg_rem = ddf_het['kg_rem'].tolist()
 
+                self.logger.debug(f"----> get harevest estimate")
                 if len(dhes) > 0:
                     # Randomly choose a he that is suitable
                     hepos = random.randint(0, len(dhes)-1)
                     he = dhes[hepos]
                     he_kg_rem = dhe_kg_rem[hepos]
+                    self.logger.debug(f"-----> assign he {he}")
 
                     # Calculate kg potential that can be packed
                     if he_kg_rem > dkg:
@@ -121,7 +126,8 @@ class Individual:
 
                     else:
                         to_pack = he_kg_rem
-
+                    
+                    self.logger.debug(f"-----> get pack capacity")
                     # Get closest pc for he from available pc's
                     block_id = he_dic[he]['block_id']
                     va_id = he_dic[he]['va_id']
@@ -129,7 +135,6 @@ class Individual:
                     # Variables to determine speed -> add calculate the number of hours 
                     packtype_id = ddic_metadata[d]['pack_type_id']
                     ft_dft = ft_df[ft_df['block_id'] == block_id]
-                    # TODO: All blocks must be able to pack at all sites
 
                     # Allocate to_pack to pack capacities
                     while to_pack > 0:
@@ -140,13 +145,20 @@ class Individual:
                         ddf_pct = ddf_pct.dropna()
 
                         if len(ft_dft) > 0 and len(ddf_pct) > 0:
-                            ddf_pct = ddf_pct.sort_values(['km']).reset_index(drop=True)
+                            ddf_pct = ddf_pct.sort_values(['km'], ascending=True).reset_index(drop=True)
 
-                            # Allocate closest pc to block
-                            pc = ddf_pct.id[0]
-                            packhouse_id = ddf_pct.packhouse_id[0]
-                            km = ddf_pct.km[0]
-                            pckg_rem = ddf_pct.kg_rem[0]
+                            # Allocate closest pc to block                    
+                            #pc = ddf_pct.id[0]
+                            pc = ddf_pct.at[0, 'id']
+
+                            #packhouse_id = ddf_pct.packhouse_id[0]
+                            packhouse_id = ddf_pct.at[0, 'packhouse_id']
+
+                            #km = ddf_pct.km[0]
+                            km = ddf_pct.at[0, 'km']
+
+                            #pckg_rem = ddf_pct.kg_rem[0]
+                            pckg_rem = ddf_pct.at[0, 'kg_rem']
 
                             if pckg_rem > to_pack:
                                 packed = to_pack
@@ -430,7 +442,7 @@ class GeneticAlgorithmGenetics:
 
         return df_mutate1
 
-    def crossover_TRUNCATE(self, fitness_df, alg, test=False, test_name='zdt1'):
+    def crossover_TRUNCATE(self, fitness_df, alg, test, test_name):
         """ GA crossover genetic material for diversification"""
         self.logger.debug(f"-- crossover")
 
@@ -512,7 +524,7 @@ class GeneticAlgorithmGenetics:
         fitness_df = pd.concat([fitness_df, child1_f, child2_f]).reset_index(drop=True)
         return fitness_df
 
-    def crossover_BITFLIP(self, fitness_df, alg, test=False, test_name='zdt1'):
+    def crossover_BITFLIP(self, fitness_df, alg, test, test_name):
         """ GA crossover genetic material for diversification"""
         self.logger.debug(f"-- crossover")
 
@@ -605,7 +617,7 @@ class GeneticAlgorithmGenetics:
 
         return fitness_df
 
-    def crossover_CROSSGEN(self, fitness_df, alg, test=False, test_name='zdt1'):
+    def crossover_CROSSGEN(self, fitness_df, alg, test, test_name):
         """ GA crossover genetic material for diversification"""
         self.logger.debug(f"-- crossover")
 
@@ -701,7 +713,7 @@ class GeneticAlgorithmGenetics:
 
         return fitness_df
 
-    def crossover(self, fitness_df, alg, test, test_name):
+    def crossover(self, fitness_df, alg, test=False, test_name='zdt1'):
         if config.CROSSOVERTYPE == 'crossover_BITFLIP':
             fitness_df=self.crossover_BITFLIP(fitness_df, alg, test, test_name)
 

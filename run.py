@@ -14,5 +14,4 @@ if __name__ == '__main__':
 
 """
 Improve how indiv was created
-Fix mutation and crossover
 """

@@ -95,18 +95,20 @@ class GeneticAlgorithmNsga2:
         
         p = Population()
         init_pop = p.population(config.POPUATION * 2, 'nsga2')
-        fitness_df = init_pop
+        fitness_df = self.pareto_nsga2(init_pop)
+        #fitness_df = init_pop
 
         fitness_df['population'] = 'yes'
 
         self.logger.debug(f"starting NSGA2 search")
         for _ in range(config.ITERATIONS):
-            self.logger.debug(f"ITERATION {_}")
+            self.logger.info(f"ITERATION {_}")
+
             fitness_df = self.gag.crossover(fitness_df, 'nsga2')
             fitness_df = self.pareto_nsga2(fitness_df)
 
         kobus_plan = self.manplan.kobus_plan()
-        kobus_plan.to_excel('data/interim/kobus_plan.xlsx', index=False)
+        kobus_plan.to_excel('data/interim/plan_kobus.xlsx', index=False)
         kobus_fit = self.indiv.individual(1000000, 
                     alg_path = 'nsga2', 
                     get_indiv=False, 
@@ -115,10 +117,20 @@ class GeneticAlgorithmNsga2:
         kobus_fit['population'] = 'manplan'
         kobus_fit['result'] = 'manplan'
 
+        actual_plan = self.manplan.actual()
+        actual_plan.to_excel('data/interim/plan_actual.xlsx', index=False)
+        actual_fit = self.indiv.individual(1000001, 
+                    alg_path = 'nsga2', 
+                    get_indiv=False, 
+                    indiv=actual_plan, 
+                    test=False)
+        actual_fit['population'] = 'actualplan'
+        actual_fit['result'] = 'actualplan'
+
         init_pop['result'] = 'init pop'
         fitness_df['result'] = 'final result'
         
-        fitness_df = pd.concat([fitness_df, init_pop, kobus_fit])        
+        fitness_df = pd.concat([fitness_df, init_pop, kobus_fit, actual_fit])        
         
         fitness_df.to_excel('data/interim/fitness_nsga2.xlsx', index=False)
         filename_html = 'reports/figures/genetic_algorithm_nsga2.html'
