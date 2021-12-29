@@ -1,16 +1,17 @@
 # -*- coding: utf-8 -*-
 import datetime
 import logging
+import os
+import pickle
 import random
 from collections import defaultdict
-import os
 
 import numpy as np
 import pandas as pd
-
 from src.data.make_dataset import ImportOptions
 from src.features.make_tests import Tests
 from src.utils import config
+from src.utils.connect import DatabaseModelsClass
 from src.utils.visualize import Visualize
 
 
@@ -144,7 +145,7 @@ class Individual:
                         # Drop pc with no from to for block
                         ddf_pct = ddf_pct.dropna()
 
-                        if len(ft_dft) > 0 and len(ddf_pct) > 0:
+                        if (len(ft_dft) > 0) and (len(ddf_pct) > 0):
                             ddf_pct = ddf_pct.sort_values(['km'], ascending=True).reset_index(drop=True)
 
                             # Allocate closest pc to block                    
@@ -177,8 +178,9 @@ class Individual:
                                 speed = 12
 
                             # Update demand tables with updated capacity
+                            he_kg_rem=he_kg_rem-packed
                             ddf_pc.loc[(ddf_pc['id']==pc),'kg_rem']=pckg_rem
-                            ddf_he.loc[(ddf_he['id']==he),'kg_rem']=he_kg_rem-packed
+                            ddf_he.loc[(ddf_he['id']==he),'kg_rem']=he_kg_rem
                             dkg = dkg - packed
 
                             indd_he.append(he)
@@ -188,7 +190,7 @@ class Individual:
                             indd_hrs.append(packed*(1*config.GIVEAWAY)*speed/60)
 
                         else:
-                            ddf_he.loc[(ddf_he['id'] == he) & (ddf_he['demand_id'] == d), 'evaluated'] = 1
+                            ddf_he.loc[((ddf_he['id'] == he) & (ddf_he['demand_id'] == d)), 'evaluated'] = 1
                             break
                                 
                 else:
@@ -413,7 +415,7 @@ class GeneticAlgorithmGenetics:
                         x = np.random.rand()
                         df_gene = pd.DataFrame(data=[x], columns=['value'])
                         df_gene['time_id'] = m
-                        df_gene['status'] = 'mutated'
+                        #df_gene['status'] = 'mutated'
                         df_mutate1 = pd.concat([df_mutate1, df_gene]).reset_index(drop=True)
                     
                     # Else get only gene alternate
@@ -539,8 +541,8 @@ class GeneticAlgorithmGenetics:
         parent1 = self.nondom_selection(fitness_df, alg)
         parent2 = self.nondom_selection(fitness_df, alg)
 
-        parent1['status'] = 'parent1'
-        parent2['status'] = 'parent2'
+        #parent1['status'] = 'parent1'
+        #parent2['status'] = 'parent2'
 
         times = list(parent1.time_id.unique())
         times_check = list(parent2.time_id.unique())
@@ -632,8 +634,8 @@ class GeneticAlgorithmGenetics:
         parent1 = self.nondom_selection(fitness_df, alg)
         parent2 = self.nondom_selection(fitness_df, alg)
 
-        parent1['status'] = 'parent1'
-        parent2['status'] = 'parent2'
+        #parent1['status'] = 'parent1'
+        #parent2['status'] = 'parent2'
 
         times = list(parent1.time_id.unique())
         times_check = list(parent2.time_id.unique())
@@ -881,3 +883,165 @@ class ParetoFeatures:
         print(hyperarea)
         return hyperarea
 
+
+class PrepManPlan:
+    """ Class to prepare Manual PackPlan for comparison"""
+    logger = logging.getLogger(f"{__name__}.CreateOptions")
+    #co = CreateOptions()
+    database_instance = DatabaseModelsClass('PHDDATABASE_URL')
+    indiv = Individual()
+    graph = Visualize()
+
+    def prep_results(self, alg_path, fitness_df, init_pop):
+        """function to convert final pareto front to sql data 
+            here with manplan and actual"""
+
+        self.logger.info(f"prepare results and send to sql")
+        pareto_indivs = list(fitness_df.id)
+        popdf=pd.DataFrame()
+        for id in pareto_indivs:
+            infile = open(f"data/interim/{alg_path}/id_{id}",'rb')
+            individualdf = pickle.load(infile)
+            infile.close()
+            individualdf['id'] = id
+            popdf=popdf.append(individualdf).reset_index(drop=True)
+
+        kobus_plan = self.kobus_plan()
+        kobus_fit = self.indiv.individual(1000000, 
+                    alg_path = alg_path, 
+                    get_indiv=False, 
+                    indiv=kobus_plan, 
+                    test=False)
+        kobus_fit['population'] = 'manplan'
+        kobus_fit['result'] = 'manplan'
+
+        actual_plan = self.actual()
+        actual_fit = self.indiv.individual(1000001, 
+                    alg_path = alg_path, 
+                    get_indiv=False, 
+                    indiv=actual_plan, 
+                    test=False)
+        actual_fit['population'] = 'actualplan'
+        actual_fit['result'] = 'actualplan'
+
+        init_pop['result'] = 'init pop'
+        fitness_df['result'] = 'final result'
+        
+        fitness_df = pd.concat([fitness_df, init_pop, kobus_fit, actual_fit])        
+        
+        self.database_instance.insert_table(fitness_df, 'sol_fitness', 'dss', if_exists='replace')
+        self.database_instance.insert_table(popdf, 'sol_pareto_individuals', 'dss', if_exists='replace')
+        self.database_instance.insert_table(kobus_plan, 'sol_kobus_plan', 'dss', if_exists='replace')
+        self.database_instance.insert_table(actual_plan, 'sol_actual_plan', 'dss', if_exists='replace')
+
+        filename_html = f"reports/figures/genetic_algorithm_{alg_path}.html"
+        self.graph.scatter_plot2(fitness_df, filename_html, 'result', 
+                alg_path)
+        
+        return
+
+    def kobus_plan(self):
+        sql_query = """
+            SELECT pd.demandid as demand_id
+                    , f_pack_capacity.id as pc
+                    , dim_fc.id as fc_id
+                    -- , dim_packhouse.id as packhouse_id
+                    -- , dim_week.id as time_id
+                    -- , pack_type.id as pack_type_id
+                    , dim_va.id as va_id
+                    , (pd.qty_kg * -1) as kg
+                    , (pd.qty_standardctns * -1) as stdunits
+                    , distance.km
+                    , (pd.qty_kg * -1) * distance.km as 'kgkm'
+                    , IF(f_speed.speed is NULL, 12, f_speed.speed) as speed
+                    -- , pd.variety
+                    -- , pd.format
+                    -- , pd.packweek
+                    -- , pd.packsite
+                    -- , pd.grower
+            FROM dss.planning_data pd
+            LEFT JOIN dim_fc ON (pd.grower = dim_fc.name)
+            LEFT JOIN dim_packhouse ON (pd.packsite = dim_packhouse.name)
+            LEFT JOIN (SELECT id, upper(name) as name FROM dss.dim_pack_type) pack_type  
+                ON (pd.format = pack_type.name)
+            LEFT JOIN dim_va ON (pd.variety = dim_va.name)
+            LEFT JOIN dim_week ON (pd.packweek = dim_week.week)
+            LEFT JOIN (SELECT f_from_to.packhouse_id, dim_block.fc_id, AVG(f_from_to.km) as km
+                            FROM dss.f_from_to
+                            LEFT JOIN dim_block ON (dim_block.id = f_from_to.block_id)
+                            GROUP BY f_from_to.packhouse_id, dim_block.fc_id) distance 
+                            ON (distance.packhouse_id = dim_packhouse.id 
+                                AND distance.fc_id = dim_fc.id)
+            LEFT JOIN f_speed 
+				ON (f_speed.packhouse_id = dim_packhouse.id 
+                    AND f_speed.packtype_id = pack_type.id 
+					AND f_speed.va_id = dim_va.id)
+			LEFT JOIN f_pack_capacity
+				ON (f_pack_capacity.packhouse_id = dim_packhouse.id 
+					AND f_pack_capacity.pack_type_id = pack_type.id
+                    AND f_pack_capacity.packweek = dim_week.week)
+            -- WHERE extract_datetime = '2021-11-08 13:29:36'
+            WHERE recordtype = 'PLANNED'
+            AND extract_datetime = (SELECT MAX(extract_datetime) FROM dss.planning_data)
+            AND f_pack_capacity.stdunits is not null
+            AND pd.packweek in ('22-01','22-02','22-03','22-04')
+            ;
+        """
+        
+        df = self.database_instance.select_query(query_str=sql_query)
+        df['packhours'] = df['kg']*(1*config.GIVEAWAY)*df['speed']/60 
+
+        return df
+
+    def actual(self):
+        sql_query = """
+            SELECT pd.demandid as demand_id
+                    , f_pack_capacity.id as pc
+                    , dim_fc.id as fc_id
+                    -- , dim_packhouse.id as packhouse_id
+                    -- , dim_week.id as time_id
+                    -- , pack_type.id as pack_type_id
+                    , dim_va.id as va_id
+                    , (pd.qty_kg * -1) as kg
+                    , (pd.qty_standardctns * -1) as stdunits
+                    , distance.km
+                    , (pd.qty_kg * -1) * distance.km as 'kgkm'
+                    , IF(f_speed.speed is NULL, 12, f_speed.speed) as speed
+                    -- , pd.variety
+                    -- , pd.format
+                    -- , pd.packweek
+                    -- , pd.packsite
+                    -- , pd.grower
+            FROM dss.planning_data pd
+            LEFT JOIN dim_fc ON (pd.grower = dim_fc.name)
+            LEFT JOIN dim_packhouse ON (pd.packsite = dim_packhouse.name)
+            LEFT JOIN (SELECT id, upper(name) as name FROM dss.dim_pack_type) pack_type  
+                ON (pd.format = pack_type.name)
+            LEFT JOIN dim_va ON (pd.variety = dim_va.name)
+            LEFT JOIN dim_week ON (pd.packweek = dim_week.week)
+            LEFT JOIN (SELECT f_from_to.packhouse_id, dim_block.fc_id, AVG(f_from_to.km) as km
+                            FROM dss.f_from_to
+                            LEFT JOIN dim_block ON (dim_block.id = f_from_to.block_id)
+                            GROUP BY f_from_to.packhouse_id, dim_block.fc_id) distance 
+                            ON (distance.packhouse_id = dim_packhouse.id 
+                                AND distance.fc_id = dim_fc.id)
+            LEFT JOIN f_speed 
+				ON (f_speed.packhouse_id = dim_packhouse.id 
+                    AND f_speed.packtype_id = pack_type.id 
+					AND f_speed.va_id = dim_va.id)
+			LEFT JOIN f_pack_capacity
+				ON (f_pack_capacity.packhouse_id = dim_packhouse.id 
+					AND f_pack_capacity.pack_type_id = pack_type.id
+                    AND f_pack_capacity.packweek = dim_week.week)
+            -- WHERE extract_datetime = '2021-11-08 13:29:36'
+            WHERE recordtype = '_PACKED'
+            AND extract_datetime = (SELECT MAX(extract_datetime) FROM dss.planning_data)
+            AND f_pack_capacity.stdunits is not null
+            AND pd.packweek in ('22-01','22-02','22-03','22-04')
+            AND dim_fc.packtopackplans = 1;
+        """
+        
+        df = self.database_instance.select_query(query_str=sql_query)
+        df['packhours'] = df['kg']*(1*config.GIVEAWAY)*df['speed']/60  # TODO: CHECK CALC!!!!
+
+        return df

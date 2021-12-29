@@ -1,19 +1,17 @@
+import logging
+import math
 import os
 import random
 import sys
-import logging
-import math
 from collections import defaultdict
 
-import pandas as pd
 import numpy as np
-from src.features.build_features import Individual
-from src.features.build_features import Population
-from src.features.build_features import GeneticAlgorithmGenetics
+import pandas as pd
 from src.features import build_features
-from src.utils.visualize import Visualize
+from src.features.build_features import (GeneticAlgorithmGenetics, Individual,
+                                         Population, PrepManPlan)
 from src.utils import config
-from src.data.make_dataset import PrepManPlan
+from src.utils.visualize import Visualize
 
 
 class GeneticAlgorithmVega:
@@ -107,6 +105,9 @@ class GeneticAlgorithmNsga2:
             fitness_df = self.gag.crossover(fitness_df, 'nsga2')
             fitness_df = self.pareto_nsga2(fitness_df)
 
+        self.manplan.prep_results('nsga2', fitness_df, init_pop)
+
+        """
         kobus_plan = self.manplan.kobus_plan()
         kobus_plan.to_excel('data/interim/plan_kobus.xlsx', index=False)
         kobus_fit = self.indiv.individual(1000000, 
@@ -136,6 +137,7 @@ class GeneticAlgorithmNsga2:
         filename_html = 'reports/figures/genetic_algorithm_nsga2.html'
         self.graph.scatter_plot2(fitness_df, filename_html, 'result', 
                 'Nondominted Sorting Genetic Algorithm2 (NSGA2)')
+        """
 
         best_obj1 = fitness_df['obj1'].min()
         best_obj2 = fitness_df['obj2'].min()
