@@ -10,7 +10,8 @@ TRUCK=1500 # 1 * truck carries so many kg of produce
 LUG=11 # weight (kg) of a lug
 SEASON=2022
 
-ZAR_HR=20
+#ZAR_HR=20
+ZAR_HR=0
 ZAR_KM=3.16/1000
 
 ########################################################
@@ -28,8 +29,8 @@ CROSSOVERTYPE='crossover_BITFLIP'
 #CROSSOVERTYPE='crossover_CROSSGEN'
 
 
-POPUATION=20 #TODO:
-ITERATIONS=5000 #TODO:
+POPUATION=50 #TODO:
+ITERATIONS=20000 #TODO:
 
 ########################################################
 # MOGA CONFIG

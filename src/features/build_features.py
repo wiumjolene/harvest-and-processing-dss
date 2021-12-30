@@ -239,8 +239,13 @@ class Individual:
         #                + individualdf3.changes.sum())*config.ZAR_HR) \
         #                + (individualdf.kgkm.sum()*config.ZAR_KM)
 
-        total_cost = ((individualdf.packhours.sum()*config.ZAR_HR) \
-                        + (individualdf.kgkm.sum()*config.ZAR_KM))
+        #total_cost = ((individualdf.packhours.sum()*config.ZAR_HR) \
+        #                + (individualdf.kgkm.sum()*config.ZAR_KM)) / individualdf.kg.sum()
+
+        total_cost = individualdf.kgkm.sum() / individualdf.kg.sum()
+
+        #total_cost = ((individualdf.packhours.sum()*config.ZAR_HR) \
+        #                + (individualdf.kgkm.sum()*config.ZAR_KM))
 
         individualdf2 = individualdf.groupby('demand_id')['kg'].sum()
         individualdf2 = individualdf2.reset_index(drop=False)
@@ -915,24 +920,25 @@ class PrepManPlan:
         kobus_fit['population'] = 'manplan'
         kobus_fit['result'] = 'manplan'
 
-        actual_plan = self.actual()
-        actual_fit = self.indiv.individual(1000001, 
-                    alg_path = alg_path, 
-                    get_indiv=False, 
-                    indiv=actual_plan, 
-                    test=False)
-        actual_fit['population'] = 'actualplan'
-        actual_fit['result'] = 'actualplan'
+        #actual_plan = self.actual()
+        #actual_fit = self.indiv.individual(1000001, 
+        #            alg_path = alg_path, 
+        #            get_indiv=False, 
+        #            indiv=actual_plan, 
+        #            test=False)
+        #actual_fit['population'] = 'actualplan'
+        #actual_fit['result'] = 'actualplan'
 
         init_pop['result'] = 'init pop'
         fitness_df['result'] = 'final result'
         
-        fitness_df = pd.concat([fitness_df, init_pop, kobus_fit, actual_fit])        
+        #fitness_df = pd.concat([fitness_df, init_pop, kobus_fit, actual_fit])   
+        fitness_df = pd.concat([fitness_df, init_pop, kobus_fit])      
         
         self.database_instance.insert_table(fitness_df, 'sol_fitness', 'dss', if_exists='replace')
         self.database_instance.insert_table(popdf, 'sol_pareto_individuals', 'dss', if_exists='replace')
         self.database_instance.insert_table(kobus_plan, 'sol_kobus_plan', 'dss', if_exists='replace')
-        self.database_instance.insert_table(actual_plan, 'sol_actual_plan', 'dss', if_exists='replace')
+        #self.database_instance.insert_table(actual_plan, 'sol_actual_plan', 'dss', if_exists='replace')
 
         filename_html = f"reports/figures/genetic_algorithm_{alg_path}.html"
         self.graph.scatter_plot2(fitness_df, filename_html, 'result', 
