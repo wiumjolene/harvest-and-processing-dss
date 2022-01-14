@@ -89,7 +89,7 @@ class GeneticAlgorithmNsga2:
 
     def nsga2(self):
         """ Function that manages the NSGA2. """
-        self.logger.debug(f"Non Dominated Sorting Genetic Algorithm")
+        self.logger.info(f"Non Dominated Sorting Genetic Algorithm")
         
         p = Population()
         init_pop = p.population(config.POPUATION * 2, 'nsga2')
@@ -98,7 +98,7 @@ class GeneticAlgorithmNsga2:
 
         fitness_df['population'] = 'yes'
 
-        self.logger.debug(f"starting NSGA2 search")
+        self.logger.info(f"starting NSGA2 search")
         for _ in range(config.ITERATIONS):
             self.logger.info(f"ITERATION {_}")
 
@@ -106,38 +106,6 @@ class GeneticAlgorithmNsga2:
             fitness_df = self.pareto_nsga2(fitness_df)
 
         self.manplan.prep_results('nsga2', fitness_df, init_pop)
-
-        """
-        kobus_plan = self.manplan.kobus_plan()
-        kobus_plan.to_excel('data/interim/plan_kobus.xlsx', index=False)
-        kobus_fit = self.indiv.individual(1000000, 
-                    alg_path = 'nsga2', 
-                    get_indiv=False, 
-                    indiv=kobus_plan, 
-                    test=False)
-        kobus_fit['population'] = 'manplan'
-        kobus_fit['result'] = 'manplan'
-
-        actual_plan = self.manplan.actual()
-        actual_plan.to_excel('data/interim/plan_actual.xlsx', index=False)
-        actual_fit = self.indiv.individual(1000001, 
-                    alg_path = 'nsga2', 
-                    get_indiv=False, 
-                    indiv=actual_plan, 
-                    test=False)
-        actual_fit['population'] = 'actualplan'
-        actual_fit['result'] = 'actualplan'
-
-        init_pop['result'] = 'init pop'
-        fitness_df['result'] = 'final result'
-        
-        fitness_df = pd.concat([fitness_df, init_pop, kobus_fit, actual_fit])        
-        
-        fitness_df.to_excel('data/interim/fitness_nsga2.xlsx', index=False)
-        filename_html = 'reports/figures/genetic_algorithm_nsga2.html'
-        self.graph.scatter_plot2(fitness_df, filename_html, 'result', 
-                'Nondominted Sorting Genetic Algorithm2 (NSGA2)')
-        """
 
         best_obj1 = fitness_df['obj1'].min()
         best_obj2 = fitness_df['obj2'].min()
@@ -242,7 +210,8 @@ class GeneticAlgorithmNsga2:
         fitness_df['id'] = fitness_df.index
         return fitness_df
 
-    def get_domcount(self, fitness_df):
+    def get_domcount_DEPRICATED(self, fitness_df):
+        print('##### DEPRICATED - SEE GAG #####')
         front = []
         fitness_df = fitness_df.sort_values(by=['id']).reset_index(drop=True)
 
@@ -326,14 +295,16 @@ class GeneticAlgorithmNsga2:
         """ Decide if new child is worthy of pareto membership 
         Deb 2002
         """
-        self.logger.debug(f"- getting fitness")
+        self.logger.debug(f"- getting NSGA2 fitness")
         
         # Initiate domination count and dominated by list
         self.logger.debug(f"-- getting domcount")
 
         fitness_df = fitness_df[['id','obj1','obj2']]
         fitness_df=fitness_df.drop_duplicates(subset=['obj1','obj2'], keep='last')
-        doms = self.get_domcount(fitness_df)
+        fitness_df = self.gag.get_domcount(fitness_df)[0]
+        doms = self.gag.get_domcount(fitness_df)
+        #doms = self.get_domcount(fitness_df)
         fitness_df = doms[0]
         front = doms[1]
         dominated_fits = doms[2]
@@ -404,10 +375,11 @@ class GeneticAlgorithmMoga:
     logger = logging.getLogger(f"{__name__}.GeneticAlgorithmMoga")
     gag = GeneticAlgorithmGenetics()
     graph = Visualize()
+    manplan = PrepManPlan()
 
     def moga(self):
         """ Function that manages the MOGA. """
-        self.logger.debug(f"Multi Objective Genetic Algorithm")
+        self.logger.info(f"Multi Objective Genetic Algorithm")
         
         p = Population()
         init_pop = p.population(config.POPUATION, 'moga')
@@ -415,21 +387,15 @@ class GeneticAlgorithmMoga:
 
         fitness_df['population'] = 'yes'
 
-        self.logger.debug(f"starting MOGA search")
+        self.logger.info(f"starting MOGA search")
         for _ in range(config.ITERATIONS):
-            self.logger.debug(f"ITERATION {_}")
-            fitness_df = self.gag.crossover(fitness_df, 'moga')
+            self.logger.info(f"ITERATION {_}")
             fitness_df = self.pareto_moga(fitness_df)
+            fitness_df = self.gag.crossover(fitness_df, 'moga')
+            
 
-        init_pop['result'] = 'init pop'
-        fitness_df['result'] = 'final result'
-        
-        fitness_df = pd.concat([fitness_df, init_pop])
-
-        fitness_df.to_excel('data/interim/fitness_moga.xlsx', index=False)
-        filename_html = 'reports/figures/genetic_algorithm_moga.html'
-        self.graph.scatter_plot2(fitness_df, filename_html, 'result', 
-                'Multi Objective Genetic Algorithm (MOGA)')
+        fitness_df = self.pareto_moga(fitness_df)
+        self.manplan.prep_results('moga', fitness_df, init_pop)
 
         best_obj1 = fitness_df['obj1'].min()
         best_obj2 = fitness_df['obj2'].min()
@@ -437,7 +403,108 @@ class GeneticAlgorithmMoga:
 
     def pareto_moga(self, fitness_df):
         # TODO: Update with 'at' instead of 'loc' for speed.
-        self.logger.debug(f"- getting fitness")
+        self.logger.info(f"- getting MOGA fitness")
+
+        fitness_df = fitness_df[fitness_df['population'] != 'none'].reset_index(drop=True)
+        fitness_df= fitness_df.sort_values(by=['obj1','obj2']).reset_index(drop=True)
+
+        sshare = config.SSHARE
+
+        ##############################################################################
+        # 1. Assign rank based on non-dominated
+        #    - rank(indiv, generation) = 1 + number of indivs that dominate indiv
+        ##############################################################################
+        fitness_df = self.gag.get_domcount(fitness_df)[0] #FIXME: updated and moved domcount to gag
+        fitness_df['rank'] = fitness_df['domcount'] + 1
+
+        ##############################################################################
+        # 2. PARETO RANKING
+        ##############################################################################
+        fitness_df=fitness_df.sort_values(by=['rank']).reset_index(drop=True)
+        ranks = fitness_df['rank'].unique()
+        N = len(fitness_df)
+
+        for r in ranks:
+            solk = len(fitness_df[fitness_df['rank']==r]) - 1
+            nk = len(fitness_df[fitness_df['rank'] < r])
+            fitness_df.loc[(fitness_df['rank']==r), 'solk'] = solk
+            fitness_df.loc[(fitness_df['rank']==r), 'nk'] = nk
+            
+        fitness_df['fitness'] = N - fitness_df['nk'] - (fitness_df['solk'] * 0.5)
+
+        ##############################################################################
+        # 3. STANDARD FITNESS SHARE
+        ##############################################################################
+        # 3.1 Normalised distance between any two indivs in same rank
+
+        obj1_min=fitness_df.obj1.min()
+        obj1_max=fitness_df.obj1.max()
+        obj2_min=fitness_df.obj2.min()
+        obj2_max=fitness_df.obj2.max()
+
+        for r in ranks:
+            df=fitness_df[fitness_df['rank']==r].reset_index(drop=True)
+            ids=list(df.id)
+
+
+            obj1s = df['obj1'].values
+            obj2s = df['obj2'].values
+
+            for i, id_i in enumerate(ids):
+            #for i in range(len(df)):
+                #id_i = df.id[i]
+                #obj1_i = df.obj1[i]
+                #obj2_i = df.obj2[i]
+                obj1_i = obj1s[i]
+                obj2_i = obj2s[i]
+                nc=0
+
+                for j, id_j in enumerate(ids):
+                #for j in range(len(df)):
+                    #print(f"{i} - {j}")
+                    #id_j = df.id[j]
+                    #obj1_j = df.obj1[j]
+                    #obj2_j = df.obj2[j]
+                    obj1_j = obj1s[j]
+                    obj2_j = obj2s[j]
+
+                    obj1_dij = ((obj1_i-obj1_j)/(obj1_max-obj1_min))**2    
+                    obj2_dij = ((obj2_i-obj2_j)/(obj2_max-obj2_min))**2
+
+                    dij = math.sqrt(obj1_dij+obj2_dij)
+
+        # 3.2 The standard sharing function suggested by Goldberg and Richardson
+        #       with a normalized niche radius σshare
+
+                    if dij < sshare:
+                        shdij = 1-(dij/sshare)
+
+                    else: 
+                        shdij = 0
+
+        # 3.3 Niche count is calculated by indiv by summing up sharing 
+        #       by indivs with same rank
+                    
+                    nc=nc+shdij
+
+                #FIXME: optimise
+                fitness_df.loc[(fitness_df['id']==id_i), 'nc'] = nc
+                
+        # 3.4 Finally, the assigned fitness is reduced by dividing the fitness Fi given 
+        #       in step 2 by the niche count as follows
+
+        fitness_df['fitness']=fitness_df['fitness']/fitness_df['nc']
+        fitness_df = fitness_df.sort_values(by=['fitness'], ascending=[False]).reset_index(drop=True)
+
+        fitness_df.loc[(fitness_df.index < config.POPUATION),'population']='yes'
+        fitness_df.loc[(fitness_df.index >= config.POPUATION),'population']='none'
+
+        return fitness_df
+
+
+    def pareto_moga_DEPRICATED(self, fitness_df):
+        # TODO: Update with 'at' instead of 'loc' for speed.
+        self.logger.info(f"- getting MOGA fitness")
 
         fitness_df = fitness_df[fitness_df['population'] != 'none'].reset_index(drop=True)
         fitness_df= fitness_df.sort_values(by=['obj1','obj2']).reset_index(drop=True)

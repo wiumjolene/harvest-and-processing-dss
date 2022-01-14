@@ -7,6 +7,8 @@ import pandas as pd
 #import pygmo as pg
 
 from src.data.make_dataset import CreateOptions
+from src.data.make_dataset import AdjustPlanningData
+from src.features.build_features import PrepModelData, PrepManPlan
 from src.models.genetic_algorithm import GeneticAlgorithmVega
 from src.models.genetic_algorithm import GeneticAlgorithmMoga
 from src.models.genetic_algorithm import GeneticAlgorithmNsga2
@@ -17,13 +19,15 @@ class MainController:
     """ Decide which parts of the module to update. """
     logger = logging.getLogger(f"{__name__}.MainController")
     synch_data = False
-    make_data = True
+    adjust_planning_data = False
+    make_data = False
 
+    clearold=False
     vega = False
-    nsga2 = True
-    moga = False
+    nsga2 = False
+    moga = True
 
-    test_fxn = False
+    test_fxn = True
     tests = ['zdt1', 'zdt2', 'zdt3']
     tests = ['zdt1']
 
@@ -34,11 +38,32 @@ class MainController:
 
         if self.synch_data:
             self.logger.info('SYNC DATA')
+            pdp = PrepModelData()
+            dp=pdp.prep_demand_plan()
+            he=pdp.prep_harvest_estimates()
+            pc=pdp.prep_pack_capacity()
+
+            if (dp and he and pc):
+                self.logger.info('Data synch complete, good to proceed')
+
+            else:
+                self.logger.info('Data synch failed, review to proceed')
+                exit()
+
+        if self.adjust_planning_data:
+            self.logger.info('ADJUST DATA')
+            apd = AdjustPlanningData()
+            apd.adjust_pack_capacities()
 
         if self.make_data:
             self.logger.info('MAKE DATA')
             v = CreateOptions()
             v.make_options()
+
+        if self.clearold:
+            self.logger.info('CLEAR OLD DATA')
+            pp = PrepManPlan()
+            pp.clear_old_result()
 
         if self.vega:
             self.logger.info('--- GENETIC ALGORITHM: VEGA ---')

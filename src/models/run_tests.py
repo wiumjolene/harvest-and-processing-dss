@@ -34,25 +34,32 @@ class RunTests:
             pop=pop.append(ind).reset_index(drop=True)
         return pop
 
-    def make_ga_test(self, alg, test_name):
-
-        alg_path = f"{test_name}/{alg}"
-
+    def make_ga_test(self, alg_path, test_name):
+        #dirpath=os.path.join('data','interim','tests', f"{alg}")
+        #alg_path=os.path.join('data','interim','tests',test_name,alg)
+        #alg_path = f"{test_name}/{alg}"
         fitness_df = self.population(0, config.POPUATION, alg_path, test_name)
         fitness_df['population'] = 'yes'
 
-        if alg == 'vega':
+        if 'vega' in alg_path:
+        #if alg == 'vega':
             fitness_df = self.ga1.pareto_vega(fitness_df)
+            alg='vega'
 
-        if alg == 'nsga2':
+        if 'nsga2' in alg_path:
+        #if alg == 'nsga2':
             fitness_df = self.ga2.pareto_nsga2(fitness_df)
+            alg='nsga2'
 
-        if alg == 'moga':
+        #if alg == 'moga':
+        if 'moga' in alg_path:
             fitness_df = self.ga3.pareto_moga(fitness_df)
+            alg='moga'
 
         init_pop = fitness_df
 
-        filename_html = f"reports/figures/genetic_algorithm_{test_name}_{alg}.html"
+        filename_html=os.path.join('reports','figures',f"genetic_algorithm_{test_name}_{alg}.html")
+        #filename_html = f"reports/figures/genetic_algorithm_{test_name}_{alg}.html"
 
         #avobs=[]
         for i in range(config.ITERATIONS):
@@ -60,10 +67,7 @@ class RunTests:
 
             self.logger.debug(f"- starting crossover")
 
-            fitness_df = self.gag.crossover(fitness_df, alg_path, test=True, test_name=test_name)
-            #av_obj1=fitness_df['obj1'].mean()
-            #av_obj2=fitness_df['obj2'].mean()
-            #avobs.append([av_obj1,av_obj2])
+            fitness_df = self.gag.crossover(fitness_df,alg_path,test=True,test_name=test_name)
 
             self.logger.debug(f"- initiate pareto check")
             if alg == 'vega':
@@ -87,7 +91,7 @@ class RunTests:
             pareto_indivst=pd.DataFrame(data=x,columns=['value'])
             pareto_indivst['time_id']=pareto_indivst.index
             pareto_indivst['id']=max_id + pp
-            path=os.path.join('data','interim',f"{alg_path}",f"id_{max_id + pp}")
+            path=os.path.join(alg_path,f"id_{max_id + pp}")
             pareto_indivst.to_pickle(path, protocol=5)
 
             # Choose which test to use
@@ -117,14 +121,18 @@ class RunTests:
         ga = RunTests()
         pt = ParetoFeatures()
 
-        if not os.path.exists(f"data/interim/{test}/{alg}"):
-            os.makedirs(f"data/interim/{test}/{alg}")
+        alg_path=os.path.join('data','interim','tests',test,alg)
+        if not os.path.exists(alg_path):
+            os.makedirs(alg_path)
+        #if not os.path.exists(f"data/interim/tests/{test}/{alg}"):
+        #    os.makedirs(f"data/interim/tests/{test}/{alg}")
 
         hyperarea = pd.DataFrame()
         for s in range(config.SAMPLESTART, config.SAMPLEEND):
             start=datetime.datetime.now()
-            fitness_df=ga.make_ga_test(alg, test)
-            fitness_df.to_excel(f"data/interim/{test}/fitness_{alg}_{s}.xlsx", index=False)
+            fitness_df=ga.make_ga_test(alg_path, test)
+            filepath=os.path.join(alg_path,f"fitness_{alg}_{s}.xlsx")
+            fitness_df.to_excel(filepath, index=False)
             finish=datetime.datetime.now()
 
             temp = pd.DataFrame(data=[(f"{alg}_{test}", start, finish, (finish-start), s)],
@@ -137,7 +145,8 @@ class RunTests:
             
             hyperarea=pd.concat([hyperarea, hyperareat]).reset_index(drop=True)
 
-        hyperarea.to_excel(f"data/interim/{test}/hyperarea_{alg}.xlsx", index=False)
+        filepath=os.path.join(alg_path, f"hyperarea_{alg}.xlsx")
+        hyperarea.to_excel(filepath, index=False)
         stats = StatsTests()
         #stats.run_friedman(hyperarea, alg, test)
         return monitor
@@ -174,6 +183,6 @@ class StatsTests:
         #else:
         #    print('Different distributions (reject H0)')
 
-        #pgRes.to_excel(f"data/interim/{test}/result_friedman_{alg}.xlsx")
+        #pgRes.to_excel(f"data/interim/tests/{test}/{alg}/result_friedman_{alg}.xlsx")
 
         return

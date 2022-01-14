@@ -8,7 +8,7 @@ from collections import defaultdict
 
 import numpy as np
 import pandas as pd
-from src.data.make_dataset import ImportOptions
+from src.data.make_dataset import ImportOptions, GetLocalData
 from src.features.make_tests import Tests
 from src.utils import config
 from src.utils.connect import DatabaseModelsClass
@@ -21,7 +21,7 @@ class Individual:
     individual_df = pd.DataFrame()
     dlistt=[]
 
-    def individual(self, number, alg_path, get_indiv=True, indiv=individual_df, test=False, test_name='zdt1'):
+    def individual(self,number,alg_path,get_indiv=True,indiv=individual_df,test=False,test_name='zdt1'):
         """ Function to define indiv and fitness """
         self.logger.info(f"- individual: {number}")
         if test:
@@ -58,7 +58,7 @@ class Individual:
         ind_fitness['id'] = number
         
         #indiv.to_pickle(f"data/interim/{alg_path}/id_{number}", protocol = 5) 
-        path=os.path.join('data','interim',f"{alg_path}",f"id_{number}")
+        path=os.path.join(alg_path, f"id_{number}")
         indiv.to_pickle(path, protocol=5)
         return ind_fitness
 
@@ -278,22 +278,22 @@ class Population:
 
         return pop    
 
-            
+
 class GeneticAlgorithmGenetics:
     logger = logging.getLogger(f"{__name__}.GeneticAlgorithmGenetics")
 
 
-    def selection(self, fitness_df, alg):
+    def selection(self, fitness_df, alg_path):
 
         if config.SELECTION == 'tournament':
-            fitness_df=self.tournament_selection(fitness_df, fitness_df, alg)
+            fitness_df=self.tournament_selection(fitness_df, alg_path)
 
         if config.SELECTION == 'nondom':
-            fitness_df=self.nondom_selection(fitness_df, fitness_df, alg)
+            fitness_df=self.nondom_selection(fitness_df, alg_path)
 
         return fitness_df 
 
-    def tournament_selection(self, fitness_df, alg):
+    def tournament_selection(self, fitness_df, alg_path):
         """ 
         GA: choose parents to take into crossover
         
@@ -322,13 +322,13 @@ class GeneticAlgorithmGenetics:
                 high_fit2 = fit2
                 parent = option_id
             
-        parent_path = f"data/interim/{alg}/id_{parent}"
+        parent_path=os.path.join(alg_path, f"id_{option_id}")
         parent_df = pd.read_pickle(parent_path)
         parent_df = parent_df.sort_values(by=['time_id'])
                 
         return parent_df
 
-    def nondom_selection(self, fitness_df, alg):
+    def nondom_selection(self, fitness_df, alg_path):
         """This selection method makes use of the nondominated soting front to choose 
         parents. 
         NB: Only for NSGA-II. Moga etc has different structure. 
@@ -339,9 +339,10 @@ class GeneticAlgorithmGenetics:
         pareto_set = fitness_df[fitness_df['front']==1].reset_index(drop=True)
         option_num = random.randint(0,len(pareto_set)-1)
         option_id = pareto_set.at[option_num, 'id']
-        parent_path = f"data/interim/{alg}/id_{option_id}"
-        parent_df = pd.read_pickle(parent_path)  # FIXME: Optimise
-        #parent_df.to_excel(f"data/check/parent_{option_id}.xlsx")
+        #parent_path = f"data/interim/{alg}/id_{option_id}"
+        parent_path=os.path.join(alg_path, f"id_{option_id}")
+        parent_df = pd.read_pickle(parent_path)
+
         return parent_df
 
     def mutation_TRUNCATE(self, df_mutate, times, test):
@@ -531,7 +532,7 @@ class GeneticAlgorithmGenetics:
         fitness_df = pd.concat([fitness_df, child1_f, child2_f]).reset_index(drop=True)
         return fitness_df
 
-    def crossover_BITFLIP(self, fitness_df, alg, test, test_name):
+    def crossover_BITFLIP(self, fitness_df, alg_path, test, test_name):
         """ GA crossover genetic material for diversification"""
         self.logger.debug(f"-- crossover")
 
@@ -539,15 +540,8 @@ class GeneticAlgorithmGenetics:
         max_id = fitness_df.id.max()
 
         # Select parents with tournament
-        #pareto_df = fitness_df[fitness_df['population'] != 'none'].reset_index(drop=True)
-        #parent1 = self.tournament_selection(fitness_df, alg)
-        #parent2 = self.tournament_selection(fitness_df, alg)
-
-        parent1 = self.nondom_selection(fitness_df, alg)
-        parent2 = self.nondom_selection(fitness_df, alg)
-
-        #parent1['status'] = 'parent1'
-        #parent2['status'] = 'parent2'
+        parent1 = self.selection(fitness_df, alg_path)
+        parent2 = self.selection(fitness_df, alg_path)
 
         times = list(parent1.time_id.unique())
         times_check = list(parent2.time_id.unique())
@@ -582,14 +576,10 @@ class GeneticAlgorithmGenetics:
         child2=child2.drop(columns=['crossover'])
 
         path=os.path.join('data','raw', f"parent1.xlsx")
-        #parent1.to_excel(path)
         path=os.path.join('data','raw', f"parent2.xlsx")
-        #parent2.to_excel(path)
 
         path=os.path.join('data','raw', f"child1.xlsx")
-        #child1.to_excel(path)
         path=os.path.join('data','raw', f"child2.xlsx")
-        #child2.to_excel(path)
 
         # If test then make new test individual gene
         if test:
@@ -598,9 +588,9 @@ class GeneticAlgorithmGenetics:
             child2 = self.mutation(child2, times, test=test)
 
             # Register child on fitness_df
-            child1_f = ix.individual(max_id+1, alg, get_indiv=False, indiv=child1, 
+            child1_f = ix.individual(max_id+1, alg_path, get_indiv=False, indiv=child1, 
                             test=test, test_name=test_name)
-            child2_f = ix.individual(max_id+2, alg, get_indiv=False, indiv=child2, 
+            child2_f = ix.individual(max_id+2, alg_path, get_indiv=False, indiv=child2, 
                             test=test, test_name=test_name) 
 
         else:
@@ -609,22 +599,16 @@ class GeneticAlgorithmGenetics:
             child2 = self.mutation(child2, times, test=False)
 
             # Register child on fitness_df
-            child1_f = ix.individual(max_id+1, alg, get_indiv=False, indiv=child1)
-            child2_f = ix.individual(max_id+2, alg, get_indiv=False, indiv=child2)
+            child1_f = ix.individual(max_id+1, alg_path, get_indiv=False, indiv=child1)
+            child2_f = ix.individual(max_id+2, alg_path, get_indiv=False, indiv=child2)
 
         child1_f['population'] = 'child'
         child2_f['population'] = 'child'
 
         fitness_df = pd.concat([fitness_df, child1_f, child2_f]).reset_index(drop=True)
-
-        path=os.path.join('data','raw', f"child1_m.xlsx")
-        #child1.to_excel(path)
-        path=os.path.join('data','raw', f"child2_m.xlsx")
-        #child2.to_excel(path)
-
         return fitness_df
 
-    def crossover_CROSSGEN(self, fitness_df, alg, test, test_name):
+    def crossover_CROSSGEN(self, fitness_df, alg_path, test, test_name):
         """ GA crossover genetic material for diversification"""
         self.logger.debug(f"-- crossover")
 
@@ -632,15 +616,8 @@ class GeneticAlgorithmGenetics:
         max_id = fitness_df.id.max()
 
         # Select parents with tournament
-        #pareto_df = fitness_df[fitness_df['population'] != 'none'].reset_index(drop=True)
-        #parent1 = self.tournament_selection(fitness_df, alg)
-        #parent2 = self.tournament_selection(fitness_df, alg)
-
-        parent1 = self.nondom_selection(fitness_df, alg)
-        parent2 = self.nondom_selection(fitness_df, alg)
-
-        #parent1['status'] = 'parent1'
-        #parent2['status'] = 'parent2'
+        parent1 = self.selection(fitness_df, alg_path)
+        parent2 = self.selection(fitness_df, alg_path)
 
         times = list(parent1.time_id.unique())
         times_check = list(parent2.time_id.unique())
@@ -651,7 +628,6 @@ class GeneticAlgorithmGenetics:
         # Uniform crossover 
         self.logger.debug(f"--- uniform crossover")
         
-        #times=[110,1,2,3,4,5,6,7,8,9]
         crossover = []
         r = random.randint(0, len(times)-1)
 
@@ -678,14 +654,10 @@ class GeneticAlgorithmGenetics:
         child2=child2.drop(columns=['crossover'])
 
         path=os.path.join('data','raw', f"parent1.xlsx")
-        #parent1.to_excel(path)
         path=os.path.join('data','raw', f"parent2.xlsx")
-        #parent2.to_excel(path)
 
         path=os.path.join('data','raw', f"child1.xlsx")
-        #child1.to_excel(path)
         path=os.path.join('data','raw', f"child2.xlsx")
-        #child2.to_excel(path)
 
         # If test then make new test individual gene
         if test:
@@ -694,9 +666,9 @@ class GeneticAlgorithmGenetics:
             child2 = self.mutation(child2, times, test=test)
 
             # Register child on fitness_df
-            child1_f = ix.individual(max_id+1, alg, get_indiv=False, indiv=child1, 
+            child1_f = ix.individual(max_id+1, alg_path, get_indiv=False, indiv=child1, 
                             test=test, test_name=test_name)
-            child2_f = ix.individual(max_id+2, alg, get_indiv=False, indiv=child2, 
+            child2_f = ix.individual(max_id+2, alg_path, get_indiv=False, indiv=child2, 
                             test=test, test_name=test_name) 
 
         else:
@@ -705,8 +677,8 @@ class GeneticAlgorithmGenetics:
             child2 = self.mutation(child2, times, test=False)
 
             # Register child on fitness_df
-            child1_f = ix.individual(max_id+1, alg, get_indiv=False, indiv=child1)
-            child2_f = ix.individual(max_id+2, alg, get_indiv=False, indiv=child2)
+            child1_f = ix.individual(max_id+1, alg_path, get_indiv=False, indiv=child1)
+            child2_f = ix.individual(max_id+2, alg_path, get_indiv=False, indiv=child2)
 
         child1_f['population'] = 'child'
         child2_f['population'] = 'child'
@@ -714,18 +686,16 @@ class GeneticAlgorithmGenetics:
         fitness_df = pd.concat([fitness_df, child1_f, child2_f]).reset_index(drop=True)
 
         path=os.path.join('data','raw', f"child1_m.xlsx")
-        #child1.to_excel(path)
         path=os.path.join('data','raw', f"child2_m.xlsx")
-        #child2.to_excel(path)
 
         return fitness_df
 
-    def crossover(self, fitness_df, alg, test=False, test_name='zdt1'):
+    def crossover(self, fitness_df, alg_path, test=False, test_name='zdt1'):
         if config.CROSSOVERTYPE == 'crossover_BITFLIP':
-            fitness_df=self.crossover_BITFLIP(fitness_df, alg, test, test_name)
+            fitness_df=self.crossover_BITFLIP(fitness_df, alg_path, test, test_name)
 
         if config.CROSSOVERTYPE == 'crossover_CROSSGEN':
-            fitness_df=self.crossover_CROSSGEN(fitness_df, alg, test, test_name)
+            fitness_df=self.crossover_CROSSGEN(fitness_df, alg_path, test, test_name)
 
         return fitness_df   
 
@@ -757,6 +727,48 @@ class GeneticAlgorithmGenetics:
                 
         return indicator
 
+    def get_domcount(self, fitness_df):
+        front = []
+        fitness_df = fitness_df.sort_values(by=['id']).reset_index(drop=True)
+
+        fits = list(fitness_df.id)
+
+        fitness_df['population'] = 'none'
+        fitness_df['domcount'] = 0 
+
+        dominating_fits = [0] * len(fitness_df)  # n (The number of people that dominate you)
+        dominated_fits = defaultdict(list)  # Sp (The people you dominate)
+        fitness_df=fitness_df.set_index('id')
+        fitness_df['id'] = fitness_df.index
+
+        obj1s = fitness_df['obj1'].values
+        obj2s = fitness_df['obj2'].values
+        for i, id in enumerate(fits):
+            obj1 = obj1s[i]
+            obj2 = obj2s[i]
+
+            for ix, idx in enumerate(fits[i + 1:]):
+                obj1x = obj1s[i + ix + 1]
+                obj2x = obj2s[i + ix + 1]
+                
+                #if build_features.GeneticAlgorithmGenetics.dominates((obj1, obj2), (obj1x, obj2x)):
+                #if ((obj1 <= obj1x and obj2 <= obj2x) and (obj1 < obj1x or obj2 < obj2x)):
+                if (obj1 <= obj1x and obj2 < obj2x):
+                    dominating_fits[i + ix + 1] += 1 
+                    dominated_fits[id].append(idx) 
+
+                #if build_features.GeneticAlgorithmGenetics.dominates((obj1x, obj2x), (obj1, obj2)):
+                #if ((obj1 >= obj1x and obj2 >= obj2x) and (obj1 > obj1x or obj2 > obj2x)):
+                if (obj1 >= obj1x and obj2 > obj2x):
+                    dominating_fits[i] += 1
+                    dominated_fits[idx].append(id)    
+
+            if dominating_fits[i] == 0:
+                front.append(id)
+
+        fitness_df['domcount'] = dominating_fits
+        fitness_df.loc[(fitness_df.domcount==0), 'front'] = 1
+        return fitness_df, front, dominated_fits
 
 class ParetoFeatures:
     """ Class to manage pareto front """
@@ -897,6 +909,21 @@ class PrepManPlan:
     indiv = Individual()
     graph = Visualize()
 
+    def clear_old_result(self):
+        self.logger.info(f"clear old data tables (sol_fitness & sol_pareto_individuals)")
+
+        sql="""
+        TRUNCATE `dss`.`sol_fitness`;
+        """
+        self.database_instance.execute_query(sql)
+
+        sql="""
+        DROP TABLE `dss`.`sol_pareto_individuals`;
+        """
+        self.database_instance.execute_query(sql)
+
+        return
+
     def prep_results(self, alg_path, fitness_df, init_pop):
         """function to convert final pareto front to sql data 
             here with manplan and actual"""
@@ -908,8 +935,10 @@ class PrepManPlan:
             infile = open(f"data/interim/{alg_path}/id_{id}",'rb')
             individualdf = pickle.load(infile)
             infile.close()
-            individualdf['id'] = id
+            individualdf['indiv_id'] = id
             popdf=popdf.append(individualdf).reset_index(drop=True)
+
+        popdf['alg'] = alg_path
 
         kobus_plan = self.kobus_plan()
         kobus_fit = self.indiv.individual(1000000, 
@@ -934,9 +963,12 @@ class PrepManPlan:
         
         #fitness_df = pd.concat([fitness_df, init_pop, kobus_fit, actual_fit])   
         fitness_df = pd.concat([fitness_df, init_pop, kobus_fit])      
+        fitness_df['alg'] = alg_path
+        fitness_df = fitness_df.rename(columns={"id": "indiv_id"})
+        fitness_df = fitness_df[['indiv_id', 'obj1', 'obj2', 'population', 'result', 'alg']]
         
-        self.database_instance.insert_table(fitness_df, 'sol_fitness', 'dss', if_exists='replace')
-        self.database_instance.insert_table(popdf, 'sol_pareto_individuals', 'dss', if_exists='replace')
+        self.database_instance.insert_table(fitness_df, 'sol_fitness', 'dss', if_exists='append')
+        self.database_instance.insert_table(popdf, 'sol_pareto_individuals', 'dss', if_exists='append')
         self.database_instance.insert_table(kobus_plan, 'sol_kobus_plan', 'dss', if_exists='replace')
         #self.database_instance.insert_table(actual_plan, 'sol_actual_plan', 'dss', if_exists='replace')
 
@@ -1051,3 +1083,87 @@ class PrepManPlan:
         df['packhours'] = df['kg']*(1*config.GIVEAWAY)*df['speed']/60  # TODO: CHECK CALC!!!!
 
         return df
+
+
+class PrepModelData:
+    """ Class to make features of ... """
+    logger = logging.getLogger(f"{__name__}.PrepModelData")
+    gld = GetLocalData()
+    database_dss = DatabaseModelsClass('PHDDATABASE_URL')
+    #mf = MakeFeatures()
+
+    def prep_harvest_estimates(self):
+        self.logger.info(f"- Prep harvest estimate")
+
+        try:
+            fc = self.gld.get_he_fc()
+            if len(fc) > 0:
+                self.database_dss.insert_table(fc, 'dim_fc', 'dss', if_exists='append')
+                self.logger.info(f"-- Added {len(fc)} fcs")
+
+            block = self.gld.get_he_block()
+            if len(block) > 0:
+                self.database_dss.insert_table(block, 'dim_block', 'dss', if_exists='append')
+                self.logger.info(f"-- Added {len(block)} blocks")
+
+            va = self.gld.get_he_va()
+            if len(va) > 0:
+                self.database_dss.insert_table(va, 'dim_va', 'dss', if_exists='append')
+                self.logger.info(f"-- Added {len(va)} vas")
+
+            he = self.gld.get_local_he()
+            self.database_dss.execute_query('TRUNCATE `dss`.`f_harvest_estimate`;')
+            he['add_datetime'] = datetime.datetime.now()
+            self.database_dss.insert_table(he, 'f_harvest_estimate', 'dss', if_exists='append')
+            success = True
+
+        except:
+            success = False
+            #self.mf.notify(False, 'prep_harvest_estimates')
+            self.logger.info(f"-- Prep harvest estimate failed")
+            
+        return success
+
+    def prep_demand_plan(self):
+        self.logger.info(f"- Prep demand plan")
+
+        try:
+            client = self.gld.get_dp_client()
+            if len(client) > 0:
+                self.database_dss.insert_table(client, 'dim_client', 'dss', if_exists='append')
+                self.logger.info(f"-- Added {len(client)} clients")
+
+            dp = self.gld.get_local_dp()
+            self.database_dss.execute_query('TRUNCATE `dss`.`f_demand_plan`;')
+            dp['add_datetime'] = datetime.datetime.now()
+            self.database_dss.insert_table(dp, 'f_demand_plan', 'dss', if_exists='append')
+            success = True
+        
+        except:
+            success = False
+            #self.mf.notify(False, 'prep_demand_plan')
+            self.logger.info(f"-- Prep demand failed")
+
+        return success
+
+    def prep_pack_capacity(self):
+        self.logger.info(f"- Prep pack capacities")
+
+        try:
+            packhouse = self.gld.get_pc_packhouse()
+            if len(packhouse) > 0:
+                self.database_dss.insert_table(packhouse, 'dim_packhouse', 'dss', if_exists='append')
+                self.logger.info(f"-- Added {len(packhouse)} packhouses")
+
+            pc = self.gld.get_local_pc()
+            self.database_dss.execute_query('TRUNCATE `dss`.`f_pack_capacity`;')
+            pc['add_datetime'] = datetime.datetime.now()
+            self.database_dss.insert_table(pc, 'f_pack_capacity', 'dss', if_exists='append')
+            success = True
+
+        except:
+            success = False
+            #self.mf.notify(False, 'prep_pack_capacity')
+            self.logger.info(f"-- Prep pack failed")
+
+        return success

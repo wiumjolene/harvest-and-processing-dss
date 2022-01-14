@@ -2,7 +2,7 @@ import math
 
 # show graphs
 SHOW=True  #TODO:
-SHOWRATE = 10000
+SHOWRATE = 1000
 
 STDUNIT=4.5 # each stdunit is so many kg of produce
 GIVEAWAY=0.05 # % giveaway
@@ -17,8 +17,8 @@ ZAR_KM=3.16/1000
 ########################################################
 # GA CONFIG
 ########################################################
-SELECTION='tournament'
-#SELECTION='nondom'
+#SELECTION='tournament'
+SELECTION='nondom'
 TOURSIZE=2  # NB NSGI2 requires binary tournament selection
 
 MUTATIONRATE=0.12
@@ -30,7 +30,7 @@ CROSSOVERTYPE='crossover_BITFLIP'
 
 
 POPUATION=50 #TODO:
-ITERATIONS=20000 #TODO:
+ITERATIONS=5000 #TODO:
 
 ########################################################
 # MOGA CONFIG

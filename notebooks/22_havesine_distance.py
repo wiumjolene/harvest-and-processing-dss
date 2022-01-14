@@ -1,5 +1,6 @@
 import haversine as hs
 import pandas as pd
+import datetime
 from connect import DatabaseModelsClass
 
 db = DatabaseModelsClass('PHDDATABASE_URL')
@@ -7,7 +8,7 @@ def get_packhouse():
     sql = """
         SELECT id, longitude, latitude 
         FROM dss.dim_packhouse
-        WHERE id = 38;
+        WHERE id <= 63;
     """
     df = db.select_query(sql)
     return(df)
@@ -16,44 +17,63 @@ def get_block():
     sql = """
         SELECT id, longitude, latitude 
         FROM dss.dim_block
-        WHERE id = 94;
+        WHERE id = 45;
     """
     df = db.select_query(sql)
     return(df)
+
+def get_from_to(block_id, packhouse_id):
+    sql = f"""
+        SELECT * FROM dss.f_from_to
+        WHERE block_id = {block_id} and packhouse_id = {packhouse_id};
+    """
+    df = db.select_query(sql)
+
+    if len(df) > 0:
+        update = False
+
+    else:
+        update = True
+    
+    return update
 
 
 packhouse = get_packhouse()
 block = get_block()
 
-#print(block)
 
-df=[]
+
+
 for p in range(len(packhouse)):
     packhouse_id=packhouse.id[p]
     plong=packhouse.longitude[p]
     plat=packhouse.latitude[p]
 
     ploc = (plong, plat)
+    df=[]
 
     for b in range(len(block)):
         block_id=block.id[b]
         blong=block.longitude[b]
         blat=block.latitude[b]
+        print(f"check from block {block_id} to packhouse {packhouse_id}")
 
-        if blong < 1:
-            x = 10000
-            allowed = 0
-        
-        else:
-            bloc = (blong, blat)
-            x = round(hs.haversine(ploc,bloc),2)
-            allowed = 1
+        if get_from_to(block_id, packhouse_id):
 
-        #print(x)
+            print(f"-- UPDATE from block ")
 
-        df.append([packhouse_id,block_id,x,allowed])
+            if blong < 1:
+                x = 10000
+                allowed = 2
+            
+            else:
+                bloc = (blong, blat)
+                x = round(hs.haversine(ploc,bloc),2)
+                allowed = 2
 
-df=pd.DataFrame(data=df,columns=['packhouse_id','block_id','km','allowed'])
-print(df)
+            df.append([packhouse_id,block_id,x,allowed])
 
-db.insert_table(df, 'f_from_to', 'dss', if_exists='append')
+    df=pd.DataFrame(data=df,columns=['packhouse_id','block_id','km','allowed'])
+    if len(df)>0:
+        df['add_datetime'] = datetime.datetime.now()
+        db.insert_table(df, 'f_from_to', 'dss', if_exists='append')

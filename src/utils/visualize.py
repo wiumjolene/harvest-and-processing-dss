@@ -26,12 +26,16 @@ class Visualize:
 
     def scatter_plot2(self, df, filename, colour, title):
 
-        df=df.rename(columns={"obj1": "km.kg", "obj2": "total_dev"})
-        fig = px.scatter(df, x="km.kg", y="total_dev", color=colour,
-                        hover_data=['id'], title=title)
+        if 'indiv_id' in df.columns:
+            # Check if not tests use actual data
+            df=df.rename(columns={"obj1": "km.kg", "obj2": "total_dev"})
+            fig = px.scatter(df, x="km.kg", y="total_dev", color=colour,
+                            hover_data=['indiv_id'], title=title)
 
-        #fig = px.scatter(df, x="obj1", y="obj2", color=colour,
-        #                hover_data=['id'], title=title)
+        else:
+            # Check if tests use obj1 and obj2
+            fig = px.scatter(df, x="obj1", y="obj2", color=colour,
+                            hover_data=['id'], title=title)
 
         fig.update_traces(marker=dict(size=16))
 
