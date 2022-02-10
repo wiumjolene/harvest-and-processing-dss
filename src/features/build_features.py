@@ -84,18 +84,38 @@ class Individual:
         
         ddf_pc = options.demand_capacity()
         ddic_metadata = options.demand_metadata()
+        ddf_metadata = options.demand_metadata_df()
         he_dic = options.harvest_estimate()
         ft_df = options.from_to()
         dic_speed = options.speed()
+
+        #ddf_allocate = ddf_metadata[ddf_metadata['id'] in dlist_allocate]
+        ddf_allocate = ddf_metadata[ddf_metadata['id'].isin(dlist_allocate)]
+        ddf_allocate=ddf_allocate[ddf_allocate['priority']>0]
+        ddf_allocate=ddf_allocate.set_index('id')
 
         individualdf = pd.DataFrame()
         self.logger.debug(f"--> loop through new dlist_allocate ({len(dlist_allocate)})")
         while len(dlist_allocate) > 0:
             self.logger.debug(f"---> get new allocation")
 
-            # Randomly choose which d to allocate first
-            dpos = random.randint(0, len(dlist_allocate)-1)
-            d = dlist_allocate[dpos]
+            # First allocate priority clients
+            # 26 January 2022 Conversation with Kobus Jonas
+            # https://www.evernote.com/shard/s187/sh/18e91ca0-a95b-b02d-865a-0b676523ce27/34794bda0a8bffb9835819f539b4b729
+
+            if len(ddf_allocate) > 0:
+                ddf_allocate=ddf_allocate.sort_values(by=['priority'])
+                d = ddf_allocate.index[0] # TODO: check this!!
+                self.logger.debug(f"----> allocate a priority d: {d}")
+
+            # if no further priority clients, allocate others
+            else:
+                # Randomly choose which d to allocate first
+                dpos = random.randint(0, len(dlist_allocate)-1)
+                d = dlist_allocate[dpos]
+                self.logger.debug(f"----> allocate a random d")
+
+
             dkg = ddic_metadata[d]['kg']
 
             indd_he = []
@@ -116,6 +136,17 @@ class Individual:
                 self.logger.debug(f"----> get harevest estimate")
                 if len(dhes) > 0:
                     # Randomly choose a he that is suitable
+
+                    # TODO: First prioritise rules engine allocations
+                    ddf_hett=ddf_het[ddf_het['priority']>0]
+                    if len(ddf_hett) > 0:
+                        # If there is a priority
+                        minp=ddf_het.priority.min()
+                        ddf_hett=ddf_het[ddf_het['priority']==minp]
+                        dhes = ddf_hett['id'].tolist()
+                        dhe_kg_rem = ddf_hett['kg_rem'].tolist()
+                        #print('prioritising he for demand')
+
                     hepos = random.randint(0, len(dhes)-1)
                     he = dhes[hepos]
                     he_kg_rem = dhe_kg_rem[hepos]
@@ -212,6 +243,8 @@ class Individual:
 
             # Remove d from list to not alocate it again
             dlist_allocate.remove(d)
+            if len(ddf_allocate) > 0:
+                ddf_allocate=ddf_allocate.drop(d)
 
         individualdf = individualdf.reset_index(drop=True)
         return individualdf
@@ -220,42 +253,26 @@ class Individual:
         self.logger.debug('-> make_fitness')
         options = ImportOptions()
  
-        pc_dic = options.pack_capacity()
-        pc_df = pd.DataFrame.from_dict(pc_dic, orient='index')
+        #pc_dic = options.pack_capacity()
+        #pc_df = pd.DataFrame.from_dict(pc_dic, orient='index')
 
-        ddic_metadata = options.demand_metadata()
-        ddf_metadata = pd.DataFrame.from_dict(ddic_metadata, orient='index')
-        ddf_metadata = ddf_metadata.reset_index(drop=False)
+        ddf_metadata = options.demand_metadata_df()
         ddf_metadata.rename(columns={'kg':'dkg'},inplace=True)
 
-        individualdf2 = individualdf.groupby('pc')['demand_id'].nunique()
-        individualdf2 = individualdf2.reset_index(drop=False)
-        individualdf3 = individualdf2.merge(pc_df, left_on='pc', right_on='id', how='left')
-
-        # FIXME: Bring something in to account for number of changes
-        #individualdf3['changes'] = individualdf3['stdunits_hour'] * individualdf3['demand_id'] 
-
-        #total_cost = ((individualdf.packhours.sum() \
-        #                + individualdf3.changes.sum())*config.ZAR_HR) \
-        #                + (individualdf.kgkm.sum()*config.ZAR_KM)
-
-        #total_cost = ((individualdf.packhours.sum()*config.ZAR_HR) \
-        #                + (individualdf.kgkm.sum()*config.ZAR_KM)) / individualdf.kg.sum()
+        #individualdf2 = individualdf.groupby('pc')['demand_id'].nunique()
+        #individualdf2 = individualdf2.reset_index(drop=False)
+        #individualdf3 = individualdf2.merge(pc_df, left_on='pc', right_on='id', how='left')
 
         total_cost = individualdf.kgkm.sum() / individualdf.kg.sum()
 
-        #total_cost = ((individualdf.packhours.sum()*config.ZAR_HR) \
-        #                + (individualdf.kgkm.sum()*config.ZAR_KM))
-
         individualdf2 = individualdf.groupby('demand_id')['kg'].sum()
         individualdf2 = individualdf2.reset_index(drop=False)
-        individualdf3 = ddf_metadata.merge(individualdf2, how='left', \
-                            left_index=True, right_index=True)
+        individualdf3 = pd.merge(ddf_metadata, individualdf2, how='left', \
+                            left_on='id', right_on='demand_id')
         individualdf3['kg'].fillna(0, inplace=True)
         individualdf3['deviation'] =  abs(individualdf3['dkg']-individualdf3['kg'])
-
+        
         total_dev = individualdf3.deviation.sum()
-        total_dev = (total_dev * (1 - config.GIVEAWAY)) / config.STDUNIT 
 
         return [[total_cost, total_dev]]
 
@@ -729,6 +746,7 @@ class GeneticAlgorithmGenetics:
 
     def get_domcount(self, fitness_df):
         front = []
+        fitness_df=fitness_df.reset_index(drop=True)
         fitness_df = fitness_df.sort_values(by=['id']).reset_index(drop=True)
 
         fits = list(fitness_df.id)
@@ -769,6 +787,7 @@ class GeneticAlgorithmGenetics:
         fitness_df['domcount'] = dominating_fits
         fitness_df.loc[(fitness_df.domcount==0), 'front'] = 1
         return fitness_df, front, dominated_fits
+
 
 class ParetoFeatures:
     """ Class to manage pareto front """
@@ -909,18 +928,27 @@ class PrepManPlan:
     indiv = Individual()
     graph = Visualize()
 
-    def clear_old_result(self):
+    def clear_old_result(self, alg=''):
         self.logger.info(f"clear old data tables (sol_fitness & sol_pareto_individuals)")
 
-        sql="""
-        TRUNCATE `dss`.`sol_fitness`;
-        """
-        self.database_instance.execute_query(sql)
+        if alg != '':
+            sql1=f"""
+            DELETE FROM `dss`.`sol_fitness` WHERE (`alg` = '{alg}');
+            """
+            sql2=f"""
+            DELETE FROM `dss`.`sol_pareto_individuals` WHERE (`alg` = '{alg}');
+            """
 
-        sql="""
-        DROP TABLE `dss`.`sol_pareto_individuals`;
-        """
-        self.database_instance.execute_query(sql)
+        else:
+            sql1=f"""
+            DELETE FROM `dss`.`sol_fitness`;
+            """
+            sql2="""
+            DELETE FROM `dss`.`sol_pareto_individuals`;
+            """
+            
+        self.database_instance.execute_query(sql1)
+        self.database_instance.execute_query(sql2)
 
         return
 
@@ -929,16 +957,31 @@ class PrepManPlan:
             here with manplan and actual"""
 
         self.logger.info(f"prepare results and send to sql")
+
+        if 'vega' in alg_path:
+            alg='vega'
+
+        if 'nsga2' in alg_path:
+            alg='nsga2'
+
+        if 'moga' in alg_path:
+            alg='moga'
+        
+        self.clear_old_result(alg)
+
         pareto_indivs = list(fitness_df.id)
         popdf=pd.DataFrame()
         for id in pareto_indivs:
-            infile = open(f"data/interim/{alg_path}/id_{id}",'rb')
+            #FIXME:
+            path=os.path.join(alg_path,f"id_{id}")
+            #infile = open(f"data/interim/{alg_path}/id_{id}",'rb')
+            infile = open(path,'rb')
             individualdf = pickle.load(infile)
             infile.close()
             individualdf['indiv_id'] = id
             popdf=popdf.append(individualdf).reset_index(drop=True)
 
-        popdf['alg'] = alg_path
+        popdf['alg'] = alg
 
         kobus_plan = self.kobus_plan()
         kobus_fit = self.indiv.individual(1000000, 
@@ -949,30 +992,31 @@ class PrepManPlan:
         kobus_fit['population'] = 'manplan'
         kobus_fit['result'] = 'manplan'
 
-        #actual_plan = self.actual()
-        #actual_fit = self.indiv.individual(1000001, 
-        #            alg_path = alg_path, 
-        #            get_indiv=False, 
-        #            indiv=actual_plan, 
-        #            test=False)
-        #actual_fit['population'] = 'actualplan'
-        #actual_fit['result'] = 'actualplan'
+        actual_plan = self.actual()
+        actual_fit = self.indiv.individual(1000001, 
+                    alg_path = alg_path, 
+                    get_indiv=False, 
+                    indiv=actual_plan, 
+                    test=False)
+        actual_fit['population'] = 'actualplan'
+        actual_fit['result'] = 'actualplan'
 
         init_pop['result'] = 'init pop'
         fitness_df['result'] = 'final result'
         
-        #fitness_df = pd.concat([fitness_df, init_pop, kobus_fit, actual_fit])   
-        fitness_df = pd.concat([fitness_df, init_pop, kobus_fit])      
-        fitness_df['alg'] = alg_path
+        fitness_df = pd.concat([fitness_df, init_pop, kobus_fit, actual_fit])   
+        #fitness_df = pd.concat([fitness_df, init_pop, kobus_fit])      
+        fitness_df['alg'] = alg
         fitness_df = fitness_df.rename(columns={"id": "indiv_id"})
         fitness_df = fitness_df[['indiv_id', 'obj1', 'obj2', 'population', 'result', 'alg']]
         
         self.database_instance.insert_table(fitness_df, 'sol_fitness', 'dss', if_exists='append')
         self.database_instance.insert_table(popdf, 'sol_pareto_individuals', 'dss', if_exists='append')
         self.database_instance.insert_table(kobus_plan, 'sol_kobus_plan', 'dss', if_exists='replace')
-        #self.database_instance.insert_table(actual_plan, 'sol_actual_plan', 'dss', if_exists='replace')
+        self.database_instance.insert_table(actual_plan, 'sol_actual_plan', 'dss', if_exists='replace')
 
-        filename_html = f"reports/figures/genetic_algorithm_{alg_path}.html"
+        #filename_html = f"reports/figures/genetic_algorithm_{alg_path}.html"
+        filename_html=f"{alg}"
         self.graph.scatter_plot2(fitness_df, filename_html, 'result', 
                 alg_path)
         
@@ -1004,10 +1048,9 @@ class PrepManPlan:
                 ON (pd.format = pack_type.name)
             LEFT JOIN dim_va ON (pd.variety = dim_va.name)
             LEFT JOIN dim_week ON (pd.packweek = dim_week.week)
-            LEFT JOIN (SELECT f_from_to.packhouse_id, dim_block.fc_id, AVG(f_from_to.km) as km
+            LEFT JOIN (SELECT f_from_to.packhouse_id, f_from_to.fc_id, AVG(f_from_to.km) as km
                             FROM dss.f_from_to
-                            LEFT JOIN dim_block ON (dim_block.id = f_from_to.block_id)
-                            GROUP BY f_from_to.packhouse_id, dim_block.fc_id) distance 
+                            GROUP BY f_from_to.packhouse_id, f_from_to.fc_id) distance 
                             ON (distance.packhouse_id = dim_packhouse.id 
                                 AND distance.fc_id = dim_fc.id)
             LEFT JOIN f_speed 
@@ -1022,7 +1065,7 @@ class PrepManPlan:
             WHERE recordtype = 'PLANNED'
             AND extract_datetime = (SELECT MAX(extract_datetime) FROM dss.planning_data)
             AND f_pack_capacity.stdunits is not null
-            AND pd.packweek in ('22-01','22-02','22-03','22-04')
+            AND pd.packweek in ('22-01','22-02','22-03','22-04','22-05','22-06')
             ;
         """
         
@@ -1057,10 +1100,9 @@ class PrepManPlan:
                 ON (pd.format = pack_type.name)
             LEFT JOIN dim_va ON (pd.variety = dim_va.name)
             LEFT JOIN dim_week ON (pd.packweek = dim_week.week)
-            LEFT JOIN (SELECT f_from_to.packhouse_id, dim_block.fc_id, AVG(f_from_to.km) as km
+            LEFT JOIN (SELECT f_from_to.packhouse_id, f_from_to.fc_id, AVG(f_from_to.km) as km
                             FROM dss.f_from_to
-                            LEFT JOIN dim_block ON (dim_block.id = f_from_to.block_id)
-                            GROUP BY f_from_to.packhouse_id, dim_block.fc_id) distance 
+                            GROUP BY f_from_to.packhouse_id, f_from_to.fc_id) distance 
                             ON (distance.packhouse_id = dim_packhouse.id 
                                 AND distance.fc_id = dim_fc.id)
             LEFT JOIN f_speed 
@@ -1075,7 +1117,7 @@ class PrepManPlan:
             WHERE recordtype = '_PACKED'
             AND extract_datetime = (SELECT MAX(extract_datetime) FROM dss.planning_data)
             AND f_pack_capacity.stdunits is not null
-            AND pd.packweek in ('22-01','22-02','22-03','22-04')
+            AND pd.packweek in ('22-01','22-02','22-03','22-04','22-05','22-06')
             AND dim_fc.packtopackplans = 1;
         """
         
@@ -1119,7 +1161,7 @@ class PrepModelData:
 
         except:
             success = False
-            #self.mf.notify(False, 'prep_harvest_estimates')
+            self.mf.notify(False, 'prep_harvest_estimates')
             self.logger.info(f"-- Prep harvest estimate failed")
             
         return success
@@ -1141,7 +1183,7 @@ class PrepModelData:
         
         except:
             success = False
-            #self.mf.notify(False, 'prep_demand_plan')
+            self.mf.notify(False, 'prep_demand_plan')
             self.logger.info(f"-- Prep demand failed")
 
         return success
@@ -1163,7 +1205,7 @@ class PrepModelData:
 
         except:
             success = False
-            #self.mf.notify(False, 'prep_pack_capacity')
+            self.mf.notify(False, 'prep_pack_capacity')
             self.logger.info(f"-- Prep pack failed")
 
         return success
