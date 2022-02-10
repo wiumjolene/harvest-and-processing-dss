@@ -17,21 +17,24 @@ from src.utils.visualize import Visualize
 class GeneticAlgorithmVega:
     logger = logging.getLogger(f"{__name__}.GeneticAlgorithmVega")
     gag = GeneticAlgorithmGenetics()
-    graph = Visualize()
+    manplan = PrepManPlan()
+    #graph = Visualize()
 
     def vega(self):
         """ Function that manages the GA. """
         self.logger.debug(f"Vector Evaluated Genetic Algorthm")
+
+        alg_path=os.path.join(config.ROOTDIR,'data','interim','vega')
         
         p = Population()
-        init_pop = p.population(config.POPUATION, 'vega')
+        init_pop = p.population(config.POPUATION, alg_path)
         fitness_df = init_pop
         fitness_df['population'] = 'yes'
 
         self.logger.debug(f"starting VEGA search")
         for _ in range(config.ITERATIONS):
             self.logger.debug(f"ITERATION {_}")
-            fitness_df = self.gag.crossover(fitness_df, 'vega')
+            fitness_df = self.gag.crossover(fitness_df, alg_path)
             fitness_df = self.pareto_vega(fitness_df)
 
         init_pop['result'] = 'init pop'
@@ -39,10 +42,7 @@ class GeneticAlgorithmVega:
         
         fitness_df = pd.concat([fitness_df, init_pop])
 
-        fitness_df.to_excel('data/interim/fitness_vega.xlsx', index=False)
-        filename_html = 'reports/figures/genetic_algorithm_vega.html'
-        self.graph.scatter_plot2(fitness_df, filename_html, 'result', 
-                'Vector Evaluated Genetic Algorithm (VEGA)')
+        self.manplan.prep_results(alg_path, fitness_df, init_pop)
 
         best_obj1 = fitness_df['obj1'].min()
         best_obj2 = fitness_df['obj2'].min()
@@ -83,16 +83,18 @@ class GeneticAlgorithmVega:
 class GeneticAlgorithmNsga2:
     logger = logging.getLogger(f"{__name__}.GeneticAlgorithmNsga2")
     gag = GeneticAlgorithmGenetics()
-    graph = Visualize()
+    #graph = Visualize()
     manplan = PrepManPlan()
     indiv = Individual()
 
     def nsga2(self):
         """ Function that manages the NSGA2. """
         self.logger.info(f"Non Dominated Sorting Genetic Algorithm")
+
+        alg_path=os.path.join(config.ROOTDIR,'data','interim','nsga2')
         
         p = Population()
-        init_pop = p.population(config.POPUATION * 2, 'nsga2')
+        init_pop = p.population(config.POPUATION * 2, alg_path)
         fitness_df = self.pareto_nsga2(init_pop)
         #fitness_df = init_pop
 
@@ -102,10 +104,10 @@ class GeneticAlgorithmNsga2:
         for _ in range(config.ITERATIONS):
             self.logger.info(f"ITERATION {_}")
 
-            fitness_df = self.gag.crossover(fitness_df, 'nsga2')
+            fitness_df = self.gag.crossover(fitness_df, alg_path)
             fitness_df = self.pareto_nsga2(fitness_df)
 
-        self.manplan.prep_results('nsga2', fitness_df, init_pop)
+        self.manplan.prep_results(alg_path, fitness_df, init_pop)
 
         best_obj1 = fitness_df['obj1'].min()
         best_obj2 = fitness_df['obj2'].min()
@@ -374,15 +376,17 @@ class GeneticAlgorithmNsga2:
 class GeneticAlgorithmMoga:
     logger = logging.getLogger(f"{__name__}.GeneticAlgorithmMoga")
     gag = GeneticAlgorithmGenetics()
-    graph = Visualize()
+    #graph = Visualize()
     manplan = PrepManPlan()
 
     def moga(self):
         """ Function that manages the MOGA. """
         self.logger.info(f"Multi Objective Genetic Algorithm")
+
+        alg_path=os.path.join(config.ROOTDIR,'data','interim','moga')
         
         p = Population()
-        init_pop = p.population(config.POPUATION, 'moga')
+        init_pop = p.population(config.POPUATION, alg_path)
         fitness_df = init_pop
 
         fitness_df['population'] = 'yes'
@@ -391,11 +395,11 @@ class GeneticAlgorithmMoga:
         for _ in range(config.ITERATIONS):
             self.logger.info(f"ITERATION {_}")
             fitness_df = self.pareto_moga(fitness_df)
-            fitness_df = self.gag.crossover(fitness_df, 'moga')
+            fitness_df = self.gag.crossover(fitness_df, alg_path)
             
 
         fitness_df = self.pareto_moga(fitness_df)
-        self.manplan.prep_results('moga', fitness_df, init_pop)
+        self.manplan.prep_results(alg_path, fitness_df, init_pop)
 
         best_obj1 = fitness_df['obj1'].min()
         best_obj2 = fitness_df['obj2'].min()

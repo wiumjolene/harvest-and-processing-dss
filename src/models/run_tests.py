@@ -58,7 +58,9 @@ class RunTests:
 
         init_pop = fitness_df
 
-        filename_html=os.path.join('reports','figures',f"genetic_algorithm_{test_name}_{alg}.html")
+        #FIXME:
+        filename_html=f"{test_name}_{alg}"
+        #filename_html=os.path.join('reports','figures',f"genetic_algorithm_{test_name}_{alg}.html")
         #filename_html = f"reports/figures/genetic_algorithm_{test_name}_{alg}.html"
 
         #avobs=[]
@@ -121,7 +123,7 @@ class RunTests:
         ga = RunTests()
         pt = ParetoFeatures()
 
-        alg_path=os.path.join('data','interim','tests',test,alg)
+        alg_path=os.path.join(config.ROOTDIR,'data','interim','tests',test,alg)
         if not os.path.exists(alg_path):
             os.makedirs(alg_path)
         #if not os.path.exists(f"data/interim/tests/{test}/{alg}"):

@@ -1,8 +1,9 @@
 import math
+import os
 
 # show graphs
-SHOW=True  #TODO:
-SHOWRATE = 1000
+SHOW=False  #TODO:
+SHOWRATE = 10000
 
 STDUNIT=4.5 # each stdunit is so many kg of produce
 GIVEAWAY=0.05 # % giveaway
@@ -29,8 +30,8 @@ CROSSOVERTYPE='crossover_BITFLIP'
 #CROSSOVERTYPE='crossover_CROSSGEN'
 
 
-POPUATION=50 #TODO:
-ITERATIONS=5000 #TODO:
+POPUATION=5 #TODO:
+ITERATIONS=10 #TODO:
 
 ########################################################
 # MOGA CONFIG
@@ -46,3 +47,6 @@ D = 30
 SAMPLESTART = 0
 SAMPLEEND = 1 # number of tests for t-test sample #TODO:
 
+ROOTDIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+#ROOTDIR = os.path.dirname(os.path.realpath(__file__))
+print(ROOTDIR)

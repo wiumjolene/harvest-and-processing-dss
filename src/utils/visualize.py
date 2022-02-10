@@ -1,6 +1,7 @@
 import plotly.graph_objects as go
 import plotly.offline as offline
 import plotly.express as px
+import os
 
 
 class Visualize:
@@ -25,6 +26,13 @@ class Visualize:
 
 
     def scatter_plot2(self, df, filename, colour, title):
+
+        repdir=os.path.join('reports','figures')
+
+        if not os.path.exists(repdir):
+            os.makedirs(repdir)
+
+        filename_html=os.path.join(repdir,f"genetic_algorithm_{filename}.html")
 
         if 'indiv_id' in df.columns:
             # Check if not tests use actual data

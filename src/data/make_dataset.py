@@ -19,9 +19,11 @@ class CreateOptions:
         df_dp = self.get_demand_plan()
         df_he = self.get_harvest_estimate()
         df_pc = self.get_pack_capacity()
-        #print(df_pc)
         self.get_from_to()
         self.get_speed()
+
+        df_exclude = self.get_rules_exlude()
+        df_prioritise = self.get_rules_prioritise()
 
         self.logger.info('- make_options')
         ddic_pc = {}
@@ -34,8 +36,10 @@ class CreateOptions:
         # Loop through demands and get he & pc
         for d in range(0,len(df_dp)):
             ddemand_id = df_dp.id[d]
+            dclient_id = df_dp.client_id[d]
             dvacat_id = df_dp.vacat_id[d]
             dtime_id = int(df_dp.time_id[d])
+            dpriority = int(df_dp.priority[d])
             dpack_type_id = df_dp.pack_type_id[d]
             dkg = df_dp.kg[d]
 
@@ -43,9 +47,9 @@ class CreateOptions:
             ddf_het = df_he[df_he['vacat_id']==dvacat_id]
             ddf_het = ddf_het[ddf_het['time_id']==dtime_id]
             ddf_het['demand_id'] = ddemand_id
+            ddf_het['client_id'] = dclient_id
             ddf_he = pd.concat([ddf_he, ddf_het]).reset_index(drop=True)
-            dlist_he = ddf_he.id.tolist()
-            ddic_he.update({ddemand_id: dlist_he})
+            dlist_he = ddf_het.id.tolist() # FIXME: this was set to list ddf_he???
 
             # find all available pack_capacities for demand    
             ddf_pct = df_pc[df_pc['time_id']==dtime_id]
@@ -68,38 +72,43 @@ class CreateOptions:
                                             'time_id': dtime_id,
                                             'pack_type_id': dpack_type_id,
                                             'kg':dkg,
+                                            'priority': dpriority,
                                             'ready': ready}})
 
-        # Save nb datasets to processed for use in algorithms
-        path = os.path.join('data','processed','ddic_dp')
-        #outfile = open('data/processed/ddic_dp','wb') #FIXME: Why is the name and the dic different?
-        outfile = open(path,'wb') #FIXME: Why is the name and the dic different?
-        pickle.dump(ddic_metadata,outfile)
-        outfile.close()
+        ### RULES EXCLUDE he_deamnd options
+        # Filter out options that are not feasible according to rules engine
+        # 26 January 2022 Conversation with Kobus Jonas
+        # https://www.evernote.com/shard/s187/sh/18e91ca0-a95b-b02d-865a-0b676523ce27/34794bda0a8bffb9835819f539b4b729
+        ddf_he=pd.merge(ddf_he, df_exclude, on=['client_id', 'va_id'], how='left')
+        ddf_he=ddf_he[ddf_he['exclude']!=1].reset_index(drop=True)
+        ddf_he=ddf_he.drop(columns=['exclude'])
 
-        path = os.path.join('data','processed','ddic_metadata')
-        #outfile = open('data/processed/ddic_metadata','wb')
+        ### RULES PRIORITISE
+        ddf_he=pd.merge(ddf_he, df_prioritise, on=['client_id', 'va_id'], how='left')
+        ddf_he=ddf_he.sort_values(by=['priority'])
+
+
+        path = os.path.join(config.ROOTDIR,'data','processed','ddic_metadata')
         outfile = open(path,'wb')
         pickle.dump(ddic_metadata,outfile)
         outfile.close()
 
-        path = os.path.join('data','processed','ddf_metadata')
-        #df_dp.to_pickle('data/processed/ddf_metadata')
+        path = os.path.join(config.ROOTDIR,'data','processed','ddf_metadata')
         df_dp.to_pickle(path)
 
-        #ddf_he.to_pickle('data/processed/ddf_he')
-        path = os.path.join('data','processed','ddf_he')
+        path = os.path.join(config.ROOTDIR,'data','processed','ddf_he')
         ddf_he.to_pickle(path)
 
-        #ddf_pc.to_pickle('data/processed/ddf_pc')
-        path = os.path.join('data','processed','ddf_pc')
+        path = os.path.join(config.ROOTDIR,'data','processed','ddf_pc')
         ddf_pc.to_pickle(path)
 
-        #outfile = open('data/processed/dlist_ready','wb')
-        path = os.path.join('data','processed','dlist_ready')
+        path = os.path.join(config.ROOTDIR,'data','processed','dlist_ready')
         outfile = open(path,'wb')
         pickle.dump(dlist_ready,outfile)
         outfile.close()
+
+        self.database_instance.insert_table(ddf_he,'interim_options_he','dss','replace')
+        self.database_instance.insert_table(ddf_pc,'interim_options_pc','dss','replace')
 
         return 
 
@@ -123,14 +132,17 @@ class CreateOptions:
                 dss.f_demand_plan fdp
                     LEFT JOIN
                 dim_week w ON (fdp.packweek = w.week)
-                WHERE packweek in ('22-01','22-02','22-03','22-04')
-                AND stdunits > 100;
+                WHERE stdunits > 100
+                -- AND packweek in ('22-01','22-02','22-03','22-04','22-05','22-06')
+                AND packweek in ('21-51','21-52','22-01','22-02')
+                ORDER BY fdp.priority
+                ;
             """
 
         df_dp = self.database_instance.select_query(query_str=s)
         df_dp['kg'] = df_dp['stdunits'] * config.STDUNIT * (1 + config.GIVEAWAY)
         df_dp = df_dp.sort_values(by=['time_id', 'priority']).reset_index(drop=True)
-        df_dp['trucks'] = df_dp['kg'] /config.TRUCK
+
         return df_dp
 
     def get_harvest_estimate(self): 
@@ -161,7 +173,7 @@ class CreateOptions:
 
         he_dic = df_he.to_dict(orient='index')
 
-        path = os.path.join('data','processed','he_dic')
+        path = os.path.join(config.ROOTDIR,'data','processed','he_dic')
         outfile = open(path,'wb')
         pickle.dump(he_dic,outfile)
         outfile.close()
@@ -193,7 +205,7 @@ class CreateOptions:
         df_pc['kg_rem'] = df_pc['kg']
         
         pc_dic = df_pc.to_dict(orient='index')
-        path = os.path.join('data','processed','pc_dic')
+        path = os.path.join(config.ROOTDIR,'data','processed','pc_dic')
         #outfile = open('data/processed/pc_dic','wb')
         outfile = open(path,'wb')
         pickle.dump(pc_dic,outfile)
@@ -204,15 +216,20 @@ class CreateOptions:
         """ Get from to data. """
         self.logger.info('- get_from_to')
 
-        s = """SELECT packhouse_id,
-                block_id,
+        s = """
+        SELECT packhouse_id,
+                -- f_from_to.fc_id,
+                dim_block.id as block_id,
                 km 
-                FROM dss.f_from_to
-                WHERE history=1
-                ORDER BY km;"""
+            FROM dss.f_from_to
+            LEFT JOIN dim_block ON (dim_block.fc_id = f_from_to.fc_id)
+            WHERE allowed=1
+            AND dim_block.id is not NULL
+            ORDER BY km;
+            """
 
         df_ft = self.database_instance.select_query(query_str=s)
-        path = os.path.join('data','processed','ft_df')
+        path = os.path.join(config.ROOTDIR,'data','processed','ft_df')
         df_ft.to_pickle(path)
         #df_ft.to_pickle('data/processed/ft_df')
         
@@ -248,30 +265,56 @@ class CreateOptions:
                 dic_packtypes.update({pt:dic_vas})
             dic_speed.update({p:dic_packtypes})
 
-        path = os.path.join('data','processed','dic_speed')
+        path = os.path.join(config.ROOTDIR,'data','processed','dic_speed')
         outfile = open(path,'wb')
         #outfile = open('data/processed/dic_speed','wb')
         pickle.dump(dic_speed,outfile)
         outfile.close()
         return
 
+    def get_rules_exlude(self): 
+        """ Rules that determine client may NOT rceive cultivar """
+        self.logger.info('- get_rules_exlude')
+
+        s = f"""SELECT client_id, va_id, 1 as exclude
+                FROM dss.rules_refuse_client_va;
+            """
+
+        df = self.database_instance.select_query(query_str=s)
+
+        path = os.path.join(config.ROOTDIR,'data','processed','rules_refuse')
+        df.to_pickle(path)
+        return df 
+
+    def get_rules_prioritise(self): 
+        """ Rules that determine client must prioritise cultivar """
+        self.logger.info('- get_rules_exlude')
+
+        s = f"""SELECT client_id, va_id, priority
+                FROM dss.rules_prioritse_client_va;
+            """
+        df = self.database_instance.select_query(query_str=s)
+        path = os.path.join(config.ROOTDIR,'data','processed','rules_prioritise')
+        df.to_pickle(path)
+        return df 
+
 
 class ImportOptions:
-    """ Class to get data. """
+    """ Class to get data in pickle format. """
     logger = logging.getLogger(f"{__name__}.CreateOptions")
     path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
     path = os.path.dirname(path)
 
     def demand_harvest(self):
         #infile = open(f"{self.path}/data/processed/ddf_he",'rb')
-        path=os.path.join('data','processed','ddf_he')
+        path=os.path.join(config.ROOTDIR,'data','processed','ddf_he')
         infile = open(path,'rb')
         data = pickle.load(infile)
         infile.close()
         return data
 
     def demand_capacity(self):
-        path=os.path.join('data','processed','ddf_pc')
+        path=os.path.join(config.ROOTDIR,'data','processed','ddf_pc')
         infile = open(path,'rb')
         #infile = open(f"{self.path}/data/processed/ddf_pc",'rb')
         data = pickle.load(infile)
@@ -279,15 +322,21 @@ class ImportOptions:
         return data
 
     def demand_metadata(self):
-        path=os.path.join('data','processed','ddic_metadata')
+        path=os.path.join(config.ROOTDIR,'data','processed','ddic_metadata')
         infile = open(path,'rb')
-        #infile = open(f"{self.path}/data/processed/ddic_metadata",'rb')
+        data = pickle.load(infile)
+        infile.close()
+        return data
+
+    def demand_metadata_df(self):
+        path=os.path.join(config.ROOTDIR,'data','processed','ddf_metadata')
+        infile = open(path,'rb')
         data = pickle.load(infile)
         infile.close()
         return data
 
     def demand_ready(self):
-        path=os.path.join('data','processed','dlist_ready')
+        path=os.path.join(config.ROOTDIR,'data','processed','dlist_ready')
         infile = open(path,'rb')
         #infile = open(f"{self.path}/data/processed/dlist_ready",'rb')
         data = pickle.load(infile)
@@ -295,7 +344,7 @@ class ImportOptions:
         return data
 
     def harvest_estimate(self):
-        path=os.path.join('data','processed','he_dic')
+        path=os.path.join(config.ROOTDIR,'data','processed','he_dic')
         infile = open(path,'rb')
         #infile = open(f"{self.path}/data/processed/he_dic",'rb')
         data = pickle.load(infile)
@@ -303,7 +352,7 @@ class ImportOptions:
         return data
 
     def pack_capacity(self):
-        path=os.path.join('data','processed','pc_dic')
+        path=os.path.join(config.ROOTDIR,'data','processed','pc_dic')
         infile = open(path,'rb')
         #infile = open(f"{self.path}/data/processed/pc_dic",'rb')
         data = pickle.load(infile)
@@ -312,7 +361,7 @@ class ImportOptions:
 
     def from_to(self):
         #infile = open(f"{self.path}/data/processed/ft_df",'rb')
-        path=os.path.join('data','processed','ft_df')
+        path=os.path.join(config.ROOTDIR,'data','processed','ft_df')
         infile = open(path,'rb')
         data = pickle.load(infile)
         infile.close()
@@ -320,15 +369,30 @@ class ImportOptions:
 
     def speed(self):
         #infile = open(f"{self.path}/data/processed/dic_speed",'rb')
-        path=os.path.join('data','processed','dic_speed')
+        path=os.path.join(config.ROOTDIR,'data','processed','dic_speed')
         infile = open(path,'rb')
         data = pickle.load(infile)
         infile.close()
         return data
 
+    def rules_he_prioritise(self):
+        path=os.path.join(config.ROOTDIR,'data','processed','rules_prioritise')
+        infile = open(path,'rb')
+        data = pickle.load(infile)
+        infile.close()
+        return data
+
+    def rules_he_refuse(self):
+        path=os.path.join(config.ROOTDIR,'data','processed','rules_refuse')
+        infile = open(path,'rb')
+        data = pickle.load(infile)
+        infile.close()
+        return data
 
 class GetLocalData:
-    """ Class to extract planning data"""
+    """ Class to extract planning data from local backups
+        into model structures.
+    """
     logger = logging.getLogger(f"{__name__}.GetLocalData")
     database_dss = DatabaseModelsClass('PHDDATABASE_URL')
 
@@ -354,7 +418,9 @@ class GetLocalData:
                 , SUM(kgGross) as kg_raw
             FROM dss.harvest_estimate_0638_data as he
             LEFT JOIN dim_fc ON (he.Grower = dim_fc.name)
-            LEFT JOIN dim_block ON (he.Farm = dim_block.name AND dim_block.fc_id = dim_fc.id)
+            LEFT JOIN dim_block 
+				ON ((CASE WHEN Orchard = '' THEN concat(Grower,"-",Variety) ELSE Orchard END) = dim_block.name 
+					AND dim_block.fc_id = dim_fc.id)
             LEFT JOIN dim_va ON (he.Variety = dim_va.name)
             WHERE extract_datetime = (SELECT MAX(extract_datetime) FROM dss.harvest_estimate_0638_data)
             AND estimatetype = 'ADJUSTMENT'
@@ -397,13 +463,18 @@ class GetLocalData:
             AND extract_datetime = (SELECT MAX(extract_datetime)FROM dss.harvest_estimate_data);;   
         """
         sql="""
-            SELECT DISTINCT Farm as name
+              SELECT DISTINCT CASE WHEN Orchard = '' THEN concat(Grower,"-",Variety) ELSE Orchard END as name
+				, dim_productionunit.id as pu_id
                 , dim_fc.id as fc_id
+                , dim_va.id as va_id
             FROM dss.harvest_estimate_0638_data
             LEFT JOIN dim_fc ON (harvest_estimate_0638_data.Grower = dim_fc.name)
-            LEFT JOIN dim_block ON (harvest_estimate_0638_data.Farm = dim_block.name AND dim_block.fc_id = dim_fc.id)
+            LEFT JOIN dim_productionunit ON (harvest_estimate_0638_data.Farm = dim_productionunit.name AND dim_fc.id = dim_productionunit.fc_id)
+            LEFT JOIN dim_block 
+				ON ((CASE WHEN Orchard = '' THEN concat(Grower,"-",Variety) ELSE Orchard END) = dim_block.name AND dim_block.fc_id = dim_fc.id)
+            LEFT JOIN dim_va ON (harvest_estimate_0638_data.Variety = dim_va.name)
             WHERE dim_block.id is NULL
-            AND extract_datetime = (SELECT MAX(extract_datetime)FROM dss.harvest_estimate_0638_data);  
+            AND extract_datetime = (SELECT MAX(extract_datetime)FROM dss.harvest_estimate_0638_data);
         """
         df = self.database_dss.select_query(sql)
         df['add_datetime'] = datetime.datetime.now()
@@ -421,7 +492,7 @@ class GetLocalData:
 			SELECT DISTINCT Variety as name
             FROM dss.harvest_estimate_0638_data
             LEFT JOIN dim_va ON (harvest_estimate_0638_data.Variety = dim_va.name)
-            WHERE dim_va.id is NULL
+            WHERE (dim_va.id is NULL and Variety is not NULL)
             AND extract_datetime = (SELECT MAX(extract_datetime)FROM dss.harvest_estimate_0638_data); 
         """
         df = self.database_dss.select_query(sql)
@@ -442,21 +513,26 @@ class GetLocalData:
         return df
 
     def get_local_dp(self):
+        # FIXME: transidays needs to be added over time to show
+        # progress of changes by KJ. Currently imported as static table.
         sql="""
             SELECT demandid as id
                 , dim_client.id as client_id
                 , dim_vacat.id as vacat_id
                 , dim_pack_type.id as pack_type_id
-                , IF(priority= "-", 0, priority) as priority
+                , dim_client.priority
+                -- , IF(priority= "-", 0, priority) as priority
                 , demand_arrivalweek as arrivalweek
                 , dim_time.week as packweek
-                , dim_client.transitdays as transitdays
+                -- , dim_client.transitdays as transitdays
+                , transitdays.transitdays
                 , round(qty_standardctns) as stdunits
             FROM dss.planning_data
             LEFT JOIN dim_client ON (planning_data.targetmarket = dim_client.name)
             LEFT JOIN dim_vacat ON (planning_data.varietygroup = dim_vacat.name)
             LEFT JOIN dim_week ON (planning_data.demand_arrivalweek = dim_week.week)
-            LEFT JOIN dim_time ON ((date_sub(dim_week.weekstart,  INTERVAL dim_client.transitdays DAY)) = dim_time.day)
+            LEFT JOIN transitdays ON (planning_data.demandid = transitdays.recordno)
+            LEFT JOIN dim_time ON ((date_sub(dim_week.weekstart,  INTERVAL transitdays.transitdays DAY)) = dim_time.day)
             LEFT JOIN dim_pack_type ON ((IF((SUBSTR(cartontype, 1, 1) = 'A'),
                         IF((cartontype = 'A75F'),
                             'LOOSE',
@@ -575,6 +651,7 @@ class AdjustPlanningData:
         return 
 
     def adjust_harvest_estimates(self):
+        # TODO: This cannot be updated as KJ planning data not at orchard level
         self.logger.info('- Adjusting harvest estimates according to Kobus plan')
         sql="""
             SELECT dim_packhouse.id as packhouse_id
