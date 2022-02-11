@@ -15,6 +15,90 @@ from src.utils.connect import DatabaseModelsClass
 from src.utils.visualize import Visualize
 
 
+class PrepModelData:
+    """ Class to make features of ... """
+    logger = logging.getLogger(f"{__name__}.PrepModelData")
+    gld = GetLocalData()
+    database_dss = DatabaseModelsClass('PHDDATABASE_URL')
+    #mf = MakeFeatures()
+
+    def prep_harvest_estimates(self, plan_date):
+        self.logger.info(f"- Prep harvest estimate")
+
+        try:
+            fc = self.gld.get_he_fc()
+            if len(fc) > 0:
+                self.database_dss.insert_table(fc, 'dim_fc', 'dss', if_exists='append')
+                self.logger.info(f"-- Added {len(fc)} fcs")
+
+            block = self.gld.get_he_block()
+            if len(block) > 0:
+                self.database_dss.insert_table(block, 'dim_block', 'dss', if_exists='append')
+                self.logger.info(f"-- Added {len(block)} blocks")
+
+            va = self.gld.get_he_va()
+            if len(va) > 0:
+                self.database_dss.insert_table(va, 'dim_va', 'dss', if_exists='append')
+                self.logger.info(f"-- Added {len(va)} vas")
+
+            he = self.gld.get_local_he(plan_date)
+            self.database_dss.execute_query('TRUNCATE `dss`.`f_harvest_estimate`;')
+            he['add_datetime'] = datetime.datetime.now()
+            self.database_dss.insert_table(he, 'f_harvest_estimate', 'dss', if_exists='append')
+            success = True
+
+        except:
+            success = False
+            self.mf.notify(False, 'prep_harvest_estimates')
+            self.logger.info(f"-- Prep harvest estimate failed")
+            
+        return success
+
+    def prep_demand_plan(self, plan_date):
+        self.logger.info(f"- Prep demand plan")
+
+        try:
+            client = self.gld.get_dp_client()
+            if len(client) > 0:
+                self.database_dss.insert_table(client, 'dim_client', 'dss', if_exists='append')
+                self.logger.info(f"-- Added {len(client)} clients")
+
+            dp = self.gld.get_local_dp(plan_date)
+            self.database_dss.execute_query('TRUNCATE `dss`.`f_demand_plan`;')
+            dp['add_datetime'] = datetime.datetime.now()
+            self.database_dss.insert_table(dp, 'f_demand_plan', 'dss', if_exists='append')
+            success = True
+        
+        except:
+            success = False
+            self.mf.notify(False, 'prep_demand_plan')
+            self.logger.info(f"-- Prep demand failed")
+
+        return success
+
+    def prep_pack_capacity(self, plan_date):
+        self.logger.info(f"- Prep pack capacities")
+
+        try:
+            packhouse = self.gld.get_pc_packhouse()
+            if len(packhouse) > 0:
+                self.database_dss.insert_table(packhouse, 'dim_packhouse', 'dss', if_exists='append')
+                self.logger.info(f"-- Added {len(packhouse)} packhouses")
+
+            pc = self.gld.get_local_pc(plan_date)
+            self.database_dss.execute_query('TRUNCATE `dss`.`f_pack_capacity`;')
+            pc['add_datetime'] = datetime.datetime.now()
+            self.database_dss.insert_table(pc, 'f_pack_capacity', 'dss', if_exists='append')
+            success = True
+
+        except:
+            success = False
+            self.mf.notify(False, 'prep_pack_capacity')
+            self.logger.info(f"-- Prep pack failed")
+
+        return success
+
+
 class Individual:
     """ Class to generate an individual solution. """
     logger = logging.getLogger(f"{__name__}.Individual")
@@ -928,15 +1012,18 @@ class PrepManPlan:
     indiv = Individual()
     graph = Visualize()
 
-    def clear_old_result(self, alg=''):
+    def clear_old_result(self, plan_date, alg=''):
         self.logger.info(f"clear old data tables (sol_fitness & sol_pareto_individuals)")
 
         if alg != '':
             sql1=f"""
-            DELETE FROM `dss`.`sol_fitness` WHERE (`alg` = '{alg}');
+            DELETE FROM `dss`.`sol_fitness` WHERE (`alg` = '{alg}' AND `plan_date`='{plan_date}');
             """
             sql2=f"""
-            DELETE FROM `dss`.`sol_pareto_individuals` WHERE (`alg` = '{alg}');
+            DELETE FROM `dss`.`sol_pareto_individuals` WHERE (`alg` = '{alg}' AND `plan_date`='{plan_date}');
+            """
+            sql3=f"""
+            DELETE FROM `dss`.`sol_kobus_plan` WHERE (`plan_date`='{plan_date}');
             """
 
         else:
@@ -946,13 +1033,17 @@ class PrepManPlan:
             sql2="""
             DELETE FROM `dss`.`sol_pareto_individuals`;
             """
-            
+            sql3=f"""
+            DELETE FROM `dss`.`sol_kobus_plan`;
+            """
+
         self.database_instance.execute_query(sql1)
         self.database_instance.execute_query(sql2)
+        self.database_instance.execute_query(sql3)
 
         return
 
-    def prep_results(self, alg_path, fitness_df, init_pop):
+    def prep_results(self, alg_path, fitness_df, init_pop, plan_date, week_str):
         """function to convert final pareto front to sql data 
             here with manplan and actual"""
 
@@ -967,7 +1058,7 @@ class PrepManPlan:
         if 'moga' in alg_path:
             alg='moga'
         
-        self.clear_old_result(alg)
+        self.clear_old_result(plan_date, alg) #TODO:
 
         pareto_indivs = list(fitness_df.id)
         popdf=pd.DataFrame()
@@ -982,8 +1073,9 @@ class PrepManPlan:
             popdf=popdf.append(individualdf).reset_index(drop=True)
 
         popdf['alg'] = alg
+        popdf['plan_date'] = plan_date
 
-        kobus_plan = self.kobus_plan()
+        kobus_plan = self.kobus_plan(plan_date, week_str)
         kobus_fit = self.indiv.individual(1000000, 
                     alg_path = alg_path, 
                     get_indiv=False, 
@@ -1005,15 +1097,19 @@ class PrepManPlan:
         fitness_df['result'] = 'final result'
         
         fitness_df = pd.concat([fitness_df, init_pop, kobus_fit, actual_fit])   
-        #fitness_df = pd.concat([fitness_df, init_pop, kobus_fit])      
+   
         fitness_df['alg'] = alg
+        fitness_df['plan_date'] = plan_date
+        kobus_plan['plan_date'] = plan_date
+
         fitness_df = fitness_df.rename(columns={"id": "indiv_id"})
-        fitness_df = fitness_df[['indiv_id', 'obj1', 'obj2', 'population', 'result', 'alg']]
+        fitness_df = fitness_df[['indiv_id', 'obj1', 'obj2', 
+                'population', 'result', 'alg', 'plan_date']]
         
         self.database_instance.insert_table(fitness_df, 'sol_fitness', 'dss', if_exists='append')
         self.database_instance.insert_table(popdf, 'sol_pareto_individuals', 'dss', if_exists='append')
-        self.database_instance.insert_table(kobus_plan, 'sol_kobus_plan', 'dss', if_exists='replace')
-        self.database_instance.insert_table(actual_plan, 'sol_actual_plan', 'dss', if_exists='replace')
+        self.database_instance.insert_table(kobus_plan, 'sol_kobus_plan', 'dss', if_exists='append')
+        #self.database_instance.insert_table(actual_plan, 'sol_actual_plan', 'dss', if_exists='replace')
 
         #filename_html = f"reports/figures/genetic_algorithm_{alg_path}.html"
         filename_html=f"{alg}"
@@ -1022,8 +1118,8 @@ class PrepManPlan:
         
         return
 
-    def kobus_plan(self):
-        sql_query = """
+    def kobus_plan(self, plan_date, week_str):
+        sql_query = f"""
             SELECT pd.demandid as demand_id
                     , f_pack_capacity.id as pc
                     , dim_fc.id as fc_id
@@ -1063,9 +1159,10 @@ class PrepManPlan:
                     AND f_pack_capacity.packweek = dim_week.week)
             -- WHERE extract_datetime = '2021-11-08 13:29:36'
             WHERE recordtype = 'PLANNED'
-            AND extract_datetime = (SELECT MAX(extract_datetime) FROM dss.planning_data)
+            AND extract_datetime = (SELECT MAX(extract_datetime) 
+                FROM dss.planning_data WHERE date(extract_datetime)='{plan_date}')
             AND f_pack_capacity.stdunits is not null
-            AND pd.packweek in ('22-01','22-02','22-03','22-04','22-05','22-06')
+            AND pd.packweek in ({week_str})
             ;
         """
         
@@ -1125,87 +1222,3 @@ class PrepManPlan:
         df['packhours'] = df['kg']*(1*config.GIVEAWAY)*df['speed']/60  # TODO: CHECK CALC!!!!
 
         return df
-
-
-class PrepModelData:
-    """ Class to make features of ... """
-    logger = logging.getLogger(f"{__name__}.PrepModelData")
-    gld = GetLocalData()
-    database_dss = DatabaseModelsClass('PHDDATABASE_URL')
-    #mf = MakeFeatures()
-
-    def prep_harvest_estimates(self):
-        self.logger.info(f"- Prep harvest estimate")
-
-        try:
-            fc = self.gld.get_he_fc()
-            if len(fc) > 0:
-                self.database_dss.insert_table(fc, 'dim_fc', 'dss', if_exists='append')
-                self.logger.info(f"-- Added {len(fc)} fcs")
-
-            block = self.gld.get_he_block()
-            if len(block) > 0:
-                self.database_dss.insert_table(block, 'dim_block', 'dss', if_exists='append')
-                self.logger.info(f"-- Added {len(block)} blocks")
-
-            va = self.gld.get_he_va()
-            if len(va) > 0:
-                self.database_dss.insert_table(va, 'dim_va', 'dss', if_exists='append')
-                self.logger.info(f"-- Added {len(va)} vas")
-
-            he = self.gld.get_local_he()
-            self.database_dss.execute_query('TRUNCATE `dss`.`f_harvest_estimate`;')
-            he['add_datetime'] = datetime.datetime.now()
-            self.database_dss.insert_table(he, 'f_harvest_estimate', 'dss', if_exists='append')
-            success = True
-
-        except:
-            success = False
-            self.mf.notify(False, 'prep_harvest_estimates')
-            self.logger.info(f"-- Prep harvest estimate failed")
-            
-        return success
-
-    def prep_demand_plan(self):
-        self.logger.info(f"- Prep demand plan")
-
-        try:
-            client = self.gld.get_dp_client()
-            if len(client) > 0:
-                self.database_dss.insert_table(client, 'dim_client', 'dss', if_exists='append')
-                self.logger.info(f"-- Added {len(client)} clients")
-
-            dp = self.gld.get_local_dp()
-            self.database_dss.execute_query('TRUNCATE `dss`.`f_demand_plan`;')
-            dp['add_datetime'] = datetime.datetime.now()
-            self.database_dss.insert_table(dp, 'f_demand_plan', 'dss', if_exists='append')
-            success = True
-        
-        except:
-            success = False
-            self.mf.notify(False, 'prep_demand_plan')
-            self.logger.info(f"-- Prep demand failed")
-
-        return success
-
-    def prep_pack_capacity(self):
-        self.logger.info(f"- Prep pack capacities")
-
-        try:
-            packhouse = self.gld.get_pc_packhouse()
-            if len(packhouse) > 0:
-                self.database_dss.insert_table(packhouse, 'dim_packhouse', 'dss', if_exists='append')
-                self.logger.info(f"-- Added {len(packhouse)} packhouses")
-
-            pc = self.gld.get_local_pc()
-            self.database_dss.execute_query('TRUNCATE `dss`.`f_pack_capacity`;')
-            pc['add_datetime'] = datetime.datetime.now()
-            self.database_dss.insert_table(pc, 'f_pack_capacity', 'dss', if_exists='append')
-            success = True
-
-        except:
-            success = False
-            self.mf.notify(False, 'prep_pack_capacity')
-            self.logger.info(f"-- Prep pack failed")
-
-        return success

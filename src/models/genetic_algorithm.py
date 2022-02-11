@@ -39,14 +39,8 @@ class GeneticAlgorithmVega:
 
         init_pop['result'] = 'init pop'
         fitness_df['result'] = 'final result'
-        
-        fitness_df = pd.concat([fitness_df, init_pop])
 
-        self.manplan.prep_results(alg_path, fitness_df, init_pop)
-
-        best_obj1 = fitness_df['obj1'].min()
-        best_obj2 = fitness_df['obj2'].min()
-        return [best_obj1, best_obj2]
+        return [alg_path, fitness_df, init_pop]
 
     def pareto_vega(self, fitness_df):
         """ Decide if new child is worthy of pareto membership 
@@ -96,7 +90,6 @@ class GeneticAlgorithmNsga2:
         p = Population()
         init_pop = p.population(config.POPUATION * 2, alg_path)
         fitness_df = self.pareto_nsga2(init_pop)
-        #fitness_df = init_pop
 
         fitness_df['population'] = 'yes'
 
@@ -107,11 +100,7 @@ class GeneticAlgorithmNsga2:
             fitness_df = self.gag.crossover(fitness_df, alg_path)
             fitness_df = self.pareto_nsga2(fitness_df)
 
-        self.manplan.prep_results(alg_path, fitness_df, init_pop)
-
-        best_obj1 = fitness_df['obj1'].min()
-        best_obj2 = fitness_df['obj2'].min()
-        return [best_obj1, best_obj2]
+        return [alg_path, fitness_df, init_pop]
 
     def crowding_distance(self, fitness_df, fc, size):
         """ Crowding distance sorting """ 
@@ -397,13 +386,9 @@ class GeneticAlgorithmMoga:
             fitness_df = self.pareto_moga(fitness_df)
             fitness_df = self.gag.crossover(fitness_df, alg_path)
             
-
         fitness_df = self.pareto_moga(fitness_df)
-        self.manplan.prep_results(alg_path, fitness_df, init_pop)
-
-        best_obj1 = fitness_df['obj1'].min()
-        best_obj2 = fitness_df['obj2'].min()
-        return [best_obj1, best_obj2]
+        
+        return [alg_path, fitness_df, init_pop]
 
     def pareto_moga(self, fitness_df):
         # TODO: Update with 'at' instead of 'loc' for speed.
