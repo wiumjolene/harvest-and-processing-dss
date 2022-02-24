@@ -71,7 +71,6 @@ class PrepModelData:
         
         except:
             success = False
-            self.mf.notify(False, 'prep_demand_plan')
             self.logger.info(f"-- Prep demand failed")
 
         return success

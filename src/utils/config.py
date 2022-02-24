@@ -30,8 +30,8 @@ CROSSOVERTYPE='crossover_BITFLIP'
 #CROSSOVERTYPE='crossover_CROSSGEN'
 
 
-POPUATION=25 #TODO:
-ITERATIONS=5000 #TODO:
+POPUATION=2 #TODO:
+ITERATIONS=5 #TODO:
 
 ########################################################
 # MOGA CONFIG

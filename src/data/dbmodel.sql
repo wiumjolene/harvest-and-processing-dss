@@ -422,5 +422,5 @@ CREATE TABLE `transitdays` (
   UNIQUE KEY `recordno_UNIQUE` (`recordno`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`sumitins`@`%` SQL SECURITY DEFINER VIEW `dim_week` AS select min(`dim_time`.`id`) AS `id`,min(`dim_time`.`day`) AS `weekstart`,`dim_time`.`weeknum` AS `weeknum`,`dim_time`.`week` AS `week`,`dim_time`.`season` AS `season`,left(`dim_time`.`yearweek`,4) AS `year` from `dim_time` 
+CREATE ALGORITHM=UNDEFINED DEFINER=`powerbi`@`%` SQL SECURITY DEFINER VIEW `dim_week` AS select min(`dim_time`.`id`) AS `id`,min(`dim_time`.`day`) AS `weekstart`,`dim_time`.`weeknum` AS `weeknum`,`dim_time`.`week` AS `week`,`dim_time`.`season` AS `season`,left(`dim_time`.`yearweek`,4) AS `year` from `dim_time` 
 group by `dim_time`.`weeknum`,`dim_time`.`week`,`dim_time`.`season`,`dim_time`.`yearweek` order by `id`;

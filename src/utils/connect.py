@@ -1,16 +1,20 @@
 import logging
 import os
 import time
+#from gevent import config
 
 import pandas as pd
 from dotenv import find_dotenv, load_dotenv
 from sqlalchemy import create_engine, event
 
+from src.utils import config
+
 
 class DatabaseModelsClass:
     def __init__(self, server_name):
-
-        load_dotenv(find_dotenv())
+        dotenv_path = os.path.join(config.ROOTDIR,'.env')
+        #load_dotenv(find_dotenv())
+        load_dotenv(dotenv_path)
         database_url = os.environ.get(server_name)
 
         self.alchemy_engine = create_engine(database_url)

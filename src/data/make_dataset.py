@@ -587,16 +587,12 @@ class AdjustPlanningData:
     logger = logging.getLogger(f"{__name__}.GetLocalData")
     database_dss = DatabaseModelsClass('PHDDATABASE_URL')
     
-    # TODO: Update with PLANNING_DATE and weeks remaining for planning
     def adjust_pack_capacities(self, week_str, plan_date):
         self.logger.info('- Adjusting pack cpacities according to Kobus plan')
         sql=f"""
             SELECT dim_packhouse.id as packhouse_id
-                    -- , dim_week.id as time_id
                     , pack_type.id as pack_type_id
-                    -- , pd.format
                     , pd.packweek
-                    -- , pd.packsite
                     , SUM(ROUND(pd.qty_standardctns * -1)) as stdunits
             FROM dss.planning_data pd
             LEFT JOIN dim_packhouse ON (pd.packsite = dim_packhouse.name)
@@ -609,15 +605,15 @@ class AdjustPlanningData:
             AND pd.packweek in ({week_str})
             AND dim_packhouse.id > 0
             GROUP BY dim_packhouse.id
-                    -- , dim_week.id
                     , pack_type.id
-                    -- , pd.format
-                    , pd.packweek
-                    -- , pd.packsite 
+                    , pd.packweek 
                     ;
         """
         # get Kobus Jonas plan for each packhouse
         df = self.database_dss.select_query(sql)
+
+        df_sum=df.groupby(['packhouse_id', 'packweek'])['stdunits'].sum().reset_index(drop=True)
+
         for k in range(0,len(df)):
             packhouse_id = df.packhouse_id[k]
             packweek = df.packweek[k]
@@ -660,7 +656,6 @@ class AdjustPlanningData:
 
         return 
     
-    # TODO: Update with PLANNING_DATE and weeks remaining for planning
     def adjust_harvest_estimates(self):
         # TODO: This cannot be updated as KJ planning data not at orchard level
         self.logger.info('- Adjusting harvest estimates according to Kobus plan')

@@ -22,7 +22,7 @@ class MainController:
     nsga2 = True
     moga = False
 
-    development=False
+    development=True
     test_fxn = False
     tests = ['zdt1', 'zdt2', 'zdt3']
     tests = ['zdt1']
@@ -47,12 +47,16 @@ class MainController:
             manplan = PrepManPlan()
             plan_date = '2021-12-22'
             weeks_str = "'21-51','21-52','22-01','22-02'"
-            dss=self.run_dss(plan_date, weeks_str)
-            manplan.prep_results(dss[0], dss[1], dss[2], plan_date, weeks_str)
+            #dss=self.run_dss(plan_date, weeks_str,adjust_planning_data=False)
+            self.run_dss(plan_date, weeks_str,
+                    synch_data=True,
+                    adjust_planning_data=False,
+                    make_data=False,
+                    clearold=False)
+            #manplan.prep_results(dss[0], dss[1], dss[2], plan_date, weeks_str)
 
         else:    
             self.manage_season_run()
-
 
     def manage_season_run(self):
         sr = ManageSeasonRun()
@@ -72,7 +76,7 @@ class MainController:
 
             print(f"{plan_date}: {weeks_str}")
             dss=self.run_dss(plan_date, weeks_str)
-            manplan.prep_results(dss[0], dss[1], dss[2], plan_date)
+            manplan.prep_results(dss[0], dss[1], dss[2], plan_date, weeks_str)
 
             sr.update_plan_complete(plan_date)
             
@@ -98,7 +102,7 @@ class MainController:
             else:
                 self.logger.info('Data synch failed, review to proceed')
                 exit()
-        #TODO:
+        
         if adjust_planning_data:
             self.logger.info('ADJUST DATA')
             apd = AdjustPlanningData()
