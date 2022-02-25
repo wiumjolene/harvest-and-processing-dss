@@ -139,7 +139,8 @@ class Individual:
 
         ind_fitness = pd.DataFrame(fitness, columns=['obj1', 'obj2'])
         ind_fitness['id'] = number
-         
+        
+        #indiv.to_pickle(f"data/interim/{alg_path}/id_{number}", protocol = 5) 
         path=os.path.join(alg_path, f"id_{number}")
         indiv.to_pickle(path, protocol=5)
         return ind_fitness
@@ -163,9 +164,6 @@ class Individual:
         self.logger.debug('--> import options')
         ddf_he = options.demand_harvest()
         ddf_he['evaluated'] = 0
-        ddf_he = ddf_he.set_index('id')
-        ddf_he['id'] = ddf_he.index
-        
         
         ddf_pc = options.demand_capacity()
         ddic_metadata = options.demand_metadata()
@@ -175,8 +173,6 @@ class Individual:
         #dic_speed = options.speed()
 
         ddf_pc = ddf_pc.merge(ft_df, on='packhouse_id', how='left')
-        ddf_pc = ddf_pc.set_index('id')
-        ddf_pc['id'] = ddf_pc.index
 
         ddf_allocate = ddf_metadata[ddf_metadata['id'].isin(dlist_allocate)]
         ddf_allocate=ddf_allocate[ddf_allocate['priority']>0]
@@ -205,7 +201,6 @@ class Individual:
 
 
             dkg = ddic_metadata[d]['kg']
-            ddf_pcd = ddf_pc[(ddf_pc['demand_id']==d)]
 
             indd_he = []
             indd_pc = []
@@ -213,6 +208,7 @@ class Individual:
             indd_kgkm = []
             indd_hrs = []
             while dkg > 0:
+                #self.logger.debug(f"----> dkg ({dkg}) for demand: {d}")
                 self.logger.debug(f"----> finding he and pc for d; dkg ({dkg}) for demand: {d}")
                 # Filter demand_he table according to d and kg.
                 # Check that combination of d_he has not yet been used.
@@ -226,7 +222,7 @@ class Individual:
                 if len(dhes) > 0:
                     # Randomly choose a he that is suitable
 
-                    # First prioritise rules engine allocations
+                    # TODO: First prioritise rules engine allocations
                     ddf_hett=ddf_het[ddf_het['priority']>0]
                     if len(ddf_hett) > 0:
                         # If there is a priority
@@ -234,6 +230,7 @@ class Individual:
                         ddf_hett=ddf_het[ddf_het['priority']==minp]
                         dhes = ddf_hett['id'].tolist()
                         dhe_kg_rem = ddf_hett['kg_rem'].tolist()
+                        #print('prioritising he for demand')
 
                     hepos = random.randint(0, len(dhes)-1)
                     he = dhes[hepos]
@@ -247,27 +244,53 @@ class Individual:
                     else:
                         to_pack = he_kg_rem
                     
-                    # Get closest pc for he from available pc's
                     self.logger.debug(f"-----> get pack capacity")
+                    # Get closest pc for he from available pc's
                     block_id = he_dic[he]['block_id']
                     #va_id = he_dic[he]['va_id']
                     
                     # Variables to determine speed -> add calculate the number of hours 
                     #packtype_id = ddic_metadata[d]['pack_type_id']
-                    ddf_pcdb = ddf_pcd[(ddf_pcd['block_id']==block_id)]#.reset_index(drop=True)
+                    # TODO: merge ft in the beginning
+                    #FIXME: ft_dft = ft_df[ft_df['block_id'] == block_id]
 
                     # Allocate to_pack to pack capacities
                     while to_pack > 0:
-                        ddf_pct = ddf_pcdb[(ddf_pcdb['kg_rem']>0)]
+                        #FIXME: ddf_pct = ddf_pc[(ddf_pc['demand_id']==d) & (ddf_pc['kg_rem']>0)]
+                        self.logger.debug(f"-----> check 1a")
+                        ddf_pct = ddf_pc[(ddf_pc['demand_id']==d) & (ddf_pc['kg_rem']>0) & (ddf_pc['block_id']==block_id)]
+                        # TODO: merge ft in the beginning
+                        self.logger.debug(f"-----> check 1b") 
+                        #FIXME: ddf_pct = ddf_pct.merge(ft_dft, on='packhouse_id', how='left')
 
+                        self.logger.debug(f"-----> check 2")
+                        
+                        # Drop pc with no from to for block
+                        # TODO: merge ft in the beginning
+                        ddf_pct = ddf_pct.dropna()
+
+                        self.logger.debug(f"-----> check 3")
+
+                        #FIXME: if (len(ft_dft) > 0) and (len(ddf_pct) > 0):
                         if len(ddf_pct) > 0:
                             ddf_pct = ddf_pct.sort_values(['km'], ascending=True).reset_index(drop=True)
+                            self.logger.debug(f"-----> check 4")
 
                             # Allocate closest pc to block                    
+                            #pc = ddf_pct.id[0]
                             pc = ddf_pct.at[0, 'id']
+                            self.logger.debug(f"-----> check 5")
+
+                            #packhouse_id = ddf_pct.packhouse_id[0]
                             #packhouse_id = ddf_pct.at[0, 'packhouse_id']
+
+                            #km = ddf_pct.km[0]
                             km = ddf_pct.at[0, 'km']
+                            self.logger.debug(f"-----> check 6")
+
+                            #pckg_rem = ddf_pct.kg_rem[0]
                             pckg_rem = ddf_pct.at[0, 'kg_rem']
+                            self.logger.debug(f"-----> check 7")
 
                             if pckg_rem > to_pack:
                                 packed = to_pack
@@ -288,19 +311,16 @@ class Individual:
 
                             # Update demand tables with updated capacity
                             he_kg_rem=he_kg_rem-packed
-                            
-                            ddf_pc.at[pc, 'kg_rem'] = pckg_rem
-                            ddf_pcdb.at[pc, 'kg_rem'] = pckg_rem
-                            ddf_he.at[he, 'kg_rem'] = he_kg_rem
+                            ddf_pc.loc[(ddf_pc['id']==pc),'kg_rem']=pckg_rem
+                            ddf_he.loc[(ddf_he['id']==he),'kg_rem']=he_kg_rem
                             dkg = dkg - packed
-                            self.logger.debug(f"-----> check 8a")
 
                             indd_he.append(he)
                             indd_pc.append(pc)
                             indd_kg.append(packed)
                             indd_kgkm.append(packed*km)
                             indd_hrs.append(packed*(1*config.GIVEAWAY)*speed/60)
-                            self.logger.debug(f"-----> check 8b")
+                            self.logger.debug(f"-----> check 8")
 
                         else:
                             ddf_he.loc[((ddf_he['id'] == he) & (ddf_he['demand_id'] == d)), 'evaluated'] = 1

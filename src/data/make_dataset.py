@@ -217,7 +217,6 @@ class CreateOptions:
 
         self.logger.info('- make_options')
         ddic_pc = {}
-        ddic_he = {}
         ddf_he =pd.DataFrame()
         ddf_pc =pd.DataFrame()
         ddic_metadata={}
@@ -265,7 +264,7 @@ class CreateOptions:
                                             'priority': dpriority,
                                             'ready': ready}})
 
-        ### RULES EXCLUDE he_deamnd options
+        ### RULES EXCLUDE he_demand options
         # Filter out options that are not feasible according to rules engine
         # 26 January 2022 Conversation with Kobus Jonas
         # https://www.evernote.com/shard/s187/sh/18e91ca0-a95b-b02d-865a-0b676523ce27/34794bda0a8bffb9835819f539b4b729
@@ -397,7 +396,6 @@ class CreateOptions:
         
         pc_dic = df_pc.to_dict(orient='index')
         path = os.path.join(config.ROOTDIR,'data','processed','pc_dic')
-        #outfile = open('data/processed/pc_dic','wb')
         outfile = open(path,'wb')
         pickle.dump(pc_dic,outfile)
         outfile.close()
@@ -421,9 +419,7 @@ class CreateOptions:
 
         df_ft = self.database_instance.select_query(query_str=s)
         path = os.path.join(config.ROOTDIR,'data','processed','ft_df')
-        df_ft.to_pickle(path)
-        #df_ft.to_pickle('data/processed/ft_df')
-        
+        df_ft.to_pickle(path)       
         return  
 
     def get_speed(self):
@@ -458,7 +454,6 @@ class CreateOptions:
 
         path = os.path.join(config.ROOTDIR,'data','processed','dic_speed')
         outfile = open(path,'wb')
-        #outfile = open('data/processed/dic_speed','wb')
         pickle.dump(dic_speed,outfile)
         outfile.close()
         return
@@ -588,7 +583,30 @@ class AdjustPlanningData:
     database_dss = DatabaseModelsClass('PHDDATABASE_URL')
     
     def adjust_pack_capacities(self, week_str, plan_date):
+        """
+        1. Adjust according to % split; consider tw pcs in week
+            - Capacity for specific pack type < planned; 
+            - Total capacity > planned; 
+            - Two pcs in week (packtype pc != week pc)
+
+        2. Adjust upwards capcity two pcs for week
+            - Capacity for specific pack type < planned; 
+            - Total capacity < planned; 
+            - Two pcs in week (packtype pc != week pc)
+
+        3. Adjust upwards capcity one pc for week
+            - Capacity for specific pack type < planned; 
+            - Total capacity < planned; 
+            - One pc in week (packtype pc == week pc)
+
+        4. Add additional pcs for pactype, packhouse, week
+            - No pc register for 
+                - week
+                - packtype
+                - packhouse
+        """
         self.logger.info('- Adjusting pack cpacities according to Kobus plan')
+
         sql=f"""
             SELECT dim_packhouse.id as packhouse_id
                     , pack_type.id as pack_type_id
@@ -610,48 +628,138 @@ class AdjustPlanningData:
                     ;
         """
         # get Kobus Jonas plan for each packhouse
-        df = self.database_dss.select_query(sql)
+        df_kj = self.database_dss.select_query(sql)
+        df_kjsum=df_kj.groupby(['packhouse_id', 'packweek'])['stdunits'].sum().reset_index(drop=False)
+        df_kjsum=df_kjsum.rename(columns={'stdunits':'weektotal'})
+        df_kj2=pd.merge(df_kj, df_kjsum, on=['packhouse_id', 'packweek'], how='left')
 
-        df_sum=df.groupby(['packhouse_id', 'packweek'])['stdunits'].sum().reset_index(drop=True)
+        s=f"""
+        SELECT a.packhouse_id, a.packweek, a.pack_type_id, a.stdunits_source, b.stdunits as weektotal
+        FROM dss.f_pack_capacity a
+        LEFT JOIN (SELECT packhouse_id, packweek, sum(stdunits_source) as stdunits 
+            FROM dss.f_pack_capacity
+            GROUP BY packhouse_id, packweek) b ON (a.packhouse_id=b.packhouse_id AND a.packweek=b.packweek)
+        """
+        df_pc = self.database_dss.select_query(s)
 
-        for k in range(0,len(df)):
-            packhouse_id = df.packhouse_id[k]
-            packweek = df.packweek[k]
-            pack_type_id = df.pack_type_id[k]
-            stdunits_kj = df.stdunits[k]
+        for k in range(0,len(df_kj2)):
+            packhouse_id = df_kj2.packhouse_id[k]
+            packweek = df_kj2.packweek[k]
+            pack_type_id = df_kj2.pack_type_id[k]
+            stdunits_kj = df_kj2.stdunits[k]
+            weektotal_kj = df_kj2.weektotal[k]
             now=datetime.datetime.now()
 
-            s=f"""
-            SELECT * FROM dss.f_pack_capacity
-            WHERE (packhouse_id = {packhouse_id} 
-            AND pack_type_id = {pack_type_id} 
-            AND packweek = '{packweek}');
-            """
-            pc = self.database_dss.select_query(s)
+            if pack_type_id == 1:
+                pack_type_idb = 2
 
-            if len(pc) > 0:
-                stdunits_cap = pc.stdunits[0]
+            if pack_type_id == 2:
+                pack_type_idb = 1
 
-                if stdunits_kj > stdunits_cap:
-                    s1=f"""
+            df_pct=df_pc[(df_pc['packhouse_id']==packhouse_id) & \
+                (df_pc['packweek']==packweek) & \
+                (df_pc['pack_type_id']==pack_type_id)].reset_index(drop=True)
+
+            # Check if any pc is logged for this combination
+            if len(df_pct) > 0:
+                stdunits_cap = df_pct.stdunits_source[0]
+                weektotal_cap = df_pct.weektotal[0]
+
+                ######## Two packtypes for week ########
+                # Where kj has more cap for packtype, not weektotal
+                if (weektotal_cap > weektotal_kj) & \
+                    (stdunits_cap < stdunits_kj) & \
+                    (weektotal_cap != stdunits_cap):
+                    self.logger.info('-- Rule1')
+
+                    a = stdunits_kj
+                    b = weektotal_cap - stdunits_kj
+
+                    sa=f"""
                     UPDATE `dss`.`f_pack_capacity` 
-                    SET `stdunits` = '{stdunits_kj}'
+                    SET `stdunits` = '{a}'
                         , `adjusted` = '1'
                         , `add_datetime` = '{now}' 
                     WHERE (packhouse_id = {packhouse_id} 
                         AND pack_type_id = {pack_type_id} 
                         AND packweek = '{packweek}');
                     """
-                    self.database_dss.execute_query(s1)
+                    self.database_dss.execute_query(sa)
 
+                    sb=f"""
+                    UPDATE `dss`.`f_pack_capacity` 
+                    SET `stdunits` = '{b}'
+                        , `adjusted` = '1'
+                        , `add_datetime` = '{now}' 
+                    WHERE (packhouse_id = {packhouse_id} 
+                        AND pack_type_id = {pack_type_idb} 
+                        AND packweek = '{packweek}');
+                    """
+                    self.database_dss.execute_query(sb)
+
+                # Where kj has more cap for packtype and weektotal
+                if (weektotal_cap < weektotal_kj) & \
+                    (stdunits_cap < stdunits_kj) & \
+                    (weektotal_cap != stdunits_cap):
+                    self.logger.info('-- Rule2')
+
+                    a = stdunits_kj
+                    b = weektotal_kj - stdunits_kj
+
+                    sa=f"""
+                    UPDATE `dss`.`f_pack_capacity` 
+                    SET `stdunits` = '{a}'
+                        , `adjusted` = '2'
+                        , `add_datetime` = '{now}' 
+                    WHERE (packhouse_id = {packhouse_id} 
+                        AND pack_type_id = {pack_type_id} 
+                        AND packweek = '{packweek}');
+                    """
+                    self.database_dss.execute_query(sa)
+
+                    sb=f"""
+                    UPDATE `dss`.`f_pack_capacity` 
+                    SET `stdunits` = '{b}'
+                        , `adjusted` = '2'
+                        , `add_datetime` = '{now}' 
+                    WHERE (packhouse_id = {packhouse_id} 
+                        AND pack_type_id = {pack_type_idb} 
+                        AND packweek = '{packweek}');
+                    """
+                    self.database_dss.execute_query(sb)
+
+                ######## Only one packtype for week ########
+                # Where kj has more cap for packtype and weektotal,
+                if (weektotal_cap < weektotal_kj) & \
+                    (stdunits_cap < stdunits_kj) & \
+                    (weektotal_cap == stdunits_cap):
+                    self.logger.info('-- Rule3')
+
+                    a = stdunits_kj
+                    b = weektotal_kj - stdunits_kj
+
+                    sa=f"""
+                    UPDATE `dss`.`f_pack_capacity` 
+                    SET `stdunits` = '{a}'
+                        , `adjusted` = '3'
+                        , `add_datetime` = '{now}' 
+                    WHERE (packhouse_id = {packhouse_id} 
+                        AND pack_type_id = {pack_type_id} 
+                        AND packweek = '{packweek}');
+                    """
+                    self.database_dss.execute_query(sa)
+
+
+            # Else add pc for this combination
             else:
                 s2=f"""
                     INSERT INTO `dss`.`f_pack_capacity` 
                     (`packhouse_id`, `pack_type_id`, `packweek`, 
                     `stdunits`, `stdunits_source`, `adjusted`, `add_datetime`) 
                     VALUES ({packhouse_id},{pack_type_id},'{packweek}', 
-                    {stdunits_kj},0,'2','{now}');
+                    {stdunits_kj},0,'4','{now}');
                 """
+                self.logger.info('-- Rule4')
                 self.database_dss.execute_query(s2)
 
         return 

@@ -47,13 +47,14 @@ class MainController:
             manplan = PrepManPlan()
             plan_date = '2021-12-22'
             weeks_str = "'21-51','21-52','22-01','22-02'"
+            #dss=self.run_dss(plan_date, weeks_str)
             #dss=self.run_dss(plan_date, weeks_str,adjust_planning_data=False)
-            self.run_dss(plan_date, weeks_str,
-                    synch_data=True,
+            dss=self.run_dss(plan_date, weeks_str,
+                    synch_data=False,
                     adjust_planning_data=False,
                     make_data=False,
                     clearold=False)
-            #manplan.prep_results(dss[0], dss[1], dss[2], plan_date, weeks_str)
+            manplan.prep_results(dss[0], dss[1], dss[2], plan_date, weeks_str)
 
         else:    
             self.manage_season_run()
@@ -80,7 +81,6 @@ class MainController:
 
             sr.update_plan_complete(plan_date)
             
-
         return 
 
     def run_dss(self, plan_date, weeks_str,
