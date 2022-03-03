@@ -55,7 +55,7 @@ class GetLocalData:
     logger = logging.getLogger(f"{__name__}.GetLocalData")
     database_dss = DatabaseModelsClass('PHDDATABASE_URL')
     
-    def get_local_he(self, plan_date):
+    def get_local_he(self, plan_date, weeks_str):
         sql=f"""
             SELECT dim_block.id as block_id
                 , dim_va.id as va_id
@@ -72,10 +72,13 @@ class GetLocalData:
                 FROM dss.harvest_estimate_0638_data WHERE date(extract_datetime)='{plan_date}')
             AND estimatetype = 'ADJUSTMENT'
             AND kgGross > 0
+            AND he.Week in ({weeks_str})
             GROUP BY dim_fc.id, dim_block.id, dim_va.id, Week
             ;         
         """
+        
         df = self.database_dss.select_query(sql)
+        df['plan_date'] = plan_date
         return df
 
     def get_he_fc(self):
@@ -136,11 +139,9 @@ class GetLocalData:
         df['add_datetime'] = datetime.datetime.now()
         return df
 
-    def get_local_dp(self, plan_date):
-        # FIXME: transidays needs to be added over time to show
-        # progress of changes by KJ. Currently imported as static table.
+    def get_local_dp(self, plan_date, weeks_str):
         sql=f"""
-            SELECT demandid as id
+            SELECT demandid as demand_id
                 , dim_client.id as client_id
                 , dim_vacat.id as vacat_id
                 , dim_pack_type.id as pack_type_id
@@ -164,10 +165,13 @@ class GetLocalData:
                         'LOOSE')) = dim_pack_type.name)
             WHERE extract_datetime = (SELECT MAX(extract_datetime)
                                         FROM dss.planning_data WHERE date(extract_datetime)='{plan_date}')
+            AND dim_time.week in ({weeks_str})
             AND recordtype = 'DEMAND'
             ;
         """
+        
         df = self.database_dss.select_query(sql)
+        df['plan_date'] = plan_date
         return df
 
     def get_pc_packhouse(self):
@@ -183,7 +187,7 @@ class GetLocalData:
         df['add_datetime'] = datetime.datetime.now()
         return df
 
-    def get_local_pc(self, plan_date):
+    def get_local_pc(self, plan_date, weeks_str):
         sql=f"""
             SELECT dim_packhouse.id as packhouse_id
                 , dim_pack_type.id as pack_type_id
@@ -194,9 +198,12 @@ class GetLocalData:
             LEFT JOIN dim_packhouse ON (pack_capacity_data.phc = dim_packhouse.name)
             LEFT JOIN dim_pack_type ON (pack_capacity_data.packformat = dim_pack_type.name)
             WHERE extract_datetime = (SELECT MAX(extract_datetime)
-                FROM dss.pack_capacity_data WHERE date(extract_datetime)='{plan_date}');
+                FROM dss.pack_capacity_data WHERE date(extract_datetime)='{plan_date}')
+            AND pack_capacity_data.packweek in ({weeks_str});
         """
+        
         df = self.database_dss.select_query(sql)
+        df['plan_date'] = plan_date
         return df
 
 
@@ -205,10 +212,10 @@ class CreateOptions:
     logger = logging.getLogger(f"{__name__}.CreateOptions")
     database_instance = DatabaseModelsClass('PHDDATABASE_URL')
 
-    def make_options(self, weeks_str):
-        df_dp = self.get_demand_plan(weeks_str)
-        df_he = self.get_harvest_estimate(weeks_str)
-        df_pc = self.get_pack_capacity(weeks_str)
+    def make_options(self, plan_date):
+        df_dp = self.get_demand_plan(plan_date)
+        df_he = self.get_harvest_estimate(plan_date)
+        df_pc = self.get_pack_capacity(plan_date)
         self.get_from_to()
         self.get_speed()
 
@@ -238,7 +245,7 @@ class CreateOptions:
             ddf_het['demand_id'] = ddemand_id
             ddf_het['client_id'] = dclient_id
             ddf_he = pd.concat([ddf_he, ddf_het]).reset_index(drop=True)
-            dlist_he = ddf_het.id.tolist() # FIXME: this was set to list ddf_he???
+            dlist_he = ddf_het.id.tolist()
 
             # find all available pack_capacities for demand    
             ddf_pct = df_pc[df_pc['time_id']==dtime_id]
@@ -301,7 +308,7 @@ class CreateOptions:
 
         return 
     
-    def get_demand_plan(self, weeks_str): 
+    def get_demand_plan(self, plan_date): 
         """ Extract demand requirement from database. """
         self.logger.info('- get_demand_plan')
 
@@ -322,7 +329,7 @@ class CreateOptions:
                     LEFT JOIN
                 dim_week w ON (fdp.packweek = w.week)
                 WHERE stdunits > 100
-                AND packweek in ({weeks_str})
+                AND plan_date = '{plan_date}'
                 ORDER BY fdp.priority
                 ;
             """
@@ -333,7 +340,7 @@ class CreateOptions:
 
         return df_dp
 
-    def get_harvest_estimate(self, weeks_str): 
+    def get_harvest_estimate(self, plan_date): 
         """ Get harvest estimate. """
         self.logger.info('- get_harvest_estimate')
 
@@ -350,7 +357,7 @@ class CreateOptions:
             LEFT JOIN dim_block ON (he.block_id = dim_block.id)
             LEFT JOIN dim_fc ON (dim_block.fc_id=dim_fc.id)
             WHERE kg_raw>0
-            AND packweek in ({weeks_str})
+            AND plan_date = '{plan_date}'
             AND dim_fc.packtopackplans=1;
             """
 
@@ -368,7 +375,7 @@ class CreateOptions:
         outfile.close()
         return df_he
 
-    def get_pack_capacity(self, weeks_str): 
+    def get_pack_capacity(self, plan_date): 
         """ Get pack capacities. """
         self.logger.info('- get_pack_capacity')
 
@@ -384,7 +391,7 @@ class CreateOptions:
             dss.f_pack_capacity pc
         LEFT JOIN
             dim_week w ON pc.packweek = w.week
-        WHERE packweek in ({weeks_str});
+        WHERE plan_date = '{plan_date}';
             """
 
         df_pc = self.database_instance.select_query(query_str=s)
@@ -638,7 +645,9 @@ class AdjustPlanningData:
         FROM dss.f_pack_capacity a
         LEFT JOIN (SELECT packhouse_id, packweek, sum(stdunits_source) as stdunits 
             FROM dss.f_pack_capacity
+            WHERE plan_date='{plan_date}'
             GROUP BY packhouse_id, packweek) b ON (a.packhouse_id=b.packhouse_id AND a.packweek=b.packweek)
+        WHERE a.plan_date='{plan_date}'
         """
         df_pc = self.database_dss.select_query(s)
 
@@ -682,7 +691,8 @@ class AdjustPlanningData:
                         , `add_datetime` = '{now}' 
                     WHERE (packhouse_id = {packhouse_id} 
                         AND pack_type_id = {pack_type_id} 
-                        AND packweek = '{packweek}');
+                        AND packweek = '{packweek}'
+                        AND plan_date = '{plan_date}');
                     """
                     self.database_dss.execute_query(sa)
 
@@ -693,7 +703,8 @@ class AdjustPlanningData:
                         , `add_datetime` = '{now}' 
                     WHERE (packhouse_id = {packhouse_id} 
                         AND pack_type_id = {pack_type_idb} 
-                        AND packweek = '{packweek}');
+                        AND packweek = '{packweek}'
+                        AND plan_date = '{plan_date}');
                     """
                     self.database_dss.execute_query(sb)
 
@@ -713,7 +724,8 @@ class AdjustPlanningData:
                         , `add_datetime` = '{now}' 
                     WHERE (packhouse_id = {packhouse_id} 
                         AND pack_type_id = {pack_type_id} 
-                        AND packweek = '{packweek}');
+                        AND packweek = '{packweek}'
+                        AND plan_date = '{plan_date}');
                     """
                     self.database_dss.execute_query(sa)
 
@@ -724,7 +736,8 @@ class AdjustPlanningData:
                         , `add_datetime` = '{now}' 
                     WHERE (packhouse_id = {packhouse_id} 
                         AND pack_type_id = {pack_type_idb} 
-                        AND packweek = '{packweek}');
+                        AND packweek = '{packweek}'
+                        AND plan_date = '{plan_date}');
                     """
                     self.database_dss.execute_query(sb)
 
@@ -745,7 +758,8 @@ class AdjustPlanningData:
                         , `add_datetime` = '{now}' 
                     WHERE (packhouse_id = {packhouse_id} 
                         AND pack_type_id = {pack_type_id} 
-                        AND packweek = '{packweek}');
+                        AND packweek = '{packweek}'
+                        AND plan_date = '{plan_date}');
                     """
                     self.database_dss.execute_query(sa)
 
@@ -755,9 +769,9 @@ class AdjustPlanningData:
                 s2=f"""
                     INSERT INTO `dss`.`f_pack_capacity` 
                     (`packhouse_id`, `pack_type_id`, `packweek`, 
-                    `stdunits`, `stdunits_source`, `adjusted`, `add_datetime`) 
+                    `stdunits`, `stdunits_source`, `adjusted`, `add_datetime`, `plan_date`) 
                     VALUES ({packhouse_id},{pack_type_id},'{packweek}', 
-                    {stdunits_kj},0,'4','{now}');
+                    {stdunits_kj},0,'4','{now}', '{plan_date}');
                 """
                 self.logger.info('-- Rule4')
                 self.database_dss.execute_query(s2)

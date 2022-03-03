@@ -7,7 +7,7 @@ CREATE TABLE `dim_block` (
   `hectare` decimal(10,3) DEFAULT NULL,
   `add_datetime` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=851 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=863 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `dim_client` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -87,7 +87,7 @@ CREATE TABLE `dim_va` (
   `add_datetime` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name_UNIQUE` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=276 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=277 DEFAULT CHARSET=utf8mb3;
 
 CREATE TABLE `dim_vacat` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -124,18 +124,6 @@ CREATE TABLE `f_from_to` (
   UNIQUE KEY `UNIQUE` (`fc_id`,`packhouse_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1387 DEFAULT CHARSET=utf8mb3;
 
-CREATE TABLE `f_from_to_TRUNCATED` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `pu_id` bigint DEFAULT NULL,
-  `packhouse_id` bigint DEFAULT NULL,
-  `km` double DEFAULT NULL,
-  `allowed` int DEFAULT NULL,
-  `history` int DEFAULT '0',
-  `add_datetime` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `UNIQUE` (`pu_id`,`packhouse_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3641 DEFAULT CHARSET=utf8mb3;
-
 CREATE TABLE `f_harvest_estimate` (
   `id` int NOT NULL AUTO_INCREMENT,
   `block_id` bigint DEFAULT NULL,
@@ -144,7 +132,7 @@ CREATE TABLE `f_harvest_estimate` (
   `kg_raw` double DEFAULT NULL,
   `add_datetime` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1758 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1781 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `f_pack_capacity` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -157,7 +145,7 @@ CREATE TABLE `f_pack_capacity` (
   `add_datetime` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `UNIQUE` (`packhouse_id`,`pack_type_id`,`packweek`)
-) ENGINE=InnoDB AUTO_INCREMENT=462 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=382 DEFAULT CHARSET=utf8mb3;
 
 CREATE TABLE `f_speed` (
   `id` bigint DEFAULT NULL,
@@ -387,8 +375,9 @@ CREATE TABLE `sol_fitness` (
   `result` text,
   `alg` text,
   `indiv_id` bigint DEFAULT NULL,
+  `plan_date` date DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1845 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1767 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `sol_kobus_plan` (
   `demand_id` bigint DEFAULT NULL,
@@ -400,7 +389,8 @@ CREATE TABLE `sol_kobus_plan` (
   `km` double DEFAULT NULL,
   `kgkm` double DEFAULT NULL,
   `speed` double DEFAULT NULL,
-  `packhours` double DEFAULT NULL
+  `packhours` double DEFAULT NULL,
+  `plan_date` date DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `sol_pareto_individuals` (
@@ -412,7 +402,8 @@ CREATE TABLE `sol_pareto_individuals` (
   `demand_id` bigint DEFAULT NULL,
   `time_id` bigint DEFAULT NULL,
   `indiv_id` bigint DEFAULT NULL,
-  `alg` text
+  `alg` text,
+  `plan_date` date DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `transitdays` (
@@ -421,6 +412,7 @@ CREATE TABLE `transitdays` (
   PRIMARY KEY (`recordno`),
   UNIQUE KEY `recordno_UNIQUE` (`recordno`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 
 CREATE ALGORITHM=UNDEFINED DEFINER=`powerbi`@`%` SQL SECURITY DEFINER VIEW `dim_week` AS select min(`dim_time`.`id`) AS `id`,min(`dim_time`.`day`) AS `weekstart`,`dim_time`.`weeknum` AS `weeknum`,`dim_time`.`week` AS `week`,`dim_time`.`season` AS `season`,left(`dim_time`.`yearweek`,4) AS `year` from `dim_time` 
 group by `dim_time`.`weeknum`,`dim_time`.`week`,`dim_time`.`season`,`dim_time`.`yearweek` order by `id`;

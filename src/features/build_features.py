@@ -22,7 +22,7 @@ class PrepModelData:
     database_dss = DatabaseModelsClass('PHDDATABASE_URL')
     #mf = MakeFeatures()
 
-    def prep_harvest_estimates(self, plan_date):
+    def prep_harvest_estimates(self, plan_date, weeks_str):
         self.logger.info(f"- Prep harvest estimate")
 
         try:
@@ -41,20 +41,19 @@ class PrepModelData:
                 self.database_dss.insert_table(va, 'dim_va', 'dss', if_exists='append')
                 self.logger.info(f"-- Added {len(va)} vas")
 
-            he = self.gld.get_local_he(plan_date)
-            self.database_dss.execute_query('TRUNCATE `dss`.`f_harvest_estimate`;')
+            he = self.gld.get_local_he(plan_date, weeks_str)
+            self.database_dss.execute_query(f"DELETE FROM `dss`.`f_harvest_estimate` WHERE (`plan_date` = '{plan_date}');")
             he['add_datetime'] = datetime.datetime.now()
             self.database_dss.insert_table(he, 'f_harvest_estimate', 'dss', if_exists='append')
             success = True
 
         except:
             success = False
-            self.mf.notify(False, 'prep_harvest_estimates')
             self.logger.info(f"-- Prep harvest estimate failed")
             
         return success
 
-    def prep_demand_plan(self, plan_date):
+    def prep_demand_plan(self, plan_date, weeks_str):
         self.logger.info(f"- Prep demand plan")
 
         try:
@@ -63,8 +62,8 @@ class PrepModelData:
                 self.database_dss.insert_table(client, 'dim_client', 'dss', if_exists='append')
                 self.logger.info(f"-- Added {len(client)} clients")
 
-            dp = self.gld.get_local_dp(plan_date)
-            self.database_dss.execute_query('TRUNCATE `dss`.`f_demand_plan`;')
+            self.database_dss.execute_query(f"DELETE FROM `dss`.`f_demand_plan` WHERE (`plan_date` = '{plan_date}');")
+            dp = self.gld.get_local_dp(plan_date, weeks_str)
             dp['add_datetime'] = datetime.datetime.now()
             self.database_dss.insert_table(dp, 'f_demand_plan', 'dss', if_exists='append')
             success = True
@@ -75,7 +74,7 @@ class PrepModelData:
 
         return success
 
-    def prep_pack_capacity(self, plan_date):
+    def prep_pack_capacity(self, plan_date, weeks_str):
         self.logger.info(f"- Prep pack capacities")
 
         try:
@@ -84,15 +83,14 @@ class PrepModelData:
                 self.database_dss.insert_table(packhouse, 'dim_packhouse', 'dss', if_exists='append')
                 self.logger.info(f"-- Added {len(packhouse)} packhouses")
 
-            pc = self.gld.get_local_pc(plan_date)
-            self.database_dss.execute_query('TRUNCATE `dss`.`f_pack_capacity`;')
+            pc = self.gld.get_local_pc(plan_date, weeks_str)
+            self.database_dss.execute_query(f"DELETE FROM `dss`.`f_pack_capacity` WHERE (`plan_date` = '{plan_date}');")
             pc['add_datetime'] = datetime.datetime.now()
             self.database_dss.insert_table(pc, 'f_pack_capacity', 'dss', if_exists='append')
             success = True
 
         except:
             success = False
-            self.mf.notify(False, 'prep_pack_capacity')
             self.logger.info(f"-- Prep pack failed")
 
         return success
@@ -206,6 +204,7 @@ class Individual:
 
             dkg = ddic_metadata[d]['kg']
             ddf_pcd = ddf_pc[(ddf_pc['demand_id']==d)]
+            ddf_hed = ddf_he[(ddf_he['demand_id']==d)]
 
             indd_he = []
             indd_pc = []
@@ -216,8 +215,9 @@ class Individual:
                 self.logger.debug(f"----> finding he and pc for d; dkg ({dkg}) for demand: {d}")
                 # Filter demand_he table according to d and kg.
                 # Check that combination of d_he has not yet been used.
-                ddf_het = ddf_he[(ddf_he['demand_id']==d)&(ddf_he['kg_rem']>0)& \
-                    (ddf_he['evaluated']==0)]
+                #ddf_het = ddf_he[(ddf_he['demand_id']==d)&(ddf_he['kg_rem']>0)& \
+                #    (ddf_he['evaluated']==0)]
+                ddf_het = ddf_hed[(ddf_hed['kg_rem']>0)&(ddf_hed['evaluated']==0)]
                 
                 dhes = ddf_het['id'].tolist()
                 dhe_kg_rem = ddf_het['kg_rem'].tolist()
@@ -291,7 +291,8 @@ class Individual:
                             
                             ddf_pc.at[pc, 'kg_rem'] = pckg_rem
                             ddf_pcdb.at[pc, 'kg_rem'] = pckg_rem
-                            ddf_he.at[he, 'kg_rem'] = he_kg_rem
+                            ddf_hed.at[he, 'kg_rem'] = he_kg_rem
+                            #FIXME: ddf_he.at[he, 'kg_rem'] = he_kg_rem
                             dkg = dkg - packed
                             self.logger.debug(f"-----> check 8a")
 
@@ -303,7 +304,9 @@ class Individual:
                             self.logger.debug(f"-----> check 8b")
 
                         else:
-                            ddf_he.loc[((ddf_he['id'] == he) & (ddf_he['demand_id'] == d)), 'evaluated'] = 1
+                            #FIXME:ddf_he.loc[((ddf_he['id'] == he) & (ddf_he['demand_id'] == d)), 'evaluated'] = 1
+                            #ddf_hed.loc[((ddf_hed['id'] == he)), 'evaluated'] = 1
+                            ddf_hed.at[he, 'evaluated'] = 1
                             break
 
                     self.logger.debug(f"-----> finished with finding pc")   
@@ -316,6 +319,10 @@ class Individual:
                         indd_kgkm.append(0)
                         indd_hrs.append(0)
                     break
+            
+            #FIXME:
+            ddf_he.at[he, 'evaluated'] = 1
+            ddf_he.at[he, 'kg_rem'] = he_kg_rem
             
             dindividual = {'he':indd_he, 'pc':indd_pc, 'kg': indd_kg,
                             'kgkm': indd_kgkm, 'packhours': indd_hrs} 
@@ -1124,7 +1131,8 @@ class PrepManPlan:
                     , (pd.qty_standardctns * -1) as stdunits
                     , distance.km
                     , (pd.qty_kg * -1) * distance.km as 'kgkm'
-                    , IF(f_speed.speed is NULL, 12, f_speed.speed) as speed
+                    -- , IF(f_speed.speed is NULL, 12, f_speed.speed) as speed
+                    , 12 as speed
                     -- , pd.variety
                     -- , pd.format
                     -- , pd.packweek
@@ -1142,15 +1150,11 @@ class PrepManPlan:
                             GROUP BY f_from_to.packhouse_id, f_from_to.fc_id) distance 
                             ON (distance.packhouse_id = dim_packhouse.id 
                                 AND distance.fc_id = dim_fc.id)
-            LEFT JOIN f_speed 
-				ON (f_speed.packhouse_id = dim_packhouse.id 
-                    AND f_speed.packtype_id = pack_type.id 
-					AND f_speed.va_id = dim_va.id)
 			LEFT JOIN f_pack_capacity
 				ON (f_pack_capacity.packhouse_id = dim_packhouse.id 
 					AND f_pack_capacity.pack_type_id = pack_type.id
-                    AND f_pack_capacity.packweek = dim_week.week)
-            -- WHERE extract_datetime = '2021-11-08 13:29:36'
+                    AND f_pack_capacity.packweek = dim_week.week
+                    AND f_pack_capacity.plan_date ='{plan_date}')
             WHERE recordtype = 'PLANNED'
             AND extract_datetime = (SELECT MAX(extract_datetime) 
                 FROM dss.planning_data WHERE date(extract_datetime)='{plan_date}')

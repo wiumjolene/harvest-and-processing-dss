@@ -22,7 +22,7 @@ class MainController:
     nsga2 = True
     moga = False
 
-    development=True
+    development=False
     test_fxn = False
     tests = ['zdt1', 'zdt2', 'zdt3']
     tests = ['zdt1']
@@ -46,13 +46,13 @@ class MainController:
         elif self.development:    
             manplan = PrepManPlan()
             plan_date = '2021-12-22'
-            weeks_str = "'21-51','21-52','22-01','22-02'"
+            weeks_str = "'21-51','21-52','22-01','22-02','22-03','22-04'"
             #dss=self.run_dss(plan_date, weeks_str)
             #dss=self.run_dss(plan_date, weeks_str,adjust_planning_data=False)
             dss=self.run_dss(plan_date, weeks_str,
-                    synch_data=False,
-                    adjust_planning_data=False,
-                    make_data=False,
+                    synch_data=True,
+                    adjust_planning_data=True,
+                    make_data=True,
                     clearold=False)
             manplan.prep_results(dss[0], dss[1], dss[2], plan_date, weeks_str)
 
@@ -92,9 +92,9 @@ class MainController:
         if synch_data:
             self.logger.info('SYNC DATA')
             pdp = PrepModelData()
-            dp=pdp.prep_demand_plan(plan_date)
-            he=pdp.prep_harvest_estimates(plan_date)
-            pc=pdp.prep_pack_capacity(plan_date)
+            dp=pdp.prep_demand_plan(plan_date, weeks_str)
+            he=pdp.prep_harvest_estimates(plan_date, weeks_str) 
+            pc=pdp.prep_pack_capacity(plan_date, weeks_str) 
 
             if (dp and he and pc):
                 self.logger.info('Data synch complete, good to proceed')
@@ -111,7 +111,7 @@ class MainController:
         if make_data:
             self.logger.info('MAKE DATA')
             v = CreateOptions()
-            v.make_options(weeks_str)
+            v.make_options(plan_date)
 
         if clearold:
             self.logger.info('CLEAR OLD DATA')

@@ -18,10 +18,10 @@ if __name__ == '__main__':
 
 """
 Containerisation
-Improve performance of individual
 
 Done
 - PACK CAPACITY ADJUSTMENT
 - Week increment
 - Double check from to
+- Improve performance of individual
 """
