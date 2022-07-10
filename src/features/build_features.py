@@ -290,9 +290,10 @@ class Individual:
                             he_kg_rem=he_kg_rem-packed
                             
                             ddf_pc.at[pc, 'kg_rem'] = pckg_rem
+                            ddf_pcd.at[pc, 'kg_rem'] = pckg_rem
                             ddf_pcdb.at[pc, 'kg_rem'] = pckg_rem
                             ddf_hed.at[he, 'kg_rem'] = he_kg_rem
-                            #FIXME: ddf_he.at[he, 'kg_rem'] = he_kg_rem
+                            ddf_he.at[he, 'kg_rem'] = he_kg_rem  #FIXME: 
                             dkg = dkg - packed
                             self.logger.debug(f"-----> check 8a")
 
@@ -321,8 +322,8 @@ class Individual:
                     break
             
             #FIXME:
-            ddf_he.at[he, 'evaluated'] = 1
-            ddf_he.at[he, 'kg_rem'] = he_kg_rem
+            #ddf_he.at[he, 'evaluated'] = 1
+            #ddf_he.at[he, 'kg_rem'] = he_kg_rem
             
             dindividual = {'he':indd_he, 'pc':indd_pc, 'kg': indd_kg,
                             'kgkm': indd_kgkm, 'packhours': indd_hrs} 
@@ -338,9 +339,13 @@ class Individual:
                 ddf_allocate=ddf_allocate.drop(d)
 
         individualdf = individualdf.reset_index(drop=True)
+
         return individualdf
 
     def make_fitness(self, individualdf):
+        # REVISE THIS!!!! 
+        # Currently Actual and Manplan are being influenced by over-allocation.
+
         self.logger.debug('-> make_fitness')
         options = ImportOptions()
 
@@ -351,10 +356,16 @@ class Individual:
 
         individualdf2 = individualdf.groupby('demand_id')['kg'].sum()
         individualdf2 = individualdf2.reset_index(drop=False)
+
+        
         individualdf3 = pd.merge(ddf_metadata, individualdf2, how='left', \
                             left_on='id', right_on='demand_id')
         individualdf3['kg'].fillna(0, inplace=True)
-        individualdf3['deviation'] =  abs(individualdf3['dkg']-individualdf3['kg'])
+
+        # FIXME: ABSOLUTE VALUE?!!
+        #individualdf3['deviation'] =  abs(individualdf3['dkg']-individualdf3['kg'])
+        individualdf3['deviation'] =  individualdf3['dkg']-individualdf3['kg']
+        individualdf3.loc[(individualdf3['deviation'] < 0), 'deviation'] == 0
         
         total_dev = individualdf3.deviation.sum()
 
@@ -1007,7 +1018,7 @@ class ParetoFeatures:
 class PrepManPlan:
     """ Class to prepare Manual PackPlan for comparison"""
     logger = logging.getLogger(f"{__name__}.CreateOptions")
-    #co = CreateOptions()
+
     database_instance = DatabaseModelsClass('PHDDATABASE_URL')
     indiv = Individual()
     graph = Visualize()
@@ -1065,7 +1076,6 @@ class PrepManPlan:
         for id in pareto_indivs:
             #FIXME:
             path=os.path.join(alg_path,f"id_{id}")
-            #infile = open(f"data/interim/{alg_path}/id_{id}",'rb')
             infile = open(path,'rb')
             individualdf = pickle.load(infile)
             infile.close()
@@ -1111,7 +1121,6 @@ class PrepManPlan:
         self.database_instance.insert_table(kobus_plan, 'sol_kobus_plan', 'dss', if_exists='append')
         #self.database_instance.insert_table(actual_plan, 'sol_actual_plan', 'dss', if_exists='replace')
 
-        #filename_html = f"reports/figures/genetic_algorithm_{alg_path}.html"
         filename_html=f"{alg}"
         self.graph.scatter_plot2(fitness_df, filename_html, 'result', 
                 alg_path)
@@ -1120,24 +1129,15 @@ class PrepManPlan:
 
     def kobus_plan(self, plan_date, week_str):
         sql_query = f"""
-            SELECT pd.demandid as demand_id
+            SELECT f_demand_plan.id as demand_id
                     , f_pack_capacity.id as pc
                     , dim_fc.id as fc_id
-                    -- , dim_packhouse.id as packhouse_id
-                    -- , dim_week.id as time_id
-                    -- , pack_type.id as pack_type_id
                     , dim_va.id as va_id
                     , (pd.qty_kg * -1) as kg
                     , (pd.qty_standardctns * -1) as stdunits
                     , distance.km
                     , (pd.qty_kg * -1) * distance.km as 'kgkm'
-                    -- , IF(f_speed.speed is NULL, 12, f_speed.speed) as speed
                     , 12 as speed
-                    -- , pd.variety
-                    -- , pd.format
-                    -- , pd.packweek
-                    -- , pd.packsite
-                    -- , pd.grower
             FROM dss.planning_data pd
             LEFT JOIN dim_fc ON (pd.grower = dim_fc.name)
             LEFT JOIN dim_packhouse ON (pd.packsite = dim_packhouse.name)
@@ -1155,6 +1155,9 @@ class PrepManPlan:
 					AND f_pack_capacity.pack_type_id = pack_type.id
                     AND f_pack_capacity.packweek = dim_week.week
                     AND f_pack_capacity.plan_date ='{plan_date}')
+            LEFT JOIN f_demand_plan
+                ON (pd.demandid = f_demand_plan.demand_id
+                    AND f_demand_plan.plan_date ='{plan_date}')
             WHERE recordtype = 'PLANNED'
             AND extract_datetime = (SELECT MAX(extract_datetime) 
                 FROM dss.planning_data WHERE date(extract_datetime)='{plan_date}')
@@ -1211,7 +1214,6 @@ class PrepManPlan:
             WHERE recordtype = '_PACKED'
             AND extract_datetime = (SELECT MAX(extract_datetime) FROM dss.planning_data)
             AND f_pack_capacity.stdunits is not null
-            AND pd.packweek in ('22-01','22-02','22-03','22-04','22-05','22-06')
             AND dim_fc.packtopackplans = 1;
         """
         

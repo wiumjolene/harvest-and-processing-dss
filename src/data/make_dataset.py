@@ -47,6 +47,14 @@ class ManageSeasonRun:
         self.database_dss.execute_query(sql)
         return
 
+    def update_horizon_complete(self):
+        sql=f"""
+        UPDATE `dss`.`run_season` 
+        SET `horizon` = '0';
+        """
+        self.database_dss.execute_query(sql)
+        return
+
 
 class GetLocalData:
     """ Class to extract planning data from local backups
@@ -156,7 +164,7 @@ class GetLocalData:
             LEFT JOIN dim_client ON (planning_data.targetmarket = dim_client.name)
             LEFT JOIN dim_vacat ON (planning_data.varietygroup = dim_vacat.name)
             LEFT JOIN dim_week ON (planning_data.demand_arrivalweek = dim_week.week)
-            LEFT JOIN transitdays ON (planning_data.demandid = transitdays.recordno)
+            LEFT JOIN transitdays ON (planning_data.demandid = transitdays.recordno AND date(extract_datetime) = transitdays.plan_date)
             LEFT JOIN dim_time ON ((date_sub(dim_week.weekstart,  INTERVAL transitdays.transitdays DAY)) = dim_time.day)
             LEFT JOIN dim_pack_type ON ((IF((SUBSTR(cartontype, 1, 1) = 'A'),
                         IF((cartontype = 'A75F'),
@@ -231,6 +239,7 @@ class CreateOptions:
 
         # Loop through demands and get he & pc
         for d in range(0,len(df_dp)):
+            self.logger.debug(f'-- make_options: {d}/{len(df_dp)}')
             ddemand_id = df_dp.id[d]
             dclient_id = df_dp.client_id[d]
             dvacat_id = df_dp.vacat_id[d]
@@ -303,8 +312,11 @@ class CreateOptions:
         pickle.dump(dlist_ready,outfile)
         outfile.close()
 
-        self.database_instance.insert_table(ddf_he,'interim_options_he','dss','replace')
-        self.database_instance.insert_table(ddf_pc,'interim_options_pc','dss','replace')
+        #self.logger.debug(f'- sending interim options to db he')
+        #self.database_instance.insert_table(ddf_he,'interim_options_he','dss','replace')
+
+        #self.logger.debug(f'- sending interim options to db dp')
+        #self.database_instance.insert_table(ddf_pc,'interim_options_pc','dss','replace')
 
         return 
     

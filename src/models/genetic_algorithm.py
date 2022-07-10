@@ -88,7 +88,14 @@ class GeneticAlgorithmNsga2:
         alg_path=os.path.join(config.ROOTDIR,'data','interim','nsga2')
         
         p = Population()
-        init_pop = p.population(config.POPUATION * 2, alg_path)
+        #init_pop = p.population(config.POPUATION * 2, alg_path)
+        init_pop = p.population(config.POPUATION, alg_path)
+        while len(init_pop) < config.POPUATION * 2:
+            self.logger.info(f"Creating additional indivs for init_pop {len(init_pop)} / {config.POPUATION * 2}")
+            init_pop['front'] = 1
+            init_pop = self.gag.crossover(init_pop, alg_path)
+            
+        
         fitness_df = self.pareto_nsga2(init_pop)
 
         fitness_df['population'] = 'yes'

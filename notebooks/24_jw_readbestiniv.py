@@ -6,7 +6,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 print(path)
 
-id = 3863
+id = 49
 infile = open(f"{path}\data\interim\\nsga2\\id_{id}",'rb')
 
 individualdf = pickle.load(infile)

@@ -81,11 +81,12 @@ class MainController:
 
             sr.update_plan_complete(plan_date)
             
+        sr.update_horizon_complete()
         return 
 
     def run_dss(self, plan_date, weeks_str,
                     synch_data=True,
-                    adjust_planning_data=True,
+                    adjust_planning_data=False,
                     make_data=True,
                     clearold=False):
         
@@ -95,6 +96,7 @@ class MainController:
             dp=pdp.prep_demand_plan(plan_date, weeks_str)
             he=pdp.prep_harvest_estimates(plan_date, weeks_str) 
             pc=pdp.prep_pack_capacity(plan_date, weeks_str) 
+            # TODO: actual plan data synch per week?
 
             if (dp and he and pc):
                 self.logger.info('Data synch complete, good to proceed')
