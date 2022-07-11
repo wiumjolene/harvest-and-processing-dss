@@ -1059,6 +1059,9 @@ class PrepManPlan:
             sql3=f"""
             DELETE FROM `dss`.`sol_kobus_plan` WHERE (`plan_date`='{plan_date}');
             """
+            sql4=f"""
+            DELETE FROM `dss`.`sol_actual_plan` WHERE (`plan_date`='{plan_date}');
+            """
 
         else:
             sql1=f"""
@@ -1070,10 +1073,14 @@ class PrepManPlan:
             sql3=f"""
             DELETE FROM `dss`.`sol_kobus_plan`;
             """
+            sql4=f"""
+            DELETE FROM `dss`.`sol_actual_plan`;
+            """
 
         self.database_instance.execute_query(sql1)
         self.database_instance.execute_query(sql2)
         self.database_instance.execute_query(sql3)
+        self.database_instance.execute_query(sql4)
 
         return
 
@@ -1117,7 +1124,7 @@ class PrepManPlan:
         kobus_fit['population'] = 'manplan'
         kobus_fit['result'] = 'manplan'
 
-        actual_plan = self.actual()
+        actual_plan = self.actual(plan_date, week_str)
         actual_fit = self.indiv.individual(1000001, 
                     alg_path = alg_path, 
                     get_indiv=False, 
@@ -1134,6 +1141,7 @@ class PrepManPlan:
         fitness_df['alg'] = alg
         fitness_df['plan_date'] = plan_date
         kobus_plan['plan_date'] = plan_date
+        actual_plan['plan_date'] = plan_date
 
         fitness_df = fitness_df.rename(columns={"id": "indiv_id"})
         fitness_df = fitness_df[['indiv_id', 'obj1', 'obj2', 
@@ -1142,7 +1150,7 @@ class PrepManPlan:
         self.database_instance.insert_table(fitness_df, 'sol_fitness', 'dss', if_exists='append')
         self.database_instance.insert_table(popdf, 'sol_pareto_individuals', 'dss', if_exists='append')
         self.database_instance.insert_table(kobus_plan, 'sol_kobus_plan', 'dss', if_exists='append')
-        self.database_instance.insert_table(actual_plan, 'sol_actual_plan', 'dss', if_exists='replace')
+        self.database_instance.insert_table(actual_plan, 'sol_actual_plan', 'dss', if_exists='append')
 
         filename_html=f"{alg}"
         self.graph.scatter_plot2(fitness_df, filename_html, 'result', 
@@ -1200,8 +1208,8 @@ class PrepManPlan:
 
         return df
 
-    def actual(self):
-        sql_query = """
+    def actual(self, plan_date, week_str):
+        sql_query = f"""
             SELECT pd.demandid as demand_id
                     , f_pack_capacity.id as pc
                     , dim_fc.id as fc_id
@@ -1241,14 +1249,17 @@ class PrepManPlan:
 			LEFT JOIN f_pack_capacity
 				ON (f_pack_capacity.packhouse_id = dim_packhouse.id 
 					AND f_pack_capacity.pack_type_id = pack_type.id
-                    AND f_pack_capacity.packweek = dim_week.week)
+                    AND f_pack_capacity.packweek = dim_week.week
+                    AND f_pack_capacity.plan_date ='{plan_date}')
             LEFT JOIN dim_time 
                 ON (dim_time.week = pd.packweek
                     AND weekday(dim_time.day) = f_pack_capacity.weekday)
             WHERE recordtype = '_PACKED'
-            AND extract_datetime = (SELECT MAX(extract_datetime) FROM dss.planning_data)
+            AND extract_datetime = (SELECT MAX(extract_datetime) 
+                FROM dss.planning_data WHERE date(extract_datetime)='{plan_date}')
             AND f_pack_capacity.stdunits is not null
-            AND dim_fc.packtopackplans = 1;
+            AND dim_fc.packtopackplans = 1
+            AND pd.packweek in ({week_str});
         """
         
         df = self.database_instance.select_query(query_str=sql_query)

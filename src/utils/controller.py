@@ -85,7 +85,7 @@ class MainController:
         return 
 
     def run_dss(self, plan_date, weeks_str,
-                    synch_data=False,
+                    synch_data=True,
                     adjust_planning_data=False,
                     make_data=True,
                     clearold=False):
