@@ -214,6 +214,32 @@ class GetLocalData:
         df['plan_date'] = plan_date
         return df
 
+    def get_local_pc_day(self, plan_date, weeks_str):
+        sql=f"""
+            SELECT dim_packhouse.id as packhouse_id
+                , dim_pack_type.id as pack_type_id
+                , packweek
+                , weekday(dim_time.day) as weekday
+                , if(noofstdcartons>0, ROUND((noofstdcartons / workdays.workdays)  * dim_time.workday), 0)  as stdunits
+                , noofstdcartons as stdunits_source
+            FROM dss.pack_capacity_data
+            LEFT JOIN dim_packhouse ON (pack_capacity_data.phc = dim_packhouse.name)
+            LEFT JOIN dim_pack_type ON (pack_capacity_data.packformat = dim_pack_type.name)
+            LEFT JOIN dim_time ON (dim_time.week = pack_capacity_data.packweek)
+            LEFT JOIN (SELECT week, sum(workday) as workdays
+                FROM dss.dim_time
+                GROUP BY week) workdays ON (workdays.week = pack_capacity_data.packweek)
+            WHERE extract_datetime = (SELECT MAX(extract_datetime)
+                FROM dss.pack_capacity_data WHERE date(extract_datetime)='{plan_date}')
+            AND dim_time.workday > 0
+            AND pack_capacity_data.packweek in ({weeks_str})
+            ORDER BY packhouse_id, pack_type_id, packweek, weekday;
+        """
+        
+        df = self.database_dss.select_query(sql)
+        df['plan_date'] = plan_date
+        return df
+
 
 class CreateOptions:
     """ Class to generate base of possibiities for demand. """

@@ -85,7 +85,7 @@ class MainController:
         return 
 
     def run_dss(self, plan_date, weeks_str,
-                    synch_data=True,
+                    synch_data=False,
                     adjust_planning_data=False,
                     make_data=True,
                     clearold=False):
@@ -107,6 +107,7 @@ class MainController:
         
         if adjust_planning_data:
             self.logger.info('ADJUST DATA')
+            #FIXME: Beware of pack capacities that are by day!!!!!!!
             apd = AdjustPlanningData()
             apd.adjust_pack_capacities(weeks_str, plan_date)
 

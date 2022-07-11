@@ -83,7 +83,9 @@ class PrepModelData:
                 self.database_dss.insert_table(packhouse, 'dim_packhouse', 'dss', if_exists='append')
                 self.logger.info(f"-- Added {len(packhouse)} packhouses")
 
-            pc = self.gld.get_local_pc(plan_date, weeks_str)
+            #pc = self.gld.get_local_pc(plan_date, weeks_str) #FIXME: Set on variable to create day pc
+            pc = self.gld.get_local_pc_day(plan_date, weeks_str)
+
             self.database_dss.execute_query(f"DELETE FROM `dss`.`f_pack_capacity` WHERE (`plan_date` = '{plan_date}');")
             pc['add_datetime'] = datetime.datetime.now()
             self.database_dss.insert_table(pc, 'f_pack_capacity', 'dss', if_exists='append')
@@ -204,7 +206,14 @@ class Individual:
 
             dkg = ddic_metadata[d]['kg']
             ddf_pcd = ddf_pc[(ddf_pc['demand_id']==d)]
+            self.logger.debug(f"#-----> check 1")
+            ddf_pcd = ddf_pcd.copy()
+            self.logger.debug(f"#-----> check 1b")
+
             ddf_hed = ddf_he[(ddf_he['demand_id']==d)]
+            self.logger.debug(f"#-----> check 2")
+            ddf_hed = ddf_hed.copy()
+            self.logger.debug(f"#-----> check 2b")
 
             indd_he = []
             indd_pc = []
@@ -255,6 +264,9 @@ class Individual:
                     # Variables to determine speed -> add calculate the number of hours 
                     #packtype_id = ddic_metadata[d]['pack_type_id']
                     ddf_pcdb = ddf_pcd[(ddf_pcd['block_id']==block_id)]#.reset_index(drop=True)
+                    self.logger.debug(f"#-----> check 3")
+                    ddf_pcdb = ddf_pcdb.copy()
+                    self.logger.debug(f"#-----> check 3a")
 
                     # Allocate to_pack to pack capacities
                     while to_pack > 0:
@@ -290,10 +302,20 @@ class Individual:
                             he_kg_rem=he_kg_rem-packed
                             
                             ddf_pc.at[pc, 'kg_rem'] = pckg_rem
+                            #ddf_pc.loc[pc, 'kg_rem'] = pckg_rem
+
                             ddf_pcd.at[pc, 'kg_rem'] = pckg_rem
+                            #ddf_pcd.loc[pc, 'kg_rem'] = pckg_rem
+
                             ddf_pcdb.at[pc, 'kg_rem'] = pckg_rem
+                            #ddf_pcdb.loc[pc, 'kg_rem'] = pckg_rem
+
                             ddf_hed.at[he, 'kg_rem'] = he_kg_rem
+                            #ddf_hed.loc[he, 'kg_rem'] = he_kg_rem
+
                             ddf_he.at[he, 'kg_rem'] = he_kg_rem  #FIXME: 
+                            #ddf_he.loc[he, 'kg_rem'] = he_kg_rem  #FIXME: 
+                            
                             dkg = dkg - packed
                             self.logger.debug(f"-----> check 8a")
 
@@ -308,6 +330,7 @@ class Individual:
                             #FIXME:ddf_he.loc[((ddf_he['id'] == he) & (ddf_he['demand_id'] == d)), 'evaluated'] = 1
                             #ddf_hed.loc[((ddf_hed['id'] == he)), 'evaluated'] = 1
                             ddf_hed.at[he, 'evaluated'] = 1
+                            #ddf_hed.loc[he, 'evaluated'] = 1
                             break
 
                     self.logger.debug(f"-----> finished with finding pc")   
@@ -1119,7 +1142,7 @@ class PrepManPlan:
         self.database_instance.insert_table(fitness_df, 'sol_fitness', 'dss', if_exists='append')
         self.database_instance.insert_table(popdf, 'sol_pareto_individuals', 'dss', if_exists='append')
         self.database_instance.insert_table(kobus_plan, 'sol_kobus_plan', 'dss', if_exists='append')
-        #self.database_instance.insert_table(actual_plan, 'sol_actual_plan', 'dss', if_exists='replace')
+        self.database_instance.insert_table(actual_plan, 'sol_actual_plan', 'dss', if_exists='replace')
 
         filename_html=f"{alg}"
         self.graph.scatter_plot2(fitness_df, filename_html, 'result', 
@@ -1133,10 +1156,13 @@ class PrepManPlan:
                     , f_pack_capacity.id as pc
                     , dim_fc.id as fc_id
                     , dim_va.id as va_id
-                    , (pd.qty_kg * -1) as kg
-                    , (pd.qty_standardctns * -1) as stdunits
+                    , if((pd.qty_kg * -1) > 0, ROUND(((pd.qty_kg * -1) / dim_week.workdays)  * dim_time.workday), 0)  as kg
+                    , if((pd.qty_kg * -1) > 0, ROUND(((pd.qty_standardctns * -1) / dim_week.workdays)  * dim_time.workday), 0)  as stdunits
+                    -- , (pd.qty_kg * -1) as kg
+                    -- , (pd.qty_standardctns * -1) as stdunits
                     , distance.km
-                    , (pd.qty_kg * -1) * distance.km as 'kgkm'
+                    -- , (pd.qty_kg * -1) * distance.km as 'kgkm'
+                    , if((pd.qty_kg * -1) > 0, ROUND(((pd.qty_kg * -1) / dim_week.workdays)  * dim_time.workday), 0) * distance.km as 'kgkm'
                     , 12 as speed
             FROM dss.planning_data pd
             LEFT JOIN dim_fc ON (pd.grower = dim_fc.name)
@@ -1158,6 +1184,9 @@ class PrepManPlan:
             LEFT JOIN f_demand_plan
                 ON (pd.demandid = f_demand_plan.demand_id
                     AND f_demand_plan.plan_date ='{plan_date}')
+            LEFT JOIN dim_time 
+                ON (dim_time.week = pd.packweek
+                    AND weekday(dim_time.day) = f_pack_capacity.weekday)
             WHERE recordtype = 'PLANNED'
             AND extract_datetime = (SELECT MAX(extract_datetime) 
                 FROM dss.planning_data WHERE date(extract_datetime)='{plan_date}')
@@ -1180,10 +1209,13 @@ class PrepManPlan:
                     -- , dim_week.id as time_id
                     -- , pack_type.id as pack_type_id
                     , dim_va.id as va_id
-                    , (pd.qty_kg * -1) as kg
-                    , (pd.qty_standardctns * -1) as stdunits
+                    , if((pd.qty_kg * -1) > 0, ROUND(((pd.qty_kg * -1) / dim_week.workdays)  * dim_time.workday), 0)  as kg
+                    , if((pd.qty_kg * -1) > 0, ROUND(((pd.qty_standardctns * -1) / dim_week.workdays)  * dim_time.workday), 0)  as stdunits
+                    -- , (pd.qty_kg * -1) as kg
+                    -- , (pd.qty_standardctns * -1) as stdunits
                     , distance.km
-                    , (pd.qty_kg * -1) * distance.km as 'kgkm'
+                    -- , (pd.qty_kg * -1) * distance.km as 'kgkm'
+                    , if((pd.qty_kg * -1) > 0, ROUND(((pd.qty_kg * -1) / dim_week.workdays)  * dim_time.workday), 0) * distance.km as 'kgkm'
                     , IF(f_speed.speed is NULL, 12, f_speed.speed) as speed
                     -- , pd.variety
                     -- , pd.format
@@ -1210,7 +1242,9 @@ class PrepManPlan:
 				ON (f_pack_capacity.packhouse_id = dim_packhouse.id 
 					AND f_pack_capacity.pack_type_id = pack_type.id
                     AND f_pack_capacity.packweek = dim_week.week)
-            -- WHERE extract_datetime = '2021-11-08 13:29:36'
+            LEFT JOIN dim_time 
+                ON (dim_time.week = pd.packweek
+                    AND weekday(dim_time.day) = f_pack_capacity.weekday)
             WHERE recordtype = '_PACKED'
             AND extract_datetime = (SELECT MAX(extract_datetime) FROM dss.planning_data)
             AND f_pack_capacity.stdunits is not null

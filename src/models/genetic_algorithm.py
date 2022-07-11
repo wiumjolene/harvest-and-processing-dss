@@ -90,20 +90,20 @@ class GeneticAlgorithmNsga2:
         p = Population()
         #init_pop = p.population(config.POPUATION * 2, alg_path)
         init_pop = p.population(config.POPUATION, alg_path)
+        init_pop['front'] = 1
+
         while len(init_pop) < config.POPUATION * 2:
             self.logger.info(f"Creating additional indivs for init_pop {len(init_pop)} / {config.POPUATION * 2}")
-            init_pop['front'] = 1
             init_pop = self.gag.crossover(init_pop, alg_path)
-            
-        
-        fitness_df = self.pareto_nsga2(init_pop)
+            init_pop['front'] = 1
 
+            
+        fitness_df = self.pareto_nsga2(init_pop)
         fitness_df['population'] = 'yes'
 
         self.logger.info(f"starting NSGA2 search")
         for _ in range(config.ITERATIONS):
             self.logger.info(f"ITERATION {_}")
-
             fitness_df = self.gag.crossover(fitness_df, alg_path)
             fitness_df = self.pareto_nsga2(fitness_df)
 
