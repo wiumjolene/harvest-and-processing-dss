@@ -32,6 +32,8 @@ CROSSOVERTYPE='crossover_BITFLIP'
 
 POPUATION=5 #TODO:
 ITERATIONS=10 #TODO:
+#LEVEL='DAY'
+LEVEL='WEEK'
 
 ########################################################
 # MOGA CONFIG

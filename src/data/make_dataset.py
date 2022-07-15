@@ -195,7 +195,7 @@ class GetLocalData:
         df['add_datetime'] = datetime.datetime.now()
         return df
 
-    def get_local_pc(self, plan_date, weeks_str):
+    def get_local_pc_TRUNCATE(self, plan_date, weeks_str):
         sql=f"""
             SELECT dim_packhouse.id as packhouse_id
                 , dim_pack_type.id as pack_type_id
@@ -214,8 +214,8 @@ class GetLocalData:
         df['plan_date'] = plan_date
         return df
 
-    def get_local_pc_day(self, plan_date, weeks_str):
-        sql_=f"""
+    def get_local_pc_day_TRUNCATE(self, plan_date, weeks_str):
+        sql=f"""
             SELECT dim_packhouse.id as packhouse_id
                 , dim_pack_type.id as pack_type_id
                 , packweek
@@ -236,47 +236,85 @@ class GetLocalData:
             ORDER BY packhouse_id, pack_type_id, packweek, weekday;
         """
 
-        sql=f"""
-			SELECT * FROM (
+        df = self.database_dss.select_query(sql)
+        df['plan_date'] = plan_date
+        return df
+
+    def get_local_pc_day(self, plan_date, weeks_str):
+
+        if config.LEVEL == 'DAY':
+            sql=f"""
+                SELECT * FROM (
+                    SELECT dim_packhouse.id as packhouse_id
+                        , dim_pack_type.id as pack_type_id
+                        , packweek
+                        , weekday(dim_time.day) as weekday
+                        , if(noofstdcartons>0, ROUND((noofstdcartons / workdays.workdays)  * dim_time.workday), 0)  as stdunits
+                        , noofstdcartons as stdunits_source
+                    FROM dss.pack_capacity_data
+                    LEFT JOIN dim_packhouse ON (pack_capacity_data.phc = dim_packhouse.name)
+                    LEFT JOIN dim_pack_type ON (pack_capacity_data.packformat = dim_pack_type.name)
+                    LEFT JOIN dim_time ON (dim_time.week = pack_capacity_data.packweek)
+                    LEFT JOIN (SELECT week, sum(workday) as workdays
+                        FROM dss.dim_time
+                        GROUP BY week) workdays ON (workdays.week = pack_capacity_data.packweek)
+                    WHERE extract_datetime = (SELECT MAX(extract_datetime)
+                        FROM dss.pack_capacity_data WHERE date(extract_datetime)='{plan_date}')
+                    AND dim_time.workday > 0
+                    AND pack_capacity_data.packweek in ({weeks_str})
+
+                    UNION ALL
+                    
+                    SELECT DISTINCT 69 as packhouse_id
+                        , dim_pack_type.id as pack_type_id
+                        , packweek
+                        , weekday(dim_time.day) as weekday
+                        , 1000000  as stdunits
+                        , 1000000 as stdunits_source
+                    FROM dss.pack_capacity_data
+                    LEFT JOIN dim_packhouse ON (pack_capacity_data.phc = dim_packhouse.name)
+                    LEFT JOIN dim_pack_type ON (pack_capacity_data.packformat = dim_pack_type.name)
+                    LEFT JOIN dim_time ON (dim_time.week = pack_capacity_data.packweek)
+                    LEFT JOIN (SELECT week, sum(workday) as workdays
+                        FROM dss.dim_time
+                        GROUP BY week) workdays ON (workdays.week = pack_capacity_data.packweek)
+                    WHERE extract_datetime = (SELECT MAX(extract_datetime)
+                        FROM dss.pack_capacity_data WHERE date(extract_datetime)='{plan_date}')
+                    AND dim_time.workday > 0
+                    AND pack_capacity_data.packweek in ({weeks_str})) as pc
+                ORDER BY packhouse_id, pack_type_id, packweek, weekday;
+            """
+
+        else:
+            sql=f"""
                 SELECT dim_packhouse.id as packhouse_id
                     , dim_pack_type.id as pack_type_id
                     , packweek
-                    , weekday(dim_time.day) as weekday
-                    , if(noofstdcartons>0, ROUND((noofstdcartons / workdays.workdays)  * dim_time.workday), 0)  as stdunits
+                    , 0 as weekday
+                    , noofstdcartons as stdunits
                     , noofstdcartons as stdunits_source
                 FROM dss.pack_capacity_data
                 LEFT JOIN dim_packhouse ON (pack_capacity_data.phc = dim_packhouse.name)
                 LEFT JOIN dim_pack_type ON (pack_capacity_data.packformat = dim_pack_type.name)
-                LEFT JOIN dim_time ON (dim_time.week = pack_capacity_data.packweek)
-                LEFT JOIN (SELECT week, sum(workday) as workdays
-                    FROM dss.dim_time
-                    GROUP BY week) workdays ON (workdays.week = pack_capacity_data.packweek)
                 WHERE extract_datetime = (SELECT MAX(extract_datetime)
                     FROM dss.pack_capacity_data WHERE date(extract_datetime)='{plan_date}')
-                AND dim_time.workday > 0
                 AND pack_capacity_data.packweek in ({weeks_str})
-
+                
                 UNION ALL
                 
                 SELECT DISTINCT 69 as packhouse_id
                     , dim_pack_type.id as pack_type_id
                     , packweek
-                    , weekday(dim_time.day) as weekday
-                    , 1000000  as stdunits
+                    , 0 as weekday
+                    , 1000000 as stdunits
                     , 1000000 as stdunits_source
                 FROM dss.pack_capacity_data
                 LEFT JOIN dim_packhouse ON (pack_capacity_data.phc = dim_packhouse.name)
                 LEFT JOIN dim_pack_type ON (pack_capacity_data.packformat = dim_pack_type.name)
-                LEFT JOIN dim_time ON (dim_time.week = pack_capacity_data.packweek)
-                LEFT JOIN (SELECT week, sum(workday) as workdays
-                    FROM dss.dim_time
-                    GROUP BY week) workdays ON (workdays.week = pack_capacity_data.packweek)
                 WHERE extract_datetime = (SELECT MAX(extract_datetime)
                     FROM dss.pack_capacity_data WHERE date(extract_datetime)='{plan_date}')
-                AND dim_time.workday > 0
-                AND pack_capacity_data.packweek in ({weeks_str})) as pc
-            ORDER BY packhouse_id, pack_type_id, packweek, weekday;
-        """
+                AND pack_capacity_data.packweek in ({weeks_str});
+            """
 
         df = self.database_dss.select_query(sql)
         df['plan_date'] = plan_date

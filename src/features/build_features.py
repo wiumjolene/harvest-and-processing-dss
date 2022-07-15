@@ -1156,49 +1156,96 @@ class PrepManPlan:
         return
 
     def kobus_plan(self, plan_date, week_str):
-        sql_query = f"""
-            SELECT f_demand_plan.id as demand_id
-                    , f_pack_capacity.id as pc
-                    , dim_fc.id as fc_id
-                    , dim_va.id as va_id
-                    , if((pd.qty_kg * -1) > 0, ROUND(((pd.qty_kg * -1) / dim_week.workdays)  * dim_time.workday), 0)  as kg
-                    , if((pd.qty_kg * -1) > 0, ROUND(((pd.qty_standardctns * -1) / dim_week.workdays)  * dim_time.workday), 0)  as stdunits
-                    -- , (pd.qty_kg * -1) as kg
-                    -- , (pd.qty_standardctns * -1) as stdunits
-                    , distance.km
-                    -- , (pd.qty_kg * -1) * distance.km as 'kgkm'
-                    , if((pd.qty_kg * -1) > 0, ROUND(((pd.qty_kg * -1) / dim_week.workdays)  * dim_time.workday), 0) * distance.km as 'kgkm'
-                    , 12 as speed
-            FROM dss.planning_data pd
-            LEFT JOIN dim_fc ON (pd.grower = dim_fc.name)
-            LEFT JOIN dim_packhouse ON (pd.packsite = dim_packhouse.name)
-            LEFT JOIN (SELECT id, upper(name) as name FROM dss.dim_pack_type) pack_type  
-                ON (pd.format = pack_type.name)
-            LEFT JOIN dim_va ON (pd.variety = dim_va.name)
-            LEFT JOIN dim_week ON (pd.packweek = dim_week.week)
-            LEFT JOIN (SELECT f_from_to.packhouse_id, f_from_to.fc_id, AVG(f_from_to.km) as km
-                            FROM dss.f_from_to
-                            GROUP BY f_from_to.packhouse_id, f_from_to.fc_id) distance 
-                            ON (distance.packhouse_id = dim_packhouse.id 
-                                AND distance.fc_id = dim_fc.id)
-			LEFT JOIN f_pack_capacity
-				ON (f_pack_capacity.packhouse_id = dim_packhouse.id 
-					AND f_pack_capacity.pack_type_id = pack_type.id
-                    AND f_pack_capacity.packweek = dim_week.week
-                    AND f_pack_capacity.plan_date ='{plan_date}')
-            LEFT JOIN f_demand_plan
-                ON (pd.demandid = f_demand_plan.demand_id
-                    AND f_demand_plan.plan_date ='{plan_date}')
-            LEFT JOIN dim_time 
-                ON (dim_time.week = pd.packweek
-                    AND weekday(dim_time.day) = f_pack_capacity.weekday)
-            WHERE recordtype = 'PLANNED'
-            AND extract_datetime = (SELECT MAX(extract_datetime) 
-                FROM dss.planning_data WHERE date(extract_datetime)='{plan_date}')
-            AND f_pack_capacity.stdunits is not null
-            AND pd.packweek in ({week_str})
-            ;
-        """
+
+        if config.LEVEL == 'DAY':
+            sql_query = f"""
+                SELECT f_demand_plan.id as demand_id
+                        , f_pack_capacity.id as pc
+                        , dim_fc.id as fc_id
+                        , dim_va.id as va_id
+                        , if((pd.qty_kg * -1) > 0, ROUND(((pd.qty_kg * -1) / dim_week.workdays)  * dim_time.workday), 0)  as kg
+                        , if((pd.qty_kg * -1) > 0, ROUND(((pd.qty_standardctns * -1) / dim_week.workdays)  * dim_time.workday), 0)  as stdunits
+                        -- , (pd.qty_kg * -1) as kg
+                        -- , (pd.qty_standardctns * -1) as stdunits
+                        , distance.km
+                        -- , (pd.qty_kg * -1) * distance.km as 'kgkm'
+                        , if((pd.qty_kg * -1) > 0, ROUND(((pd.qty_kg * -1) / dim_week.workdays)  * dim_time.workday), 0) * distance.km as 'kgkm'
+                        , 12 as speed
+                FROM dss.planning_data pd
+                LEFT JOIN dim_fc ON (pd.grower = dim_fc.name)
+                LEFT JOIN dim_packhouse ON (pd.packsite = dim_packhouse.name)
+                LEFT JOIN (SELECT id, upper(name) as name FROM dss.dim_pack_type) pack_type  
+                    ON (pd.format = pack_type.name)
+                LEFT JOIN dim_va ON (pd.variety = dim_va.name)
+                LEFT JOIN dim_week ON (pd.packweek = dim_week.week)
+                LEFT JOIN (SELECT f_from_to.packhouse_id, f_from_to.fc_id, AVG(f_from_to.km) as km
+                                FROM dss.f_from_to
+                                GROUP BY f_from_to.packhouse_id, f_from_to.fc_id) distance 
+                                ON (distance.packhouse_id = dim_packhouse.id 
+                                    AND distance.fc_id = dim_fc.id)
+                LEFT JOIN f_pack_capacity
+                    ON (f_pack_capacity.packhouse_id = dim_packhouse.id 
+                        AND f_pack_capacity.pack_type_id = pack_type.id
+                        AND f_pack_capacity.packweek = dim_week.week
+                        AND f_pack_capacity.plan_date ='{plan_date}')
+                LEFT JOIN f_demand_plan
+                    ON (pd.demandid = f_demand_plan.demand_id
+                        AND f_demand_plan.plan_date ='{plan_date}')
+                LEFT JOIN dim_time 
+                    ON (dim_time.week = pd.packweek
+                        AND weekday(dim_time.day) = f_pack_capacity.weekday)
+                WHERE recordtype = 'PLANNED'
+                AND extract_datetime = (SELECT MAX(extract_datetime) 
+                    FROM dss.planning_data WHERE date(extract_datetime)='{plan_date}')
+                AND f_pack_capacity.stdunits is not null
+                AND pd.packweek in ({week_str})
+                ;
+            """
+        
+        else:
+            sql_query = f"""
+                SELECT f_demand_plan.id as demand_id
+                        , f_pack_capacity.id as pc
+                        , dim_fc.id as fc_id
+                        , dim_va.id as va_id
+                        -- , if((pd.qty_kg * -1) > 0, ROUND(((pd.qty_kg * -1) / dim_week.workdays)  * dim_time.workday), 0)  as kg
+                        -- , if((pd.qty_kg * -1) > 0, ROUND(((pd.qty_standardctns * -1) / dim_week.workdays)  * dim_time.workday), 0)  as stdunits
+                        , (pd.qty_kg * -1) as kg
+                        , (pd.qty_standardctns * -1) as stdunits
+                        , distance.km
+                        , (pd.qty_kg * -1) * distance.km as 'kgkm'
+                        -- , if((pd.qty_kg * -1) > 0, ROUND(((pd.qty_kg * -1) / dim_week.workdays)  * dim_time.workday), 0) * distance.km as 'kgkm'
+                        , 12 as speed
+                FROM dss.planning_data pd
+                LEFT JOIN dim_fc ON (pd.grower = dim_fc.name)
+                LEFT JOIN dim_packhouse ON (pd.packsite = dim_packhouse.name)
+                LEFT JOIN (SELECT id, upper(name) as name FROM dss.dim_pack_type) pack_type  
+                    ON (pd.format = pack_type.name)
+                LEFT JOIN dim_va ON (pd.variety = dim_va.name)
+                LEFT JOIN dim_week ON (pd.packweek = dim_week.week)
+                LEFT JOIN (SELECT f_from_to.packhouse_id, f_from_to.fc_id, AVG(f_from_to.km) as km
+                                FROM dss.f_from_to
+                                GROUP BY f_from_to.packhouse_id, f_from_to.fc_id) distance 
+                                ON (distance.packhouse_id = dim_packhouse.id 
+                                    AND distance.fc_id = dim_fc.id)
+                LEFT JOIN f_pack_capacity
+                    ON (f_pack_capacity.packhouse_id = dim_packhouse.id 
+                        AND f_pack_capacity.pack_type_id = pack_type.id
+                        AND f_pack_capacity.packweek = dim_week.week
+                        AND f_pack_capacity.plan_date ='{plan_date}')
+                LEFT JOIN f_demand_plan
+                    ON (pd.demandid = f_demand_plan.demand_id
+                        AND f_demand_plan.plan_date ='{plan_date}')
+                -- LEFT JOIN dim_time 
+                --    ON (dim_time.week = pd.packweek
+                --        AND weekday(dim_time.day) = f_pack_capacity.weekday)
+                WHERE recordtype = 'PLANNED'
+                AND extract_datetime = (SELECT MAX(extract_datetime) 
+                    FROM dss.planning_data WHERE date(extract_datetime)='{plan_date}')
+                AND f_pack_capacity.stdunits is not null
+                AND pd.packweek in ({week_str})
+                ;
+            """            
         
         df = self.database_instance.select_query(query_str=sql_query)
         df['packhours'] = df['kg']*(1*config.GIVEAWAY)*df['speed']/60 
@@ -1206,60 +1253,97 @@ class PrepManPlan:
         return df
 
     def actual(self, plan_date, week_str):
-        sql_query = f"""
-            SELECT pd.demandid as demand_id
-                    , f_pack_capacity.id as pc
-                    , dim_fc.id as fc_id
-                    -- , dim_packhouse.id as packhouse_id
-                    -- , dim_week.id as time_id
-                    -- , pack_type.id as pack_type_id
-                    , dim_va.id as va_id
-                    , if((pd.qty_kg * -1) > 0, ROUND(((pd.qty_kg * -1) / dim_week.workdays)  * dim_time.workday), 0)  as kg
-                    , if((pd.qty_kg * -1) > 0, ROUND(((pd.qty_standardctns * -1) / dim_week.workdays)  * dim_time.workday), 0)  as stdunits
-                    -- , (pd.qty_kg * -1) as kg
-                    -- , (pd.qty_standardctns * -1) as stdunits
-                    , distance.km
-                    -- , (pd.qty_kg * -1) * distance.km as 'kgkm'
-                    , if((pd.qty_kg * -1) > 0, ROUND(((pd.qty_kg * -1) / dim_week.workdays)  * dim_time.workday), 0) * distance.km as 'kgkm'
-                    , IF(f_speed.speed is NULL, 12, f_speed.speed) as speed
-                    -- , pd.variety
-                    -- , pd.format
-                    -- , pd.packweek
-                    -- , pd.packsite
-                    -- , pd.grower
-            FROM dss.planning_data pd
-            LEFT JOIN dim_fc ON (pd.grower = dim_fc.name)
-            LEFT JOIN dim_packhouse ON (pd.packsite = dim_packhouse.name)
-            LEFT JOIN (SELECT id, upper(name) as name FROM dss.dim_pack_type) pack_type  
-                ON (pd.format = pack_type.name)
-            LEFT JOIN dim_va ON (pd.variety = dim_va.name)
-            LEFT JOIN dim_week ON (pd.packweek = dim_week.week)
-            LEFT JOIN (SELECT f_from_to.packhouse_id, f_from_to.fc_id, AVG(f_from_to.km) as km
-                            FROM dss.f_from_to
-                            GROUP BY f_from_to.packhouse_id, f_from_to.fc_id) distance 
-                            ON (distance.packhouse_id = dim_packhouse.id 
-                                AND distance.fc_id = dim_fc.id)
-            LEFT JOIN f_speed 
-				ON (f_speed.packhouse_id = dim_packhouse.id 
-                    AND f_speed.packtype_id = pack_type.id 
-					AND f_speed.va_id = dim_va.id)
-			LEFT JOIN f_pack_capacity
-				ON (f_pack_capacity.packhouse_id = dim_packhouse.id 
-					AND f_pack_capacity.pack_type_id = pack_type.id
-                    AND f_pack_capacity.packweek = dim_week.week
-                    AND f_pack_capacity.plan_date ='{plan_date}')
-            LEFT JOIN dim_time 
-                ON (dim_time.week = pd.packweek
-                    AND weekday(dim_time.day) = f_pack_capacity.weekday)
-            WHERE recordtype = '_PACKED'
-            AND extract_datetime = (SELECT MAX(extract_datetime) 
-                FROM dss.planning_data WHERE date(extract_datetime)='{plan_date}')
-            AND f_pack_capacity.stdunits is not null
-            AND dim_fc.packtopackplans = 1
-            AND pd.packweek in ({week_str});
-        """
-        
+        if config.LEVEL == 'DAY':
+            sql_query = f"""
+                SELECT pd.demandid as demand_id
+                        , f_pack_capacity.id as pc
+                        , dim_fc.id as fc_id
+                        -- , dim_packhouse.id as packhouse_id
+                        -- , dim_week.id as time_id
+                        -- , pack_type.id as pack_type_id
+                        , dim_va.id as va_id
+                        , if((pd.qty_kg * -1) > 0, ROUND(((pd.qty_kg * -1) / dim_week.workdays)  * dim_time.workday), 0)  as kg
+                        , if((pd.qty_kg * -1) > 0, ROUND(((pd.qty_standardctns * -1) / dim_week.workdays)  * dim_time.workday), 0)  as stdunits
+                        -- , (pd.qty_kg * -1) as kg
+                        -- , (pd.qty_standardctns * -1) as stdunits
+                        , distance.km
+                        -- , (pd.qty_kg * -1) * distance.km as 'kgkm'
+                        , if((pd.qty_kg * -1) > 0, ROUND(((pd.qty_kg * -1) / dim_week.workdays)  * dim_time.workday), 0) * distance.km as 'kgkm'
+                        , 12 as speed
+                FROM dss.planning_data pd
+                LEFT JOIN dim_fc ON (pd.grower = dim_fc.name)
+                LEFT JOIN dim_packhouse ON (pd.packsite = dim_packhouse.name)
+                LEFT JOIN (SELECT id, upper(name) as name FROM dss.dim_pack_type) pack_type  
+                    ON (pd.format = pack_type.name)
+                LEFT JOIN dim_va ON (pd.variety = dim_va.name)
+                LEFT JOIN dim_week ON (pd.packweek = dim_week.week)
+                LEFT JOIN (SELECT f_from_to.packhouse_id, f_from_to.fc_id, AVG(f_from_to.km) as km
+                                FROM dss.f_from_to
+                                GROUP BY f_from_to.packhouse_id, f_from_to.fc_id) distance 
+                                ON (distance.packhouse_id = dim_packhouse.id 
+                                    AND distance.fc_id = dim_fc.id)
+                LEFT JOIN f_pack_capacity
+                    ON (f_pack_capacity.packhouse_id = dim_packhouse.id 
+                        AND f_pack_capacity.pack_type_id = pack_type.id
+                        AND f_pack_capacity.packweek = dim_week.week
+                        AND f_pack_capacity.plan_date ='{plan_date}')
+                LEFT JOIN dim_time 
+                    ON (dim_time.week = pd.packweek
+                        AND weekday(dim_time.day) = f_pack_capacity.weekday)
+                WHERE recordtype = '_PACKED'
+                AND extract_datetime = (SELECT MAX(extract_datetime) 
+                    FROM dss.planning_data WHERE date(extract_datetime)='{plan_date}')
+                AND f_pack_capacity.stdunits is not null
+                AND pd.packweek in ({week_str});
+            """
+
+        else:
+            sql_query = f"""
+                SELECT pd.demandid as demand_id
+                        , f_pack_capacity.id as pc
+                        , dim_fc.id as fc_id
+                        -- , dim_packhouse.id as packhouse_id
+                        -- , dim_week.id as time_id
+                        -- , pack_type.id as pack_type_id
+                        , dim_va.id as va_id
+                        -- , if((pd.qty_kg * -1) > 0, ROUND(((pd.qty_kg * -1) / dim_week.workdays)  * dim_time.workday), 0)  as kg
+                        -- , if((pd.qty_kg * -1) > 0, ROUND(((pd.qty_standardctns * -1) / dim_week.workdays)  * dim_time.workday), 0)  as stdunits
+                        , (pd.qty_kg * -1) as kg
+                        , (pd.qty_standardctns * -1) as stdunits
+                        , distance.km
+                        , (pd.qty_kg * -1) * distance.km as 'kgkm'
+                        -- , if((pd.qty_kg * -1) > 0, ROUND(((pd.qty_kg * -1) / dim_week.workdays)  * dim_time.workday), 0) * distance.km as 'kgkm'
+                        , 12 as speed
+                FROM dss.planning_data pd
+                LEFT JOIN dim_fc ON (pd.grower = dim_fc.name)
+                LEFT JOIN dim_packhouse ON (pd.packsite = dim_packhouse.name)
+                LEFT JOIN (SELECT id, upper(name) as name FROM dss.dim_pack_type) pack_type  
+                    ON (pd.format = pack_type.name)
+                LEFT JOIN dim_va ON (pd.variety = dim_va.name)
+                LEFT JOIN dim_week ON (pd.packweek = dim_week.week)
+                LEFT JOIN (SELECT f_from_to.packhouse_id, f_from_to.fc_id, AVG(f_from_to.km) as km
+                                FROM dss.f_from_to
+                                GROUP BY f_from_to.packhouse_id, f_from_to.fc_id) distance 
+                                ON (distance.packhouse_id = dim_packhouse.id 
+                                    AND distance.fc_id = dim_fc.id)
+                LEFT JOIN f_pack_capacity
+                    ON (f_pack_capacity.packhouse_id = dim_packhouse.id 
+                        AND f_pack_capacity.pack_type_id = pack_type.id
+                        AND f_pack_capacity.packweek = dim_week.week
+                        AND f_pack_capacity.plan_date ='{plan_date}')
+                -- LEFT JOIN dim_time 
+                --    ON (dim_time.week = pd.packweek
+                --        AND weekday(dim_time.day) = f_pack_capacity.weekday)
+                WHERE recordtype = '_PACKED'
+                AND extract_datetime = (SELECT MAX(extract_datetime) 
+                    FROM dss.planning_data WHERE date(extract_datetime)='{plan_date}')
+                AND f_pack_capacity.stdunits is not null
+                -- AND dim_fc.packtopackplans = 1
+                AND pd.packweek in ({week_str});
+            """
+
+
         df = self.database_instance.select_query(query_str=sql_query)
-        df['packhours'] = df['kg']*(1*config.GIVEAWAY)*df['speed']/60  # TODO: CHECK CALC!!!!
+        df['packhours'] = df['kg']*(1*config.GIVEAWAY)*df['speed']/60
 
         return df
