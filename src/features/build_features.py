@@ -366,9 +366,6 @@ class Individual:
         return individualdf
 
     def make_fitness(self, individualdf):
-        # REVISE THIS!!!! 
-        # Currently Actual and Manplan are being influenced by over-allocation.
-
         self.logger.debug('-> make_fitness')
         options = ImportOptions()
 
