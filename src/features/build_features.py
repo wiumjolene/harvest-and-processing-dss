@@ -206,14 +206,10 @@ class Individual:
 
             dkg = ddic_metadata[d]['kg']
             ddf_pcd = ddf_pc[(ddf_pc['demand_id']==d)]
-            self.logger.debug(f"#-----> check 1")
             ddf_pcd = ddf_pcd.copy()
-            self.logger.debug(f"#-----> check 1b")
 
             ddf_hed = ddf_he[(ddf_he['demand_id']==d)]
-            self.logger.debug(f"#-----> check 2")
             ddf_hed = ddf_hed.copy()
-            self.logger.debug(f"#-----> check 2b")
 
             indd_he = []
             indd_pc = []
@@ -224,9 +220,15 @@ class Individual:
                 self.logger.debug(f"----> finding he and pc for d; dkg ({dkg}) for demand: {d}")
                 # Filter demand_he table according to d and kg.
                 # Check that combination of d_he has not yet been used.
-                #ddf_het = ddf_he[(ddf_he['demand_id']==d)&(ddf_he['kg_rem']>0)& \
-                #    (ddf_he['evaluated']==0)]
-                ddf_het = ddf_hed[(ddf_hed['kg_rem']>0)&(ddf_hed['evaluated']==0)]
+                ddf_het = ddf_hed[(ddf_hed['kg_rem']>0) \
+                            & (ddf_hed['evaluated']==0) \
+                            & (ddf_hed['packtopackplans']==1)]
+                
+                # Check if harvest estimates exist that are for packplans
+                if len(ddf_het) == 0 : 
+                    ddf_het = ddf_hed[(ddf_hed['kg_rem']>0) \
+                                & (ddf_hed['evaluated']==0)]
+
                 
                 dhes = ddf_het['id'].tolist()
                 dhe_kg_rem = ddf_het['kg_rem'].tolist()
@@ -259,14 +261,10 @@ class Individual:
                     # Get closest pc for he from available pc's
                     self.logger.debug(f"-----> get pack capacity")
                     block_id = he_dic[he]['block_id']
-                    #va_id = he_dic[he]['va_id']
-                    
+
                     # Variables to determine speed -> add calculate the number of hours 
-                    #packtype_id = ddic_metadata[d]['pack_type_id']
-                    ddf_pcdb = ddf_pcd[(ddf_pcd['block_id']==block_id)]#.reset_index(drop=True)
-                    self.logger.debug(f"#-----> check 3")
+                    ddf_pcdb = ddf_pcd[(ddf_pcd['block_id']==block_id)]
                     ddf_pcdb = ddf_pcdb.copy()
-                    self.logger.debug(f"#-----> check 3a")
 
                     # Allocate to_pack to pack capacities
                     while to_pack > 0:
@@ -277,7 +275,6 @@ class Individual:
 
                             # Allocate closest pc to block                    
                             pc = ddf_pct.at[0, 'id']
-                            #packhouse_id = ddf_pct.at[0, 'packhouse_id']
                             km = ddf_pct.at[0, 'km']
                             pckg_rem = ddf_pct.at[0, 'kg_rem']
 
@@ -291,46 +288,28 @@ class Individual:
                                 to_pack = to_pack - pckg_rem
                                 pckg_rem = 0
 
-                            #try:
-                            #    speed = dic_speed[packhouse_id][packtype_id][va_id]
-                                
-                            #except:
-                            #    speed = 12
                             speed = 12
 
                             # Update demand tables with updated capacity
                             he_kg_rem=he_kg_rem-packed
                             
                             ddf_pc.at[pc, 'kg_rem'] = pckg_rem
-                            #ddf_pc.loc[pc, 'kg_rem'] = pckg_rem
-
                             ddf_pcd.at[pc, 'kg_rem'] = pckg_rem
-                            #ddf_pcd.loc[pc, 'kg_rem'] = pckg_rem
-
                             ddf_pcdb.at[pc, 'kg_rem'] = pckg_rem
-                            #ddf_pcdb.loc[pc, 'kg_rem'] = pckg_rem
-
                             ddf_hed.at[he, 'kg_rem'] = he_kg_rem
-                            #ddf_hed.loc[he, 'kg_rem'] = he_kg_rem
-
-                            ddf_he.at[he, 'kg_rem'] = he_kg_rem  #FIXME: 
-                            #ddf_he.loc[he, 'kg_rem'] = he_kg_rem  #FIXME: 
+                            ddf_he.at[he, 'kg_rem'] = he_kg_rem
                             
                             dkg = dkg - packed
-                            self.logger.debug(f"-----> check 8a")
 
                             indd_he.append(he)
                             indd_pc.append(pc)
                             indd_kg.append(packed)
                             indd_kgkm.append(packed*km)
                             indd_hrs.append(packed*(1*config.GIVEAWAY)*speed/60)
-                            self.logger.debug(f"-----> check 8b")
+
 
                         else:
-                            #FIXME:ddf_he.loc[((ddf_he['id'] == he) & (ddf_he['demand_id'] == d)), 'evaluated'] = 1
-                            #ddf_hed.loc[((ddf_hed['id'] == he)), 'evaluated'] = 1
                             ddf_hed.at[he, 'evaluated'] = 1
-                            #ddf_hed.loc[he, 'evaluated'] = 1
                             break
 
                     self.logger.debug(f"-----> finished with finding pc")   
@@ -343,11 +322,7 @@ class Individual:
                         indd_kgkm.append(0)
                         indd_hrs.append(0)
                     break
-            
-            #FIXME:
-            #ddf_he.at[he, 'evaluated'] = 1
-            #ddf_he.at[he, 'kg_rem'] = he_kg_rem
-            
+                        
             dindividual = {'he':indd_he, 'pc':indd_pc, 'kg': indd_kg,
                             'kgkm': indd_kgkm, 'packhours': indd_hrs} 
 

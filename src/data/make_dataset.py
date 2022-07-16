@@ -418,12 +418,6 @@ class CreateOptions:
         pickle.dump(dlist_ready,outfile)
         outfile.close()
 
-        #self.logger.debug(f'- sending interim options to db he')
-        #self.database_instance.insert_table(ddf_he,'interim_options_he','dss','replace')
-
-        #self.logger.debug(f'- sending interim options to db dp')
-        #self.database_instance.insert_table(ddf_pc,'interim_options_pc','dss','replace')
-
         return 
     
     def get_demand_plan(self, plan_date): 
@@ -468,6 +462,7 @@ class CreateOptions:
                 , va.vacat_id
                 , he.block_id
                 , w.id AS time_id
+                , dim_fc.packtopackplans
                 , he.kg_raw as kg
             FROM dss.f_harvest_estimate he
             LEFT JOIN dim_week w ON (he.packweek = w.week)
@@ -533,9 +528,8 @@ class CreateOptions:
 
         s = """
         SELECT packhouse_id,
-                -- f_from_to.fc_id,
                 dim_block.id as block_id,
-                km 
+                IF(packhouse_id=69,1,km) as km 
             FROM dss.f_from_to
             LEFT JOIN dim_block ON (dim_block.fc_id = f_from_to.fc_id)
             WHERE allowed=1
@@ -618,7 +612,6 @@ class ImportOptions:
     path = os.path.dirname(path)
 
     def demand_harvest(self):
-        #infile = open(f"{self.path}/data/processed/ddf_he",'rb')
         path=os.path.join(config.ROOTDIR,'data','processed','ddf_he')
         infile = open(path,'rb')
         data = pickle.load(infile)
@@ -628,7 +621,6 @@ class ImportOptions:
     def demand_capacity(self):
         path=os.path.join(config.ROOTDIR,'data','processed','ddf_pc')
         infile = open(path,'rb')
-        #infile = open(f"{self.path}/data/processed/ddf_pc",'rb')
         data = pickle.load(infile)
         infile.close()
         return data
@@ -650,7 +642,6 @@ class ImportOptions:
     def demand_ready(self):
         path=os.path.join(config.ROOTDIR,'data','processed','dlist_ready')
         infile = open(path,'rb')
-        #infile = open(f"{self.path}/data/processed/dlist_ready",'rb')
         data = pickle.load(infile)
         infile.close()
         return data
@@ -658,7 +649,6 @@ class ImportOptions:
     def harvest_estimate(self):
         path=os.path.join(config.ROOTDIR,'data','processed','he_dic')
         infile = open(path,'rb')
-        #infile = open(f"{self.path}/data/processed/he_dic",'rb')
         data = pickle.load(infile)
         infile.close()
         return data
@@ -666,13 +656,11 @@ class ImportOptions:
     def pack_capacity(self):
         path=os.path.join(config.ROOTDIR,'data','processed','pc_dic')
         infile = open(path,'rb')
-        #infile = open(f"{self.path}/data/processed/pc_dic",'rb')
         data = pickle.load(infile)
         infile.close()
         return data
 
     def from_to(self):
-        #infile = open(f"{self.path}/data/processed/ft_df",'rb')
         path=os.path.join(config.ROOTDIR,'data','processed','ft_df')
         infile = open(path,'rb')
         data = pickle.load(infile)
@@ -680,7 +668,6 @@ class ImportOptions:
         return data
 
     def speed(self):
-        #infile = open(f"{self.path}/data/processed/dic_speed",'rb')
         path=os.path.join(config.ROOTDIR,'data','processed','dic_speed')
         infile = open(path,'rb')
         data = pickle.load(infile)
