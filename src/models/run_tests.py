@@ -126,8 +126,6 @@ class RunTests:
         alg_path=os.path.join(config.ROOTDIR,'data','interim','tests',test,alg)
         if not os.path.exists(alg_path):
             os.makedirs(alg_path)
-        #if not os.path.exists(f"data/interim/tests/{test}/{alg}"):
-        #    os.makedirs(f"data/interim/tests/{test}/{alg}")
 
         hyperarea = pd.DataFrame()
         for s in range(config.SAMPLESTART, config.SAMPLEEND):

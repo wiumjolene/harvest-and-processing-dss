@@ -8,7 +8,9 @@ from collections import defaultdict
 
 import numpy as np
 import pandas as pd
-from src.data.make_dataset import ImportOptions, GetLocalData
+from sqlalchemy import column
+from src.data.make_dataset import (GetLocalData, GetOperationalData,
+                                   ImportOptions)
 from src.features.make_tests import Tests
 from src.utils import config
 from src.utils.connect import DatabaseModelsClass
@@ -104,7 +106,9 @@ class Individual:
     individual_df = pd.DataFrame()
     dlistt=[]
 
-    def individual(self,number,alg_path,get_indiv=True,indiv=individual_df,test=False,test_name='zdt1'):
+    def individual(self, number, alg_path, get_indiv=True, 
+                    indiv=individual_df, test=False, test_name='zdt1'):
+
         """ Function to define indiv and fitness """
         self.logger.info(f"- individual: {number}")
         if test:
@@ -166,13 +170,11 @@ class Individual:
         ddf_he = ddf_he.set_index('id')
         ddf_he['id'] = ddf_he.index
         
-        
         ddf_pc = options.demand_capacity()
         ddic_metadata = options.demand_metadata()
         ddf_metadata = options.demand_metadata_df()
         he_dic = options.harvest_estimate()
         ft_df = options.from_to()
-        #dic_speed = options.speed()
 
         ddf_pc = ddf_pc.merge(ft_df, on='packhouse_id', how='left')
         ddf_pc = ddf_pc.set_index('id')
@@ -344,10 +346,16 @@ class Individual:
         self.logger.debug('-> make_fitness')
         options = ImportOptions()
 
+        individualdf1 = individualdf.copy()
+
         ddf_metadata = options.demand_metadata_df()
         ddf_metadata.rename(columns={'kg':'dkg'},inplace=True)
 
-        total_cost = individualdf.kgkm.sum() / individualdf.kg.sum()
+        # Fixme: Only use karsten data
+        individualdf1['kg2'] = 0
+        individualdf1.loc[(individualdf1['kgkm']>0), 'kg2'] = individualdf1['kg']
+        total_cost = individualdf1.kgkm.sum() / individualdf1.kg2.sum()
+
 
         individualdf2 = individualdf.groupby('demand_id')['kg'].sum()
         individualdf2 = individualdf2.reset_index(drop=False)
@@ -505,16 +513,11 @@ class GeneticAlgorithmGenetics:
             self.logger.debug(f"--- mutation activated")
             
             df_mutate1=pd.DataFrame()
-            #mutate = []
-            mutates = [] #new
+            mutates = []
 
            
             times.sort()
             df_mutate=df_mutate.sort_values(by=['time_id']).reset_index(drop=True)
-            #df_mutate['status'] = 'original'
-
-            #print(times)
-            #print(df_mutate)
 
             for m in times:
                 self.logger.debug(f"---- mutation for {m}")
@@ -528,32 +531,26 @@ class GeneticAlgorithmGenetics:
                         x = np.random.rand()
                         df_gene = pd.DataFrame(data=[x], columns=['value'])
                         df_gene['time_id'] = m
-                        #df_gene['status'] = 'mutated'
                         df_mutate1 = pd.concat([df_mutate1, df_gene]).reset_index(drop=True)
                     
                     # Else get only gene alternate
                     else: 
-                        df_gener =  df_mutate[df_mutate['time_id']==m] #new
+                        df_gener =  df_mutate[df_mutate['time_id']==m]
                         demand_list = list(df_gener.demand_id.unique())
                         df_gene = ix.make_individual(get_dlist=False, dlist=demand_list)
                         df_mutate1 = pd.concat([df_mutate1, df_gene]).reset_index(drop=True)
                         
-                #mutate.append(update) # new
                 mutates.append([update, m])
                 
-            mutated = pd.DataFrame(data=mutates, columns=['mutate', 'time_id']) # new
-            df_mutate = pd.merge(df_mutate, mutated, on=['time_id'], how='left') # new
-            df_keep = df_mutate[df_mutate["mutate"]] # new
+            mutated = pd.DataFrame(data=mutates, columns=['mutate', 'time_id'])
+            df_mutate = pd.merge(df_mutate, mutated, on=['time_id'], how='left')
+            df_keep = df_mutate[df_mutate["mutate"]]
             
             df_mutate1 = pd.concat([df_mutate1, df_keep]).reset_index(drop=True)
             df_mutate1=df_mutate1.drop(columns=['mutate'])
-            #print(df_mutate1)
 
         else:
             df_mutate1 = df_mutate
-
-        path=os.path.join('data','raw', f"mutation.xlsx")
-        #df_mutate1.to_excel(path)
 
         return df_mutate1
 
@@ -1012,7 +1009,7 @@ class ParetoFeatures:
 
 class PrepManPlan:
     """ Class to prepare Manual PackPlan for comparison"""
-    logger = logging.getLogger(f"{__name__}.CreateOptions")
+    logger = logging.getLogger(f"{__name__}.PrepManPlan")
 
     database_instance = DatabaseModelsClass('PHDDATABASE_URL')
     indiv = Individual()
@@ -1071,12 +1068,11 @@ class PrepManPlan:
         if 'moga' in alg_path:
             alg='moga'
         
-        self.clear_old_result(plan_date, alg) #TODO:
+        self.clear_old_result(plan_date, alg)
 
         pareto_indivs = list(fitness_df.id)
         popdf=pd.DataFrame()
         for id in pareto_indivs:
-            #FIXME:
             path=os.path.join(alg_path,f"id_{id}")
             infile = open(path,'rb')
             individualdf = pickle.load(infile)
@@ -1096,37 +1092,39 @@ class PrepManPlan:
         kobus_fit['population'] = 'manplan'
         kobus_fit['result'] = 'manplan'
 
-        actual_plan = self.actual(plan_date, week_str)
-        actual_fit = self.indiv.individual(1000001, 
-                    alg_path = alg_path, 
-                    get_indiv=False, 
-                    indiv=actual_plan, 
-                    test=False)
-        actual_fit['population'] = 'actualplan'
-        actual_fit['result'] = 'actualplan'
+        #actual_plan = self.actual(plan_date, week_str)
+        #actual_fit = self.indiv.individual(1000001, 
+        #            alg_path = alg_path, 
+        #            get_indiv=False, 
+        #            indiv=actual_plan, 
+        #            test=False)
+        #actual_fit['population'] = 'actualplan'
+        #actual_fit['result'] = 'actualplan'
 
         init_pop['result'] = 'init pop'
         fitness_df['result'] = 'final result'
         
-        fitness_df = pd.concat([fitness_df, init_pop, kobus_fit, actual_fit])   
+        #fitness_df = pd.concat([fitness_df, init_pop, kobus_fit, actual_fit])   
+        fitness_df = pd.concat([fitness_df, init_pop, kobus_fit])
    
         fitness_df['alg'] = alg
         fitness_df['plan_date'] = plan_date
         kobus_plan['plan_date'] = plan_date
-        actual_plan['plan_date'] = plan_date
+        #actual_plan['plan_date'] = plan_date
 
         fitness_df = fitness_df.rename(columns={"id": "indiv_id"})
         fitness_df = fitness_df[['indiv_id', 'obj1', 'obj2', 
                 'population', 'result', 'alg', 'plan_date']]
         
         self.database_instance.insert_table(fitness_df, 'sol_fitness', 'dss', if_exists='append')
-        self.database_instance.insert_table(popdf, 'sol_pareto_individuals', 'dss', if_exists='append')
+        #self.database_instance.insert_table(popdf, 'sol_pareto_individuals', 'dss', if_exists='append')
+        self.database_instance.insert_table_chunks(popdf, 'sol_pareto_individuals', 'dss', if_exists='append', chunk_size=5000)
         self.database_instance.insert_table(kobus_plan, 'sol_kobus_plan', 'dss', if_exists='append')
-        self.database_instance.insert_table(actual_plan, 'sol_actual_plan', 'dss', if_exists='append')
+        #self.database_instance.insert_table(actual_plan, 'sol_actual_plan', 'dss', if_exists='append')
 
-        filename_html=f"{alg}"
-        self.graph.scatter_plot2(fitness_df, filename_html, 'result', 
-                alg_path)
+        #filename_html=f"{alg}"
+        #self.graph.scatter_plot2(fitness_df, filename_html, 'result', 
+        #        alg_path)
         
         return
 
@@ -1170,6 +1168,7 @@ class PrepManPlan:
                     ON (dim_time.week = pd.packweek
                         AND weekday(dim_time.day) = f_pack_capacity.weekday)
                 WHERE recordtype = 'PLANNED'
+                AND dim_fc.packtopackplans=1
                 AND extract_datetime = (SELECT MAX(extract_datetime) 
                     FROM dss.planning_data WHERE date(extract_datetime)='{plan_date}')
                 AND f_pack_capacity.stdunits is not null
@@ -1215,6 +1214,7 @@ class PrepManPlan:
                 --    ON (dim_time.week = pd.packweek
                 --        AND weekday(dim_time.day) = f_pack_capacity.weekday)
                 WHERE recordtype = 'PLANNED'
+                AND dim_fc.packtopackplans=1
                 AND extract_datetime = (SELECT MAX(extract_datetime) 
                     FROM dss.planning_data WHERE date(extract_datetime)='{plan_date}')
                 AND f_pack_capacity.stdunits is not null
@@ -1266,6 +1266,7 @@ class PrepManPlan:
                     ON (dim_time.week = pd.packweek
                         AND weekday(dim_time.day) = f_pack_capacity.weekday)
                 WHERE recordtype = '_PACKED'
+                AND dim_fc.packtopackplans=1
                 AND extract_datetime = (SELECT MAX(extract_datetime) 
                     FROM dss.planning_data WHERE date(extract_datetime)='{plan_date}')
                 AND f_pack_capacity.stdunits is not null
@@ -1310,6 +1311,7 @@ class PrepManPlan:
                 --    ON (dim_time.week = pd.packweek
                 --        AND weekday(dim_time.day) = f_pack_capacity.weekday)
                 WHERE recordtype = '_PACKED'
+                AND dim_fc.packtopackplans=1
                 AND extract_datetime = (SELECT MAX(extract_datetime) 
                     FROM dss.planning_data WHERE date(extract_datetime)='{plan_date}')
                 AND f_pack_capacity.stdunits is not null
@@ -1322,3 +1324,79 @@ class PrepManPlan:
         df['packhours'] = df['kg']*(1*config.GIVEAWAY)*df['speed']/60
 
         return df
+
+
+class MakeOperational:
+    """ Class to prepare Manual PackPlan for comparison"""
+    logger = logging.getLogger(f"{__name__}.MakeOperational")
+
+    database_instance = DatabaseModelsClass('PHDDATABASE_URL')
+    get_data = GetOperationalData()
+
+    def make_opindiv(self):
+        self.logger.info(f"make_opindiv")
+        packcap = self.get_data.get_daily_capacity()
+        indiv = self.get_data.get_chosen_individual()
+
+        pcs = list(indiv['pc'].unique())
+
+        dayallocations = []
+        for pc in pcs:
+            indiv_pc = indiv[indiv['pc']==pc]
+            packcap_pc = packcap[(packcap['pc']==pc)].reset_index(drop=True)
+
+            dlist_allocate = list(indiv_pc.demand_id.unique())
+
+            while len(dlist_allocate) > 0:
+                dpos = random.randint(0, len(dlist_allocate)-1)
+                demand_id = dlist_allocate[dpos]  
+
+                indiv_pcd=indiv_pc.set_index('demand_id')
+                dkg = indiv_pcd.at[demand_id, 'kg']
+                packaging = indiv_pcd.at[demand_id, 'packaging']
+                print(f"pc:{pc} - demand:{demand_id}")
+
+                while dkg > 0:
+                    packcap_pc2 = packcap_pc[(packcap_pc['kg_day'] > 0)]
+
+                    days = list(packcap_pc2.day_id.unique())
+                    day_id = days[random.randint(0, len(days)-1)]
+
+                    packcap_pc3=packcap_pc2.set_index('day_id')
+                    kg_day = packcap_pc3.at[day_id, 'kg_day']
+
+                    if kg_day >= dkg:
+                        kg_alloc = dkg
+                        dkg = 0
+                        dlist_allocate.remove(demand_id)
+                    
+                    else:
+                        kg_alloc = kg_day
+                        dkg = dkg - kg_day
+
+                    packcap_pc.loc[(packcap_pc['day_id'] == day_id), 'kg_day'] = kg_day - dkg
+
+                    data = [pc, day_id, packaging, demand_id, kg_alloc, f"{pc}-{day_id}-{packaging}"]
+                    dayallocations.append(data)
+
+                #indiv.loc[(indiv['pc'] == pc) & (indiv['demand_id'] == demand_id), 'dkg'] = dkg
+
+        columns = ['pc', 'day_id', 'packaging', 'demand_id', 'kg_alloc', 'swop_index']
+        df = pd.DataFrame(columns=columns, data=dayallocations)  
+    
+        return df
+
+    def make_opindiv_fitness(self, df):
+        self.logger.info(f"")
+        indiv = self.get_data.get_chosen_individual()
+
+        swops_ton = len(df.swop_index.unique()) / (df.kg_alloc.sum()/1000)
+
+        df2 = df.groupby(['pc','demand_id'],as_index=False, sort=False)['kg_alloc']
+        indiv = pd.merge(indiv, df2, how='left', on=['pc', 'demand_id'])
+
+        indiv['diff'] = indiv['kg'] - indiv['kg_alloc']
+
+        diff = indiv['diff'].sum()
+
+        return [[diff, swops_ton]]

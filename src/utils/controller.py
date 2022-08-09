@@ -7,7 +7,7 @@ import pandas as pd
 from src.data.make_dataset import (AdjustPlanningData, 
                                     CreateOptions,
                                     ManageSeasonRun)
-from src.features.build_features import PrepManPlan, PrepModelData
+from src.features.build_features import PrepManPlan, PrepModelData, MakeOperational
 from src.models.genetic_algorithm import (GeneticAlgorithmMoga,
                                           GeneticAlgorithmNsga2,
                                           GeneticAlgorithmVega)
@@ -24,6 +24,8 @@ class MainController:
 
     development=False
     test_fxn = False
+    operational = True
+     
     tests = ['zdt1', 'zdt2', 'zdt3']
     tests = ['zdt1']
 
@@ -55,6 +57,10 @@ class MainController:
                     make_data=True,
                     clearold=False)
             manplan.prep_results(dss[0], dss[1], dss[2], plan_date, weeks_str)
+
+        elif self.operational:
+            oo = MakeOperational()
+            oo.make_opindiv()
 
         else:    
             self.manage_season_run()
@@ -128,7 +134,6 @@ class MainController:
             ga = GeneticAlgorithmVega()
             plan = ga.vega()
 
-
         if self.nsga2:
             self.logger.info('--- GENETIC ALGORITHM: NSGA2 ---')
             if not os.path.exists('data/interim/nsga2'):
@@ -136,7 +141,6 @@ class MainController:
 
             ga = GeneticAlgorithmNsga2()
             plan = ga.nsga2()
-
 
         if self.moga:
             self.logger.info('--- GENETIC ALGORITHM: MOGA ---')

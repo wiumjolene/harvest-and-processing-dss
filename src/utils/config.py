@@ -30,8 +30,8 @@ CROSSOVERTYPE='crossover_BITFLIP'
 #CROSSOVERTYPE='crossover_CROSSGEN'
 
 
-POPUATION=5 #TODO:
-ITERATIONS=10 #TODO:
+POPUATION=10 #TODO:
+ITERATIONS=50 #TODO:
 #LEVEL='DAY'
 LEVEL='WEEK'
 
@@ -50,5 +50,4 @@ SAMPLESTART = 0
 SAMPLEEND = 1 # number of tests for t-test sample #TODO:
 
 ROOTDIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
-#ROOTDIR = os.path.dirname(os.path.realpath(__file__))
 print(ROOTDIR)

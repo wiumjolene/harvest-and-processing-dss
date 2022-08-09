@@ -88,7 +88,6 @@ class GeneticAlgorithmNsga2:
         alg_path=os.path.join(config.ROOTDIR,'data','interim','nsga2')
         
         p = Population()
-        #init_pop = p.population(config.POPUATION * 2, alg_path)
         init_pop = p.population(config.POPUATION, alg_path)
         init_pop['front'] = 1
 
