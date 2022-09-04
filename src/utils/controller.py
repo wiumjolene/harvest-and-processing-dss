@@ -23,8 +23,7 @@ class MainController:
     moga = False
 
     development=False
-    test_fxn = False
-    operational = True
+    test_fxn = True
      
     tests = ['zdt1', 'zdt2', 'zdt3']
     tests = ['zdt1']
@@ -57,10 +56,6 @@ class MainController:
                     make_data=True,
                     clearold=False)
             manplan.prep_results(dss[0], dss[1], dss[2], plan_date, weeks_str)
-
-        elif self.operational:
-            oo = MakeOperational()
-            oo.make_opindiv()
 
         else:    
             self.manage_season_run()

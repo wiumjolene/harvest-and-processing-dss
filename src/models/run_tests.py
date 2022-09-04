@@ -4,7 +4,7 @@ import os
 
 import numpy as np
 import pandas as pd
-#import pingouin
+import pingouin
 
 from src.features.build_features import (GeneticAlgorithmGenetics, Individual,
                                          ParetoFeatures)
@@ -26,44 +26,34 @@ class RunTests:
     ga2=GeneticAlgorithmNsga2()
     ga3=GeneticAlgorithmMoga()
     indiv = Individual()
+    pt = ParetoFeatures()
 
     def population(self, start, size, alg_path, test_name):
         pop=pd.DataFrame()
-        for p in range(size):
+        for p in range(size * 3):
             ind = self.indiv.individual(start + p, alg_path, test=True, test_name=test_name)
             pop=pop.append(ind).reset_index(drop=True)
         return pop
 
     def make_ga_test(self, alg_path, test_name):
-        #dirpath=os.path.join('data','interim','tests', f"{alg}")
-        #alg_path=os.path.join('data','interim','tests',test_name,alg)
-        #alg_path = f"{test_name}/{alg}"
         fitness_df = self.population(0, config.POPUATION, alg_path, test_name)
         fitness_df['population'] = 'yes'
 
         if 'vega' in alg_path:
-        #if alg == 'vega':
             fitness_df = self.ga1.pareto_vega(fitness_df)
             alg='vega'
 
         if 'nsga2' in alg_path:
-        #if alg == 'nsga2':
             fitness_df = self.ga2.pareto_nsga2(fitness_df)
             alg='nsga2'
 
-        #if alg == 'moga':
         if 'moga' in alg_path:
             fitness_df = self.ga3.pareto_moga(fitness_df)
             alg='moga'
 
         init_pop = fitness_df
-
-        #FIXME:
         filename_html=f"{test_name}_{alg}"
-        #filename_html=os.path.join('reports','figures',f"genetic_algorithm_{test_name}_{alg}.html")
-        #filename_html = f"reports/figures/genetic_algorithm_{test_name}_{alg}.html"
-
-        #avobs=[]
+        hyperarea = pd.DataFrame()
         for i in range(config.ITERATIONS):
             self.logger.info(f"ITERATION {i}")
 
@@ -83,6 +73,9 @@ class RunTests:
 
             if i % config.SHOWRATE == 0 and config.SHOW:
                 self.graph.scatter_plot2(fitness_df, filename_html, 'population', f"{alg_path}-{i}")
+                hyperareat = self.pt.calculate_hyperarea(fitness_df)
+                hyperarea = pd.concat([hyperarea, hyperareat])
+                print(hyperarea)
 
         max_id = fitness_df.id.max() + 1
         t=Tests()
@@ -116,12 +109,13 @@ class RunTests:
         
         if config.SHOW:
             self.graph.scatter_plot2(fitness_df, filename_html, 'population', f"{alg_path}-final")
+            
 
         return fitness_df
 
     def run_tests(self, alg, test, monitor):
         ga = RunTests()
-        pt = ParetoFeatures()
+        #pt = ParetoFeatures()
 
         alg_path=os.path.join(config.ROOTDIR,'data','interim','tests',test,alg)
         if not os.path.exists(alg_path):
@@ -140,7 +134,7 @@ class RunTests:
 
             monitor=pd.concat([monitor, temp])
 
-            hyperareat = pt.calculate_hyperarea(fitness_df)
+            hyperareat = self.pt.calculate_hyperarea(fitness_df)
             hyperareat['sample'] = s
             
             hyperarea=pd.concat([hyperarea, hyperareat]).reset_index(drop=True)
@@ -148,7 +142,7 @@ class RunTests:
         filepath=os.path.join(alg_path, f"hyperarea_{alg}.xlsx")
         hyperarea.to_excel(filepath, index=False)
         stats = StatsTests()
-        #stats.run_friedman(hyperarea, alg, test)
+        stats.run_friedman(hyperarea, alg, test)
         return monitor
 
 
@@ -167,22 +161,22 @@ class StatsTests:
         hypothesis indicates that one of the paired 
         samples has a different distribution.
         """
-        #pgRes = pingouin.friedman(data=hyperarea,
-        #                dv='hyperarea',
-        #                within='population',
-        #                subject='sample',
-        #                method='chisq'
-        #                #method='f'
-        #                )
+        pgRes = pingouin.friedman(data=hyperarea,
+                        dv='hyperarea',
+                        within='population',
+                        subject='sample',
+                        method='chisq'
+                        #method='f'
+                       )
 
         #print(pgRes)
 
-        #alpha = 0.05
-        #if pgRes['p-unc'][0] > alpha:
-        #    print('Same distributions (fail to reject H0)')
-        #else:
-        #    print('Different distributions (reject H0)')
+        alpha = 0.05
+        if pgRes['p-unc'][0] > alpha:
+            print('Same distributions (fail to reject H0)')
+        else:
+            print('Different distributions (reject H0)')
 
-        #pgRes.to_excel(f"data/interim/tests/{test}/{alg}/result_friedman_{alg}.xlsx")
+        pgRes.to_excel(f"data/interim/tests/{test}/{alg}/result_friedman_{alg}.xlsx")
 
         return

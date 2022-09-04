@@ -103,6 +103,7 @@ class GeneticAlgorithmNsga2:
         self.logger.info(f"starting NSGA2 search")
         for _ in range(config.ITERATIONS):
             self.logger.info(f"ITERATION {_}")
+            fitness_df = fitness_df[fitness_df['front']==1].reset_index(drop=True)
             fitness_df = self.gag.crossover(fitness_df, alg_path)
             fitness_df = self.pareto_nsga2(fitness_df)
 
@@ -301,7 +302,6 @@ class GeneticAlgorithmNsga2:
         fitness_df=fitness_df.drop_duplicates(subset=['obj1','obj2'], keep='last')
         fitness_df = self.gag.get_domcount(fitness_df)[0]
         doms = self.gag.get_domcount(fitness_df)
-        #doms = self.get_domcount(fitness_df)
         fitness_df = doms[0]
         front = doms[1]
         dominated_fits = doms[2]

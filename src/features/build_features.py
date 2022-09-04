@@ -451,10 +451,10 @@ class GeneticAlgorithmGenetics:
         TODO: Also remember to swop crossover and pareto select for real iterations.
         """
 
-        pareto_set = fitness_df[fitness_df['front']==1].reset_index(drop=True)
+        #pareto_set = fitness_df[fitness_df['front']==1].reset_index(drop=True)
+        pareto_set = fitness_df
         option_num = random.randint(0,len(pareto_set)-1)
         option_id = pareto_set.at[option_num, 'id']
-        #parent_path = f"data/interim/{alg}/id_{option_id}"
         parent_path=os.path.join(alg_path, f"id_{option_id}")
         parent_df = pd.read_pickle(parent_path)
 
@@ -712,7 +712,17 @@ class GeneticAlgorithmGenetics:
         fitness_df = pd.concat([fitness_df, child1_f, child2_f]).reset_index(drop=True)
         return fitness_df
 
-    def crossover_CROSSGEN(self, fitness_df, alg_path, test, test_name):
+    def crossover_GREEDY(self, fitness_df, alg_path, test, test_name):
+        """ GA crossover genetic material for diversification"""
+        self.logger.debug(f"-- crossover greedy")
+
+        for _ in range(config.GREEDY):
+            fitness_df=self.crossover_BITFLIP(fitness_df, alg_path, test, test_name)
+            #fitness_df=self.crossover_CROSSGEN(fitness_df, alg_path, test, test_name)
+
+        return fitness_df
+
+    def crossover_CROSSGEN_DEPRICATED(self, fitness_df, alg_path, test, test_name):
         """ GA crossover genetic material for diversification"""
         self.logger.debug(f"-- crossover")
 
@@ -757,13 +767,6 @@ class GeneticAlgorithmGenetics:
         child1=child1.drop(columns=['crossover'])
         child2=child2.drop(columns=['crossover'])
 
-        path=os.path.join('data','raw', f"parent1.xlsx")
-        path=os.path.join('data','raw', f"parent2.xlsx")
-
-        path=os.path.join('data','raw', f"child1.xlsx")
-        path=os.path.join('data','raw', f"child2.xlsx")
-
-        # If test then make new test individual gene
         if test:
             # Bring mutatation opportunity in
             child1 = self.mutation(child1, times, test=test)
@@ -789,10 +792,83 @@ class GeneticAlgorithmGenetics:
 
         fitness_df = pd.concat([fitness_df, child1_f, child2_f]).reset_index(drop=True)
 
-        path=os.path.join('data','raw', f"child1_m.xlsx")
-        path=os.path.join('data','raw', f"child2_m.xlsx")
+        return fitness_df
+
+    def crossover_CROSSGEN(self, fitness_df, alg_path, test, test_name):
+        """ GA crossover genetic material for diversification"""
+        self.logger.debug(f"-- crossover")
+
+        ix = Individual()
+        max_id = fitness_df.id.max()
+
+        # Select parents with tournament
+        parent1 = self.selection(fitness_df, alg_path)
+        parent2 = self.selection(fitness_df, alg_path)
+
+        times = list(parent1.time_id.unique())
+        times_check = list(parent2.time_id.unique())
+
+        if len(times) != len(times_check):
+            exit()
+
+        # Uniform crossover 
+        self.logger.debug(f"--- uniform crossover")
+        
+        crossover = []
+        r = random.randint(0, len(times)-1)
+
+        #for count, _ in enumerate(times):
+        #    if count <= r:
+        #        crossover.append([True, _])
+            
+        #    else:
+        #        crossover.append([False, _])
+                
+        crossover = ([True] * r) + ([False] * (len(times)-r))
+        
+        crossoverd = pd.DataFrame({'crossover':crossover, 'time_id':times})
+        #crossoverd = pd.DataFrame(data=crossover, columns=['crossover', 'time_id']) # new
+        parent1 = pd.merge(parent1, crossoverd, on=['time_id'], how='left') # new
+        parent2 = pd.merge(parent2, crossoverd, on=['time_id'], how='left') # new
+
+        child1a = parent1[parent1["crossover"]] # new
+        child1b = parent1[~parent1["crossover"]] # new
+        child2a = parent2[parent2["crossover"]] # new
+        child2b = parent2[~parent2["crossover"]] # new
+
+        child1 = pd.concat([child1a,child2b]).reset_index(drop=True)
+        child2 = pd.concat([child1b,child2a]).reset_index(drop=True)
+
+        child1=child1.drop(columns=['crossover'])
+        child2=child2.drop(columns=['crossover'])
+
+        if test:
+            # Bring mutatation opportunity in
+            child1 = self.mutation(child1, times, test=test)
+            child2 = self.mutation(child2, times, test=test)
+
+            # Register child on fitness_df
+            child1_f = ix.individual(max_id+1, alg_path, get_indiv=False, indiv=child1, 
+                            test=test, test_name=test_name)
+            child2_f = ix.individual(max_id+2, alg_path, get_indiv=False, indiv=child2, 
+                            test=test, test_name=test_name) 
+
+        else:
+           # Bring mutatation opportunity in
+            child1 = self.mutation(child1, times, test=False)
+            child2 = self.mutation(child2, times, test=False)
+
+            # Register child on fitness_df
+            child1_f = ix.individual(max_id+1, alg_path, get_indiv=False, indiv=child1)
+            child2_f = ix.individual(max_id+2, alg_path, get_indiv=False, indiv=child2)
+
+        child1_f['population'] = 'child'
+        child2_f['population'] = 'child'
+
+        fitness_df = pd.concat([fitness_df, child1_f, child2_f]).reset_index(drop=True)
 
         return fitness_df
+
 
     def crossover(self, fitness_df, alg_path, test=False, test_name='zdt1'):
         if config.CROSSOVERTYPE == 'crossover_BITFLIP':
@@ -800,6 +876,9 @@ class GeneticAlgorithmGenetics:
 
         if config.CROSSOVERTYPE == 'crossover_CROSSGEN':
             fitness_df=self.crossover_CROSSGEN(fitness_df, alg_path, test, test_name)
+
+        if config.CROSSOVERTYPE == 'crossover_GREEDY':
+            fitness_df=self.crossover_GREEDY(fitness_df, alg_path, test, test_name)
 
         return fitness_df   
 
@@ -968,7 +1047,7 @@ class ParetoFeatures:
 
         return hyperarea
 
-    def calculate_hyperarea(self, fitness_df):
+    def calculate_hyperarea_BEKKER(self, fitness_df):
         """
         Calculate the area under the pareto front
         relative to the min of each objective
@@ -996,6 +1075,9 @@ class ParetoFeatures:
 
                 else:
                     objective1_diff = abs(objs1[count] - objs1[count - 1])
+                    #objective2_diff = abs(objs2[count] - objs2[count - 1])
+                    
+                    #area = area + (objective1_diff * objective2_diff)
                     area = area + (objective1_diff * objs2[count])
 
             temp = pd.DataFrame(data=[(set, area)],
@@ -1004,6 +1086,50 @@ class ParetoFeatures:
             hyperarea=pd.concat([hyperarea, temp]).reset_index(drop=True)
 
         print(hyperarea)
+        return hyperarea
+
+    def calculate_hyperarea(self, fitness_df):
+        """
+        Calculate the area under the pareto front
+        relative to the min of each objective
+        """
+        fitness_df = fitness_df.filter(['id', 'obj1', 'obj2', 'population'])
+
+        sets = ['yes', 'pareto']
+        sets = list(fitness_df['population'].unique())
+        hyperarea = pd.DataFrame()
+
+        for set in sets:
+            set_df = fitness_df[fitness_df['population'] == set]
+            
+            df = self.non_dominated_sort(set_df)
+            df = df[df['front'] == 1].reset_index(drop=True)
+            df = df.sort_values(by=['obj1','obj2'], ascending=[True,False]).reset_index(drop=True)
+
+            objs1 = df.obj1.values
+            objs2 = df.obj2.values
+            ids = df.id.values
+            area = 0
+            for count, id in enumerate(ids):
+
+                if (count == 0):
+                    objective1_diff = objs1[count]
+                    objective2_diff = objs2[count]
+
+                else:
+                    objective2_diff = objs2[count]
+                    objective1_diff = abs(objs1[count] - objs1[count - 1])
+                    #objective2_diff = abs(objs2[count] - objs2[count - 1])
+                    
+                area = area + (objective1_diff * objective2_diff)
+
+
+            temp = pd.DataFrame(data=[(set, area)],
+                    columns=['population', 'hyperarea'])
+
+            hyperarea=pd.concat([hyperarea, temp]).reset_index(drop=True)
+
+        #print(hyperarea)
         return hyperarea
 
 

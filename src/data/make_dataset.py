@@ -120,6 +120,7 @@ class GetLocalData:
                FROM dss.harvest_estimate_budget WHERE date(extract_datetime)='{plan_date}')
             AND kg > 0
             AND he.week in ({weeks_str})
+            AND (dim_fc.management in ('Karsten', 'Manage') OR fc = 'Y0294')
             GROUP BY dim_block.id, dim_va.id, week;       
         """
 
