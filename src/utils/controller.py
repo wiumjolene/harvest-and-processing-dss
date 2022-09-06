@@ -23,11 +23,11 @@ class MainController:
     moga = False
 
     development=False
-    test_fxn = True
+    test_fxn = False
      
     tests = ['zdt1', 'zdt2', 'zdt3']
     tests = ['zdt2', 'zdt3', 'zdt4', 'zdt6']
-    tests = ['zdt1']
+    #tests = ['zdt1']
 
     def pipeline_control(self):
         monitor = pd.DataFrame()

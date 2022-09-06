@@ -2,7 +2,7 @@ import math
 import os
 
 # show graphs
-SHOW=True 
+SHOW=False 
 SHOWRATE = 5000
 
 STDUNIT=4.5 # each stdunit is so many kg of produce
@@ -22,7 +22,6 @@ ZAR_KM=3.16/1000
 SELECTION='nondom'
 TOURSIZE=2  # NB NSGI2 requires binary tournament selection
 
-
 MUTATIONRATE=0.3
 MUTATIONRATE2=0.08
 CROSSOVERRATE=0.39
@@ -33,15 +32,13 @@ MUTATIONRATE2=0.08
 CROSSOVERRATE=0.35
 """
 
-
 CROSSOVERTYPE='crossover_BITFLIP'
 #CROSSOVERTYPE='crossover_CROSSGEN'
 
+POPUATION=100 #TODO:
+CHILDREN = 100
+ITERATIONS=2000 #TODO:
 
-POPUATION=80 #TODO:
-CHILDREN = 80
-ITERATIONS=30000 #TODO:
-#LEVEL='DAY'
 LEVEL='WEEK'
 
 ########################################################
@@ -55,8 +52,8 @@ SSHARE = 1/(math.sqrt(POPUATION)-1)
 ########################################################
 #D = 30
 
-SAMPLESTART = 25
-SAMPLEEND = 30 # number of tests for t-test sample #TODO:
+SAMPLESTART = 0
+SAMPLEEND = 1 # number of tests for t-test sample #TODO:
 
 ROOTDIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 print(ROOTDIR)

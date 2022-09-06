@@ -29,19 +29,22 @@ class RunTests:
     pt = ParetoFeatures()
 
     def population(self, start, size, alg_path, test_name):
-        #pop=pd.DataFrame()
+
         population = {}
+        fitness_df = pd.DataFrame()
         for p in range(size * 3):
             individual = self.indiv.individual(start + p, alg_path, test=True, test_name=test_name)
-            #pop=pop.append(ind).reset_index(drop=True)
             population[p] = individual[1]
-            population_fitness = individual[0]
-        return population_fitness, population
+
+            pop = pd.DataFrame.from_dict(individual[0], orient='index', columns=['obj1','obj2'])
+            fitness_df = pd.concat([fitness_df,pop])
+
+        fitness_df['id'] = fitness_df.index
+        return fitness_df, population
 
     def make_ga_test(self, alg_path, test_name):
         pop = self.population(0, config.POPUATION, alg_path, test_name)
         fitness_df = pop[0]
-        fitness_df['population'] = 'yes'
 
         if 'vega' in alg_path:
             fitness_df = self.ga1.pareto_vega(fitness_df)
@@ -55,18 +58,18 @@ class RunTests:
             fitness_df = self.ga3.pareto_moga(fitness_df)
             alg='moga'
 
+        
         init_pop = fitness_df
         population = pop[1]
         hyperarea = pd.DataFrame()
         for i in range(config.ITERATIONS):
             self.logger.info(f"ITERATION {i}")
-            fitness_df = fitness_df[fitness_df['front']==1].reset_index(drop=True)
             new_life = self.gag.make_children(fitness_df, alg_path, test=True, 
                                                 test_name=test_name, population=population)
+
             fitness_df = new_life[0]
             population = new_life[1]
 
-            self.logger.debug(f"- initiate pareto check")
             if alg == 'vega':
                 fitness_df = self.ga1.pareto_vega(fitness_df)
 
@@ -79,6 +82,7 @@ class RunTests:
             if i % config.SHOWRATE == 0:
                 filename_html=f"{test_name}_{alg}"
                 if config.SHOW:
+                    fitness_df['population'] = 'yes'
                     self.graph.scatter_plot2(fitness_df, filename_html, 'population', f"{alg_path}-{i}")
                     hyperareat = self.pt.calculate_hyperarea(fitness_df)
                     hyperarea = pd.concat([hyperarea, hyperareat])
