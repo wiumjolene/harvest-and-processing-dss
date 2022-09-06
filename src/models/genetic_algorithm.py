@@ -104,7 +104,8 @@ class GeneticAlgorithmNsga2:
         for _ in range(config.ITERATIONS):
             self.logger.info(f"ITERATION {_}")
             fitness_df = fitness_df[fitness_df['front']==1].reset_index(drop=True)
-            fitness_df = self.gag.crossover(fitness_df, alg_path)
+            fitness_df = self.gag.make_children(fitness_df, alg_path)
+            #fitness_df = self.gag.crossover(fitness_df, alg_path)
             fitness_df = self.pareto_nsga2(fitness_df)
 
         return [alg_path, fitness_df, init_pop]
@@ -112,7 +113,6 @@ class GeneticAlgorithmNsga2:
     def crowding_distance(self, fitness_df, fc, size):
         """ Crowding distance sorting """ 
         self.logger.debug(f"-- crowding distance activated")
-        #fitness_df.to_excel('three.xlsx')
         fitness_dff = fitness_df[fitness_df['front']==fc].reset_index(drop=True)
         fitness_dff['cdist'] = 0
         
@@ -123,7 +123,6 @@ class GeneticAlgorithmNsga2:
         else:
             space = config.POPUATION - size
 
-        #print(f"front: {fc}, size: {size}, space: {space}")
         objs = ['obj1', 'obj2']
         for m in objs:
             # Sort by objective (m) 
@@ -150,7 +149,6 @@ class GeneticAlgorithmNsga2:
                     
                     else:
                         distance = (onedown - oneup) / (min)
-                        #distance = 0
 
                     cdists[i] = cdists[i] + distance
 
@@ -301,10 +299,10 @@ class GeneticAlgorithmNsga2:
         fitness_df = fitness_df[['id','obj1','obj2']]
         fitness_df=fitness_df.drop_duplicates(subset=['obj1','obj2'], keep='last')
         fitness_df = self.gag.get_domcount(fitness_df)[0]
-        doms = self.gag.get_domcount(fitness_df)
-        fitness_df = doms[0]
-        front = doms[1]
-        dominated_fits = doms[2]
+        #doms = self.gag.get_domcount(fitness_df)
+        #fitness_df = doms[0]
+        #front = doms[1]
+        #dominated_fits = doms[2]
 
         ###################################################
         # Get front count and determine population status #

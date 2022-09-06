@@ -21,9 +21,9 @@ t=Tests()
 
 
 def result(i):
-    test_name = 'zdt1'
+    test_name = 'zdt3'
 
-    problem = plat.ZDT1()
+    problem = plat.ZDT3()
     algorithm = plat.NSGAII(problem)
     algorithm.run(15000)
 
@@ -40,7 +40,7 @@ def result(i):
 
     max_id = objective_values['id'].max()
     for pp in range(config.POPUATION):
-        x = np.random.rand(config.D)
+        x = np.random.rand(t.variables(test_name))
         pareto_indivst=pd.DataFrame(data=x,columns=['value'])
         pareto_indivst['time_id']=pareto_indivst.index
         pareto_indivst['id']=max_id + pp
@@ -54,6 +54,9 @@ def result(i):
 
         if test_name == 'zdt3':
             fitness = t.ZDT3_pareto(x)
+
+        if test_name == 'zdt4':
+            fitness = t.ZDT4_pareto(x)
 
         pareto = pd.DataFrame(fitness, columns=['obj1', 'obj2'])
         pareto['population'] = 'pareto'

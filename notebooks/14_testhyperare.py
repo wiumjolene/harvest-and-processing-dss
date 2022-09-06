@@ -15,9 +15,9 @@ path = r"C:\Users\Jolene Wium\Documents\personal\studies\phd\model\model\data\ex
 
 
 huperarea = pd.DataFrame()
-for i in range(0,9):
-    path = os.path.join(r"C:\Users\Jolene Wium\Documents\personal\studies\phd\model\model\data\external","20220902",f"fitness_nsga2_{i}.xlsx")
-    #path = f"C:\Users\Jolene Wium\Documents\personal\studies\phd\model\model\data\external\20220901\fitness_nsga2_{i}.xlsx"
+for i in range(0,7):
+    path = os.path.join(r"C:\Users\Jolene Wium\Documents\personal\studies\phd\model\model\data\external","20220904","zdt1",f"fitness_nsga2_{i}.xlsx")
+
     fitness_df = pd.read_excel(path)
     pt = ParetoFeatures()
     hyperareas = pt.calculate_hyperarea(fitness_df)

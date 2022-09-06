@@ -52,14 +52,14 @@ class RunTests:
             alg='moga'
 
         init_pop = fitness_df
-        filename_html=f"{test_name}_{alg}"
         hyperarea = pd.DataFrame()
         for i in range(config.ITERATIONS):
             self.logger.info(f"ITERATION {i}")
 
             self.logger.debug(f"- starting crossover")
-
-            fitness_df = self.gag.crossover(fitness_df,alg_path,test=True,test_name=test_name)
+            fitness_df = fitness_df[fitness_df['front']==1].reset_index(drop=True)
+            fitness_df = self.gag.make_children(fitness_df, alg_path, test=True, test_name=test_name)
+            #fitness_df = self.gag.crossover(fitness_df,alg_path,test=True,test_name=test_name)
 
             self.logger.debug(f"- initiate pareto check")
             if alg == 'vega':
@@ -71,18 +71,24 @@ class RunTests:
             if alg == 'moga':
                 fitness_df = self.ga3.pareto_moga(fitness_df)
 
-            if i % config.SHOWRATE == 0 and config.SHOW:
-                self.graph.scatter_plot2(fitness_df, filename_html, 'population', f"{alg_path}-{i}")
-                hyperareat = self.pt.calculate_hyperarea(fitness_df)
-                hyperarea = pd.concat([hyperarea, hyperareat])
-                print(hyperarea)
+            if i % config.SHOWRATE == 0:
+                filename_html=f"{test_name}_{alg}"
+                if config.SHOW:
+                    self.graph.scatter_plot2(fitness_df, filename_html, 'population', f"{alg_path}-{i}")
+                    hyperareat = self.pt.calculate_hyperarea(fitness_df)
+                    hyperarea = pd.concat([hyperarea, hyperareat])
+                    print(hyperarea)
+
+                else:
+                    hyperareat = self.pt.calculate_hyperarea(fitness_df)
+                    self.logger.info(f"- CURRENT HYPERAREA: {hyperareat.hyperarea[0]}")
 
         max_id = fitness_df.id.max() + 1
         t=Tests()
 
         # Get pareto optimal set
         for pp in range(config.POPUATION):
-            x = np.random.rand(config.D)
+            x = np.random.rand(t.variables(test_name))
             pareto_indivst=pd.DataFrame(data=x,columns=['value'])
             pareto_indivst['time_id']=pareto_indivst.index
             pareto_indivst['id']=max_id + pp
@@ -93,11 +99,17 @@ class RunTests:
             if test_name == 'zdt1':
                 fitness = t.ZDT1_pareto(x)
 
-            if test_name == 'zdt2':
+            elif test_name == 'zdt2':
                 fitness = t.ZDT2_pareto(x)
 
-            if test_name == 'zdt3':
+            elif test_name == 'zdt3':
                 fitness = t.ZDT3_pareto(x)
+
+            elif test_name == 'zdt4':
+                fitness = t.ZDT4_pareto(x)
+
+            elif test_name == 'zdt6':
+                fitness = t.ZDT6_pareto(x)
 
             pareto = pd.DataFrame(fitness, columns=['obj1', 'obj2'])
             pareto['population'] = 'pareto'

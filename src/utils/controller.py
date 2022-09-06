@@ -26,6 +26,7 @@ class MainController:
     test_fxn = True
      
     tests = ['zdt1', 'zdt2', 'zdt3']
+    tests = ['zdt2', 'zdt3', 'zdt4', 'zdt6']
     tests = ['zdt1']
 
     def pipeline_control(self):

@@ -110,12 +110,11 @@ class Individual:
                     indiv=individual_df, test=False, test_name='zdt1'):
 
         """ Function to define indiv and fitness """
-        self.logger.debug(f"- individual: {number}")
+        self.logger.info(f"- individual: {number}")
         if test:
             t=Tests()
             if get_indiv:
-                #x = np.random.rand(config.D)
-                x = np.random.rand(t.variables(test_name))
+                x = np.random.rand(config.D)
                 indiv = pd.DataFrame(x, columns=['value'])
                 indiv['time_id'] = indiv.index
 
@@ -126,17 +125,15 @@ class Individual:
             if test_name == 'zdt1':
                 fitness = t.ZDT1(x)
 
-            elif test_name == 'zdt2':
+            if test_name == 'zdt2':
                 fitness = t.ZDT2(x)
 
-            elif test_name == 'zdt3':
+            if test_name == 'zdt3':
                 fitness = t.ZDT3(x)
 
-            elif test_name == 'zdt4':
-                fitness = t.ZDT4(x)
-
-            elif test_name == 'zdt6':
-                fitness = t.ZDT6(x)
+            if (len(x) < config.D or len(x) > config.D): 
+                print(f"number {number}: len {len(x)}")
+                exit()
 
         else:
             if get_indiv:
@@ -149,8 +146,6 @@ class Individual:
          
         path=os.path.join(alg_path, f"id_{number}")
         indiv.to_pickle(path, protocol=5)
-        #indiv.to_json(path, orient='index')
-
         return ind_fitness
 
     def make_individual(self, get_dlist=True, dlist=dlistt):
@@ -222,7 +217,7 @@ class Individual:
             indd_pc = []
             indd_kg = []
             indd_kgkm = []
-            #indd_hrs = []
+            indd_hrs = []
             while dkg > 0:
                 self.logger.debug(f"----> finding he and pc for d; dkg ({dkg}) for demand: {d}")
                 # Filter demand_he table according to d and kg.
@@ -312,7 +307,7 @@ class Individual:
                             indd_pc.append(pc)
                             indd_kg.append(packed)
                             indd_kgkm.append(packed*km)
-                            #indd_hrs.append(packed*(1*config.GIVEAWAY)*speed/60)
+                            indd_hrs.append(packed*(1*config.GIVEAWAY)*speed/60)
 
 
                         else:
@@ -327,14 +322,11 @@ class Individual:
                         indd_pc.append(0)
                         indd_kg.append(0)
                         indd_kgkm.append(0)
-                        #indd_hrs.append(0)
+                        indd_hrs.append(0)
                     break
                         
-            #dindividual = {'he':indd_he, 'pc':indd_pc, 'kg': indd_kg,
-            #                'kgkm': indd_kgkm, 'packhours': indd_hrs} 
-
             dindividual = {'he':indd_he, 'pc':indd_pc, 'kg': indd_kg,
-                            'kgkm': indd_kgkm} 
+                            'kgkm': indd_kgkm, 'packhours': indd_hrs} 
 
             individualdft = pd.DataFrame(data=dindividual)      
             individualdft['demand_id'] = d
@@ -373,6 +365,7 @@ class Individual:
                             left_on='id', right_on='demand_id')
         individualdf3['kg'].fillna(0, inplace=True)
 
+        # FIXME: ABSOLUTE VALUE?!!
         #individualdf3['deviation'] =  abs(individualdf3['dkg']-individualdf3['kg'])
         individualdf3['deviation'] =  individualdf3['dkg']-individualdf3['kg']
         individualdf3.loc[(individualdf3['deviation'] < 0), 'deviation'] == 0
@@ -444,35 +437,30 @@ class GeneticAlgorithmGenetics:
                 high_fit2 = fit2
                 parent = option_id
             
-        
         parent_path=os.path.join(alg_path, f"id_{option_id}")
         parent_df = pd.read_pickle(parent_path)
-        #parent_df = pd.read_json(parent_path, orient='index')
-
-
         parent_df = parent_df.sort_values(by=['time_id'])
                 
         return parent_df
 
-    def nondom_selection(self, pareto_set, alg_path):
+    def nondom_selection(self, fitness_df, alg_path):
         """This selection method makes use of the nondominated soting front to choose 
         parents. 
         NB: Only for NSGA-II. Moga etc has different structure. 
         TODO: Update for moga and VEGA. 
         TODO: Also remember to swop crossover and pareto select for real iterations.
         """
-        #pareto_set = list(fitness_df.id)
-        option_num = random.randint(0,len(pareto_set)-1)
-        option_id = pareto_set[option_num]
-        #option_id = pareto_set.at[option_num, 'id']
-        parent_path=os.path.join(alg_path, f"id_{option_id}")
 
+        #pareto_set = fitness_df[fitness_df['front']==1].reset_index(drop=True)
+        pareto_set = fitness_df
+        option_num = random.randint(0,len(pareto_set)-1)
+        option_id = pareto_set.at[option_num, 'id']
+        parent_path=os.path.join(alg_path, f"id_{option_id}")
         parent_df = pd.read_pickle(parent_path)
-        #parent_df = pd.read_json(parent_path, orient='index')
 
         return parent_df
 
-    def mutation_20220904(self, df_mutate, times, test):
+    def mutation_TRUNCATE(self, df_mutate, times, test):
         """ GA mutation function to diversify gene pool. """
         
         self.logger.debug(f"-- mutation check")
@@ -480,12 +468,57 @@ class GeneticAlgorithmGenetics:
 
         if random.random() <= config.MUTATIONRATE:
             self.logger.debug(f"--- mutation activated")
-                       
+            
+            df_mutate1=pd.DataFrame()
+            mutate = []
+            for m in times:
+                #df_gene = df_mutate[df_mutate['time_id'] == m]
+                update = False
+
+                if random.random() < config.MUTATIONRATE2:
+                    update = True
+                    
+                    # If test then make new gene here
+                    if test:
+                        x = np.random.rand()
+                        df_gene = pd.DataFrame(data=[x], columns=['value'])
+                        df_gene['time_id'] = m
+                        df_mutate1 = pd.concat([df_mutate1, df_gene]).reset_index(drop=True)
+                    
+                    # Else get only gene alternate
+                    else:  
+                        demand_list = list(df_gene.demand_id.unique())
+                        df_gene = ix.make_individual(get_dlist=False, dlist=demand_list)  # FIXME:
+                        df_mutate1 = pd.concat([df_mutate1, df_gene]).reset_index(drop=True)
+                        
+                mutate.append(update)
+                
+            df_mutate['mutate'] = mutate
+            df_mutate = df_mutate.set_index('mutate')
+            df_keep = df_mutate.loc[False]
+            df_mutate1 = pd.concat([df_mutate1, df_keep]).reset_index(drop=True)
+
+        else:
+            df_mutate1 = df_mutate
+            
+        return df_mutate1
+
+    def mutation(self, df_mutate, times, test):
+        """ GA mutation function to diversify gene pool. """
+        
+        self.logger.debug(f"-- mutation check")
+        ix = Individual()
+
+        if random.random() <= config.MUTATIONRATE:
+            self.logger.debug(f"--- mutation activated")
+            
+            df_mutate1=pd.DataFrame()
+            mutates = []
+
+           
             times.sort()
             df_mutate=df_mutate.sort_values(by=['time_id']).reset_index(drop=True)
 
-            df_mutate1=pd.DataFrame()
-            mutates = []
             for m in times:
                 self.logger.debug(f"---- mutation for {m}")
                 update = True
@@ -521,77 +554,107 @@ class GeneticAlgorithmGenetics:
 
         return df_mutate1
 
-    def mutation(self, df_mutate, times, test):
-        """ GA mutation function to diversify gene pool. """
-        
-        self.logger.debug(f"-- mutation check")
-        ix = Individual()
-
-        if random.random() <= config.MUTATIONRATE:
-            self.logger.debug(f"--- mutation activated")
-                       
-            times.sort()
-            df_mutate=df_mutate.sort_values(by=['time_id']).reset_index(drop=True)
-
-            if test:
-                values = list(df_mutate['value'])
-                times = list(df_mutate['time_id'])
-
-                vals = []
-                for count, m in enumerate(times):
-                    self.logger.debug(f"---- mutation for {m}")
-
-                    if random.random() < config.MUTATIONRATE2:
-                        vals.append(np.random.rand())
-                                    
-                    else:
-                        vals.append(values[count])
-                
-                df_mutate1 = pd.DataFrame({'time_id': times, 'value': vals})
-            
-            else:
-                df_mutate1=pd.DataFrame()
-                mutates = []
-                for m in times:
-                    self.logger.debug(f"---- mutation for {m}")
-                    update = True
-
-                    if random.random() < config.MUTATIONRATE2:
-                        update = False
-                        df_gener =  df_mutate[df_mutate['time_id']==m]
-                        demand_list = list(df_gener.demand_id.unique())
-                        df_gene = ix.make_individual(get_dlist=False, dlist=demand_list)
-                        df_mutate1 = pd.concat([df_mutate1, df_gene]).reset_index(drop=True)
-                
-                    mutates.append([update, m])
-
-                mutated = pd.DataFrame(data=mutates, columns=['mutate', 'time_id'])
-                df_mutate = pd.merge(df_mutate, mutated, on=['time_id'], how='left')
-                df_keep = df_mutate[df_mutate["mutate"]]
-                
-                df_mutate1 = pd.concat([df_mutate1, df_keep]).reset_index(drop=True)
-                df_mutate1=df_mutate1.drop(columns=['mutate'])
-
-        else:
-            df_mutate1 = df_mutate
-
-        return df_mutate1
-
-    def crossover_BITFLIP(self, fitness_df, ids, alg_path, test, test_name):
+    def crossover_TRUNCATE(self, fitness_df, alg, test, test_name):
         """ GA crossover genetic material for diversification"""
         self.logger.debug(f"-- crossover")
 
         ix = Individual()
-        pareto_set = list(fitness_df.id)
+        max_id = fitness_df.id.max()
+
+        if test:
+            times = list(range(config.D))
+
+        else:
+            ddf_metadata = pd.read_pickle('data/processed/ddf_metadata')
+            times = list(ddf_metadata.time_id.unique())
 
         # Select parents with tournament
-        parent1 = self.selection(pareto_set, alg_path)
-        parent2 = self.selection(pareto_set, alg_path)
-
-        times = list(parent1.time_id.unique())
+        pareto_df = fitness_df[fitness_df['population'] != 'none'].reset_index(drop=True)
+        parent1 = self.tournament_selection(pareto_df, alg)
+        parent2 = self.tournament_selection(pareto_df, alg)
 
         # Uniform crossover 
-        self.logger.debug(f"--- crossover 1")
+        self.logger.debug(f"--- uniform crossover")
+        # FIXME: Not sure if this will work for real problem as 
+        # times = unique and there might be several for one time?
+        
+        index = []      
+        for _ in times:
+            if random.random() < config.CROSSOVERRATE:
+                index.append(True)
+            
+            else:
+                index.append(False)
+
+        parent1['index'] = index
+        parent1 = parent1.set_index('index')
+        parent2['index'] = index
+        parent2 = parent2.set_index('index')
+
+        child1a = parent1.loc[True]
+        child1b = parent1.loc[False]
+        child2a = parent2.loc[True]
+        child2b = parent2.loc[False]
+
+        child1 = pd.concat([child1a,child2b]).reset_index(drop=True)
+        child2 = pd.concat([child1b,child2a]).reset_index(drop=True)
+
+        path=os.path.join('data','raw', f"parent1.xlsx")
+        #parent1.to_excel(path)
+        path=os.path.join('data','raw', f"parent2.xlsx")
+        #parent2.to_excel(path)
+
+        path=os.path.join('data','raw', f"child1.xlsx")
+        #child1.to_excel(path)
+        path=os.path.join('data','raw', f"child2.xlsx")
+        #child2.to_excel(path)
+
+        # If test then make new test individual gene
+        if test:
+            # Bring mutatation opportunity in
+            child1 = self.mutation(child1, times, test=test)
+            child2 = self.mutation(child2, times, test=test)
+
+            # Register child on fitness_df
+            child1_f = ix.individual(max_id+1, alg, get_indiv=False, indiv=child1, 
+                            test=test, test_name=test_name)
+            child2_f = ix.individual(max_id+2, alg, get_indiv=False, indiv=child2, 
+                            test=test, test_name=test_name) 
+
+        else:
+           # Bring mutatation opportunity in
+            child1 = self.mutation(child1, times, test=False)
+            child2 = self.mutation(child2, times, test=False)
+
+            # Register child on fitness_df
+            child1_f = ix.individual(max_id+1, alg, get_indiv=False, indiv=child1)
+            child2_f = ix.individual(max_id+2, alg, get_indiv=False, indiv=child2)
+
+        child1_f['population'] = 'child'
+        child2_f['population'] = 'child'
+
+        fitness_df = pd.concat([fitness_df, child1_f, child2_f]).reset_index(drop=True)
+        return fitness_df
+
+    def crossover_BITFLIP(self, fitness_df, alg_path, test, test_name):
+        """ GA crossover genetic material for diversification"""
+        self.logger.debug(f"-- crossover")
+
+        ix = Individual()
+        max_id = fitness_df.id.max()
+
+        # Select parents with tournament
+        parent1 = self.selection(fitness_df, alg_path)
+        parent2 = self.selection(fitness_df, alg_path)
+
+        times = list(parent1.time_id.unique())
+        times_check = list(parent2.time_id.unique())
+
+        if len(times) != len(times_check):
+            exit()
+
+        # Uniform crossover 
+        self.logger.debug(f"--- uniform crossover")
         
         crossover = []      
         for _ in times:
@@ -601,35 +664,26 @@ class GeneticAlgorithmGenetics:
             else:
                 crossover.append([False, _])
                 
-        crossoverd = pd.DataFrame(data=crossover, columns=['crossover', 'time_id'])
-        #parent1 = pd.merge(parent1, crossoverd, on=['time_id'], how='left')
-        #parent2 = pd.merge(parent2, crossoverd, on=['time_id'], how='left')
+        crossoverd = pd.DataFrame(data=crossover, columns=['crossover', 'time_id']) # new
+        parent1 = pd.merge(parent1, crossoverd, on=['time_id'], how='left') # new
+        parent2 = pd.merge(parent2, crossoverd, on=['time_id'], how='left') # new
 
-        if test:
-            parent1.set_index('time_id')
-            parent2.set_index('time_id')
-            crossoverd.set_index('time_id', inplace=True)
+        child1a = parent1[parent1["crossover"]] # new
+        child1b = parent1[~parent1["crossover"]] # new
+        child2a = parent2[parent2["crossover"]] # new
+        child2b = parent2[~parent2["crossover"]] # new
 
-            parent1 = parent1.join(crossoverd, how='left')
-            parent2 = parent2.join(crossoverd, how='left')
-
-        else:
-            parent1 = pd.merge(parent1, crossoverd, on=['time_id'], how='left')
-            parent2 = pd.merge(parent2, crossoverd, on=['time_id'], how='left')
-
-
-        child1a = parent1[parent1["crossover"]]
-        child1b = parent1[~parent1["crossover"]]
-        child2a = parent2[parent2["crossover"]]
-        child2b = parent2[~parent2["crossover"]]
-
-        child1 = pd.concat([child1a,child2b])
-        child2 = pd.concat([child1b,child2a])
+        child1 = pd.concat([child1a,child2b]).reset_index(drop=True)
+        child2 = pd.concat([child1b,child2a]).reset_index(drop=True)
 
         child1=child1.drop(columns=['crossover'])
         child2=child2.drop(columns=['crossover'])
 
-        self.logger.debug(f"--- crossover 2")
+        path=os.path.join('data','raw', f"parent1.xlsx")
+        path=os.path.join('data','raw', f"parent2.xlsx")
+
+        path=os.path.join('data','raw', f"child1.xlsx")
+        path=os.path.join('data','raw', f"child2.xlsx")
 
         # If test then make new test individual gene
         if test:
@@ -638,9 +692,9 @@ class GeneticAlgorithmGenetics:
             child2 = self.mutation(child2, times, test=test)
 
             # Register child on fitness_df
-            child1_f = ix.individual(ids[0], alg_path, get_indiv=False, indiv=child1, 
+            child1_f = ix.individual(max_id+1, alg_path, get_indiv=False, indiv=child1, 
                             test=test, test_name=test_name)
-            child2_f = ix.individual(ids[1], alg_path, get_indiv=False, indiv=child2, 
+            child2_f = ix.individual(max_id+2, alg_path, get_indiv=False, indiv=child2, 
                             test=test, test_name=test_name) 
 
         else:
@@ -649,15 +703,13 @@ class GeneticAlgorithmGenetics:
             child2 = self.mutation(child2, times, test=False)
 
             # Register child on fitness_df
-            child1_f = ix.individual(ids[0], alg_path, get_indiv=False, indiv=child1)
-            child2_f = ix.individual(ids[1], alg_path, get_indiv=False, indiv=child2)
+            child1_f = ix.individual(max_id+1, alg_path, get_indiv=False, indiv=child1)
+            child2_f = ix.individual(max_id+2, alg_path, get_indiv=False, indiv=child2)
 
         child1_f['population'] = 'child'
         child2_f['population'] = 'child'
-        self.logger.debug(f"--- crossover 3")
 
         fitness_df = pd.concat([fitness_df, child1_f, child2_f]).reset_index(drop=True)
-        self.logger.debug(f"--- crossover 4")
         return fitness_df
 
     def make_children(self, fitness_df, alg_path, test, test_name):
@@ -665,14 +717,13 @@ class GeneticAlgorithmGenetics:
         self.logger.debug(f"-- make children")
 
         used_ids = set(list(fitness_df.id))
-        poplist = list(range(0, config.POPUATION + config.CHILDREN + 1))
+        poplist = list(range(0, config.POPUATION * 2))
         available_ids = [x for x in poplist if x not in used_ids]
 
-        alloc_id = 0
-        for _ in range(int(config.CHILDREN/2)):
-            ids = [available_ids[alloc_id], available_ids[alloc_id+1]]
-            fitness_df=self.crossover(fitness_df, ids, alg_path, test, test_name)
-            alloc_id = alloc_id + 2
+        for _ in range(config.GREEDY):
+            id = available_ids[_]
+            fitness_df=self.crossover(fitness_df, id, alg_path, test, test_name)
+            #fitness_df=self.crossover_CROSSGEN(fitness_df, alg_path, test, test_name)
 
         return fitness_df
 
@@ -748,76 +799,63 @@ class GeneticAlgorithmGenetics:
 
         return fitness_df
 
-    def crossover_CROSSGEN(self, fitness_df, ids, alg_path, test, test_name):
+    def crossover_CROSSGEN(self, fitness_df, id, alg_path, test, test_name):
         """ GA crossover genetic material for diversification"""
-        self.logger.debug(f"-- crossover_CROSSGEN")
+        self.logger.debug(f"-- crossover")
 
         ix = Individual()
-        pareto_set = list(fitness_df.id)
-
-        self.logger.debug(f"--- crossover 1a")
+        max_id = fitness_df.id.max()
 
         # Select parents with tournament
-        parent1 = self.selection(pareto_set, alg_path)
-        parent2 = self.selection(pareto_set, alg_path)
-
-        self.logger.debug(f"--- crossover 1b")
+        parent1 = self.selection(fitness_df, alg_path)
+        parent2 = self.selection(fitness_df, alg_path)
 
         times = list(parent1.time_id.unique())
+        times_check = list(parent2.time_id.unique())
+
+        if len(times) != len(times_check):
+            exit()
 
         # Uniform crossover 
+        self.logger.debug(f"--- uniform crossover")
         
-        self.logger.debug(f"--- crossover 1c")
-        
+        crossover = []
         r = random.randint(0, len(times)-1)
-               
-        crossover = ([True] * r) + ([False] * (len(times)-r))
 
-        self.logger.debug(f"--- crossover 2")
+        #for count, _ in enumerate(times):
+        #    if count <= r:
+        #        crossover.append([True, _])
+            
+        #    else:
+        #        crossover.append([False, _])
+                
+        crossover = ([True] * r) + ([False] * (len(times)-r))
         
         crossoverd = pd.DataFrame({'crossover':crossover, 'time_id':times})
-
-        if test:
-            parent1.set_index('time_id')
-            parent2.set_index('time_id')
-            crossoverd.set_index('time_id', inplace=True)
-
-            parent1 = parent1.join(crossoverd, how='left')
-            parent2 = parent2.join(crossoverd, how='left')
-
-        else:
-            parent1 = pd.merge(parent1, crossoverd, on=['time_id'], how='left')
-            parent2 = pd.merge(parent2, crossoverd, on=['time_id'], how='left')
-
-        self.logger.debug(f"--- crossover 2a")
-
-        print(times)
+        #crossoverd = pd.DataFrame(data=crossover, columns=['crossover', 'time_id']) # new
+        parent1 = pd.merge(parent1, crossoverd, on=['time_id'], how='left') # new
+        parent2 = pd.merge(parent2, crossoverd, on=['time_id'], how='left') # new
 
         child1a = parent1[parent1["crossover"]] # new
         child1b = parent1[~parent1["crossover"]] # new
         child2a = parent2[parent2["crossover"]] # new
         child2b = parent2[~parent2["crossover"]] # new
 
-        self.logger.debug(f"--- crossover 3")
-
-        child1 = pd.concat([child1a,child2b])
-        child2 = pd.concat([child1b,child2a])
-
-        self.logger.debug(f"--- crossover 3b")
+        child1 = pd.concat([child1a,child2b]).reset_index(drop=True)
+        child2 = pd.concat([child1b,child2a]).reset_index(drop=True)
 
         child1=child1.drop(columns=['crossover'])
         child2=child2.drop(columns=['crossover'])
 
-        self.logger.debug(f"--- crossover 4")
         if test:
             # Bring mutatation opportunity in
             child1 = self.mutation(child1, times, test=test)
             child2 = self.mutation(child2, times, test=test)
 
             # Register child on fitness_df
-            child1_f = ix.individual(ids[0], alg_path, get_indiv=False, indiv=child1, 
+            child1_f = ix.individual(max_id+1, alg_path, get_indiv=False, indiv=child1, 
                             test=test, test_name=test_name)
-            child2_f = ix.individual(ids[1], alg_path, get_indiv=False, indiv=child2, 
+            child2_f = ix.individual(max_id+2, alg_path, get_indiv=False, indiv=child2, 
                             test=test, test_name=test_name) 
 
         else:
@@ -826,26 +864,55 @@ class GeneticAlgorithmGenetics:
             child2 = self.mutation(child2, times, test=False)
 
             # Register child on fitness_df
-            child1_f = ix.individual(ids[0], alg_path, get_indiv=False, indiv=child1)
-            child2_f = ix.individual(ids[1], alg_path, get_indiv=False, indiv=child2)
+            child1_f = ix.individual(max_id+1, alg_path, get_indiv=False, indiv=child1)
+            child2_f = ix.individual(max_id+2, alg_path, get_indiv=False, indiv=child2)
 
         child1_f['population'] = 'child'
         child2_f['population'] = 'child'
-
-        self.logger.debug(f"--- crossover 5")
 
         fitness_df = pd.concat([fitness_df, child1_f, child2_f]).reset_index(drop=True)
 
         return fitness_df
 
-    def crossover(self, fitness_df, ids, alg_path, test=False, test_name='zdt1'):
+    def crossover(self, fitness_df, alg_path, test=False, test_name='zdt1'):
         if config.CROSSOVERTYPE == 'crossover_BITFLIP':
-            fitness_df=self.crossover_BITFLIP(fitness_df, ids, alg_path, test, test_name)
+            fitness_df=self.crossover_BITFLIP(fitness_df, alg_path, test, test_name)
 
         if config.CROSSOVERTYPE == 'crossover_CROSSGEN':
-            fitness_df=self.crossover_CROSSGEN(fitness_df, ids, alg_path, test, test_name)
+            fitness_df=self.crossover_CROSSGEN(fitness_df, alg_path, test, test_name)
+
+        #if config.CROSSOVERTYPE == 'crossover_GREEDY':
+        #    fitness_df=self.crossover_GREEDY(fitness_df, alg_path, test, test_name)
 
         return fitness_df   
+
+    def dominates_TRUNCATE(objset1, objset2, sign=[1, 1]):
+        """
+        Return true if each objective of *self* is not strictly worse than
+                the corresponding objective of *other* and at least one objective is
+                strictly better.
+            **no need to care about the equal cases
+            (Cuz equal cases mean they are non-dominators)
+        :param obj1: a list of multiple objective values
+        :type obj1: numpy.ndarray
+        :param obj2: a list of multiple objective values
+        :type obj2: numpy.ndarray
+        :param sign: target types. positive means maximize and otherwise minimize.
+        :type sign: list
+        FROM DEAP
+        """
+        indicator = False
+        for a, b, sign in zip(objset1, objset2, sign):
+            if a * sign < b * sign:
+                indicator = True
+            # if one of the objectives is dominated, then return False
+            elif a * sign > b * sign:
+                return False
+
+            elif a * sign == b * sign:
+                return False
+                
+        return indicator
 
     def get_domcount(self, fitness_df):
         front = []

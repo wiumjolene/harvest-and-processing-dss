@@ -2,7 +2,7 @@ import math
 import os
 
 # show graphs
-SHOW=True  #TODO:
+SHOW=True 
 SHOWRATE = 5000
 
 STDUNIT=4.5 # each stdunit is so many kg of produce
@@ -26,7 +26,6 @@ TOURSIZE=2  # NB NSGI2 requires binary tournament selection
 MUTATIONRATE=0.3
 MUTATIONRATE2=0.08
 CROSSOVERRATE=0.39
-GREEDY = 50
 
 """
 MUTATIONRATE=0.12
@@ -34,12 +33,13 @@ MUTATIONRATE2=0.08
 CROSSOVERRATE=0.35
 """
 
-CROSSOVERTYPE='crossover_GREEDY'
-#CROSSOVERTYPE='crossover_BITFLIP'
+
+CROSSOVERTYPE='crossover_BITFLIP'
 #CROSSOVERTYPE='crossover_CROSSGEN'
 
 
-POPUATION=100 #TODO:
+POPUATION=80 #TODO:
+CHILDREN = 80
 ITERATIONS=25000 #TODO:
 #LEVEL='DAY'
 LEVEL='WEEK'
@@ -53,7 +53,7 @@ SSHARE = 1/(math.sqrt(POPUATION)-1)
 ########################################################
 # TESTS
 ########################################################
-D = 30
+#D = 30
 
 SAMPLESTART = 0
 SAMPLEEND = 1 # number of tests for t-test sample #TODO:
