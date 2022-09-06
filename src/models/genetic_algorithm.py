@@ -166,90 +166,6 @@ class GeneticAlgorithmNsga2:
 
         return fitness_df3
 
-    def crowding_distance_DEPRICATED(self, fitness_df, fc, size):
-        """ Crowding distance sorting """ 
-        self.logger.debug(f"-- crowding distance activated")
-
-        fitness_dff = fitness_df[fitness_df['front']==fc].reset_index(drop=True)
-
-        # Evaluate how much space is available for the crowding distance
-        if fc==1:
-            space = config.POPUATION
-
-        else:
-            space = config.POPUATION - size
-
-        objs = ['obj1', 'obj2']
-        fitness_df['cdist'] = 0
-        for m in objs:
-            df = fitness_dff.sort_values(by=m, ascending=True).reset_index(drop=True) 
-
-            for i in range(len(df)):
-                id = df.id[i]
-
-                if i == 0 or i == len(df)-1:
-                    fitness_df.loc[(fitness_df['id']==id),'cdist']= np.inf
-                
-                else:
-                    min = df[m][df.index == 0].iloc[0]
-                    max = df[m][df.index == len(df) - 1].iloc[0]
-
-                    oneup = df[m][df.index == (i-1)].iloc[0]
-                    onedown = df[m][df.index == (i+1)].iloc[0]
-                    distance = (onedown - oneup) / (max - min) 
-
-                    fitness_df.loc[(fitness_df['id']==id),'cdist']=fitness_df['cdist']+distance
-
-        fitness_df = fitness_df.sort_values(by=['cdist'], ascending=False).reset_index(drop=True)
-        fitness_df.loc[(fitness_df.index < space),'population']='yes'
-        fitness_df = fitness_df.set_index('id')
-        fitness_df['id'] = fitness_df.index
-        return fitness_df
-
-    def get_domcount_DEPRICATED(self, fitness_df):
-        print('##### DEPRICATED - SEE GAG #####')
-        front = []
-        fitness_df = fitness_df.sort_values(by=['id']).reset_index(drop=True)
-
-        fits = list(fitness_df.id)
-
-        fitness_df['population'] = 'none'
-        fitness_df['domcount'] = 0 
-
-        dominating_fits = [0] * len(fitness_df)  # n (The number of people that dominate you)
-        dominated_fits = defaultdict(list)  # Sp (The people you dominate)
-        fitness_df=fitness_df.set_index('id')
-        fitness_df['id'] = fitness_df.index
-
-        obj1s = fitness_df['obj1'].values
-        obj2s = fitness_df['obj2'].values
-        for i, id in enumerate(fits):
-            obj1 = obj1s[i]
-            obj2 = obj2s[i]
-
-            for ix, idx in enumerate(fits[i + 1:]):
-                obj1x = obj1s[i + ix + 1]
-                obj2x = obj2s[i + ix + 1]
-                
-                #if build_features.GeneticAlgorithmGenetics.dominates((obj1, obj2), (obj1x, obj2x)):
-                #if ((obj1 <= obj1x and obj2 <= obj2x) and (obj1 < obj1x or obj2 < obj2x)):
-                if (obj1 <= obj1x and obj2 < obj2x):
-                    dominating_fits[i + ix + 1] += 1 
-                    dominated_fits[id].append(idx) 
-
-                #if build_features.GeneticAlgorithmGenetics.dominates((obj1x, obj2x), (obj1, obj2)):
-                #if ((obj1 >= obj1x and obj2 >= obj2x) and (obj1 > obj1x or obj2 > obj2x)):
-                if (obj1 >= obj1x and obj2 > obj2x):
-                    dominating_fits[i] += 1
-                    dominated_fits[idx].append(id)    
-
-            if dominating_fits[i] == 0:
-                front.append(id)
-
-        fitness_df['domcount'] = dominating_fits
-        fitness_df.loc[(fitness_df.domcount==0), 'front'] = 1
-        return fitness_df, front, dominated_fits
-
     def get_domcount_BEKKER(self, fitness_df):
         front = []
         fitness_df = fitness_df.sort_values(by=['obj1'], ascending=[False]).reset_index(drop=True)
@@ -298,11 +214,7 @@ class GeneticAlgorithmNsga2:
 
         fitness_df = fitness_df[['id','obj1','obj2']]
         fitness_df=fitness_df.drop_duplicates(subset=['obj1','obj2'], keep='last')
-        fitness_df = self.gag.get_domcount(fitness_df)[0]
-        #doms = self.gag.get_domcount(fitness_df)
-        #fitness_df = doms[0]
-        #front = doms[1]
-        #dominated_fits = doms[2]
+        fitness_df = self.gag.get_domcount(fitness_df)
 
         ###################################################
         # Get front count and determine population status #
@@ -319,48 +231,6 @@ class GeneticAlgorithmNsga2:
         else: # size == config.POPUATION:
             fitness_df.loc[(fitness_df['front']==1), 'population'] = 'yes'
 
-        """
-        # Else continue assigning fronts to solutions
-        else:
-            fitness_df.loc[(fitness_df['front']==1), 'population'] = 'yes'
-            
-            fc=2
-            while len(front) > 0:
-                q1= []  # Solutions in new front
-                # Visit each member of previous front
-                for p in front:
-                    # Visit each member that is dominated by p
-                    for q in dominated_fits[p]:
-                        dc = fitness_df.at[q, 'domcount']
-                        dc = dc - 1
-                        fitness_df.at[q, 'domcount'] = dc
-
-                        # Add to the next front if no further domination
-                        if dc == 0:
-                            q1.append(q)
-                            fitness_df.at[q, 'front'] = fc
-
-                # Only for as many fronts as needed to fill popsize
-                if (size + len(front)) < config.POPUATION:
-                    fitness_df.loc[(fitness_df['front']==fc), 'population'] = 'yes'
-                    fc = fc + 1
-
-                # Only for as many fronts as needed to fill popsize
-                if ((size + len(front)) > config.POPUATION and len(q1) > 0):
-                    fitness_df=self.crowding_distance(fitness_df, fc, size)
-                    front = []
-                    q1 = []
-                    break
-
-                if (size + len(front)) == config.POPUATION:
-                    fitness_df.loc[(fitness_df['front']==fc), 'population'] = 'yes'
-                    front = []
-                    q1 = []
-                    break
-
-                size = size + len(front)
-                front = q1
-                """
 
         fitness_df=fitness_df[fitness_df['population']=='yes'].reset_index(drop=True)
         return fitness_df

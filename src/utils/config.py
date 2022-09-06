@@ -40,7 +40,7 @@ CROSSOVERTYPE='crossover_BITFLIP'
 
 POPUATION=80 #TODO:
 CHILDREN = 80
-ITERATIONS=25000 #TODO:
+ITERATIONS=30000 #TODO:
 #LEVEL='DAY'
 LEVEL='WEEK'
 
@@ -55,8 +55,8 @@ SSHARE = 1/(math.sqrt(POPUATION)-1)
 ########################################################
 #D = 30
 
-SAMPLESTART = 0
-SAMPLEEND = 1 # number of tests for t-test sample #TODO:
+SAMPLESTART = 25
+SAMPLEEND = 30 # number of tests for t-test sample #TODO:
 
 ROOTDIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 print(ROOTDIR)

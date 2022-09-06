@@ -15,7 +15,7 @@ path = r"C:\Users\Jolene Wium\Documents\personal\studies\phd\model\model\data\ex
 
 
 huperarea = pd.DataFrame()
-for i in range(0,7):
+for i in range(0,13):
     path = os.path.join(r"C:\Users\Jolene Wium\Documents\personal\studies\phd\model\model\data\external","20220904","zdt1",f"fitness_nsga2_{i}.xlsx")
 
     fitness_df = pd.read_excel(path)
