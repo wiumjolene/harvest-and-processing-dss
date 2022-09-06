@@ -3,8 +3,10 @@ import pandas as pd
 #from pingouin import friedman
 import pingouin
 
-path = r"C:\Users\Jolene Wium\Documents\personal\studies\phd\model\model\data\interim\zdt1\hyperarea_nsga2.xlsx"
-hyperarea = pd.read_excel(path)
+path = r"C:\Users\Jolene Wium\Documents\personal\studies\phd\model\model\hyperareas.xlsx"
+hyperarea = pd.read_excel(path, 'Sheet1')
+
+print(hyperarea)
 
 pgRes = pingouin.friedman(data=hyperarea,
                 dv='hyperarea',
@@ -26,4 +28,4 @@ if pgRes['p-unc'][0] > alpha:
 else:
 	print('Different distributions (reject H0)')
 
-pgRes.to_excel(r"C:\Users\Jolene Wium\Documents\personal\studies\phd\model\model\data\interim\zdt1\result_friedman_nsga2.xlsx")
+#pgRes.to_excel(r"C:\Users\Jolene Wium\Documents\personal\studies\phd\model\model\result_friedman_nsga2.xlsx")

@@ -10,15 +10,366 @@ from src.utils import config
 from src.utils.connect import DatabaseModelsClass
 
 
+class ManageSeasonRun:
+    """ Class to manage the data for 
+        a complete season run
+    """
+    database_dss = DatabaseModelsClass('PHDDATABASE_URL')
+
+    def get_season_run(self):
+        sql=f"""
+        SELECT plan_date, week, make_plan, horizon
+        FROM dss.run_season
+        WHERE horizon = 1
+        ORDER BY plan_date
+        ;
+        """
+        df=self.database_dss.select_query(sql)
+        return df
+
+    def get_plan_dates(self):
+        sql=f"""
+        SELECT plan_date, week, make_plan, horizon
+        FROM dss.run_season
+        WHERE make_plan = 1
+        ORDER BY plan_date
+        ;
+        """
+        df=self.database_dss.select_query(sql)
+        return df
+
+    def update_plan_complete(self, plan_date):
+        sql=f"""
+        UPDATE `dss`.`run_season` 
+        SET `runtime` = now(), `make_plan` = '0', `horizon` = '0'
+        WHERE (`plan_date` = '{plan_date}');
+        """
+        self.database_dss.execute_query(sql)
+        return
+
+    def update_horizon_complete(self):
+        sql=f"""
+        UPDATE `dss`.`run_season` 
+        SET `horizon` = '0';
+        """
+        self.database_dss.execute_query(sql)
+        return
+
+
+class GetLocalData:
+    """ Class to extract planning data from local backups
+        into model structures.
+    """
+    logger = logging.getLogger(f"{__name__}.GetLocalData")
+    database_dss = DatabaseModelsClass('PHDDATABASE_URL')
+    
+    def get_local_he(self, plan_date, weeks_str):
+        sql2=f"""
+            SELECT dim_block.id as block_id
+                , dim_va.id as va_id
+                , Week as packweek
+                -- , ROUND(SUM(GrossEstimate * 1000),1) as kg_raw
+                , SUM(kgGross) as kg_raw
+            FROM dss.harvest_estimate_0638_data as he
+            LEFT JOIN dim_fc ON (he.Grower = dim_fc.name)
+            LEFT JOIN dim_block 
+				ON ((CASE WHEN Orchard = '' THEN concat(Grower,"-",Variety) ELSE Orchard END) = dim_block.name 
+					AND dim_block.fc_id = dim_fc.id)
+            LEFT JOIN dim_va ON (he.Variety = dim_va.name)
+            WHERE extract_datetime = (SELECT MAX(extract_datetime) 
+                FROM dss.harvest_estimate_0638_data WHERE date(extract_datetime)='{plan_date}')
+            AND estimatetype = 'ADJUSTMENT'
+            AND kgGross > 0
+            AND he.Week in ({weeks_str})
+            GROUP BY dim_fc.id, dim_block.id, dim_va.id, Week
+            ;         
+        """
+
+        sql2=f"""
+            SELECT dim_block.id as block_id
+                , dim_va.id as va_id
+                , week as packweek
+                , SUM(kg) as kg_raw
+            FROM dss.harvest_estimate_quicadj_data as he
+            LEFT JOIN dim_va ON (he.va = dim_va.name)
+            LEFT JOIN dim_fc ON (he.fc = dim_fc.name)
+            LEFT JOIN dim_block 
+			ON ((CASE WHEN oc = '' THEN concat(fc,"-",va) ELSE oc END) = dim_block.name 
+			 		AND dim_block.fc_id = dim_fc.id
+			 		AND dim_block.va_id = dim_va.id)
+            WHERE extract_datetime = (SELECT MAX(extract_datetime) 
+               FROM dss.harvest_estimate_quicadj_data WHERE date(extract_datetime)='{plan_date}')
+            AND kg > 0
+            AND he.week in ({weeks_str})
+            GROUP BY dim_block.id, dim_va.id, week;       
+        """
+
+        sql=f"""
+            SELECT dim_block.id as block_id
+                , dim_va.id as va_id
+                , week as packweek
+                , SUM(kg) as kg_raw
+            FROM dss.harvest_estimate_budget as he
+            LEFT JOIN dim_va ON (he.va = dim_va.name)
+            LEFT JOIN dim_fc ON (he.fc = dim_fc.name)
+            LEFT JOIN dim_block 
+			ON ((CASE WHEN oc = '' THEN concat(fc,"-",va) ELSE oc END) = dim_block.name 
+			 		AND dim_block.fc_id = dim_fc.id
+			 		AND dim_block.va_id = dim_va.id)
+            WHERE extract_datetime = (SELECT MAX(extract_datetime) 
+               FROM dss.harvest_estimate_budget WHERE date(extract_datetime)='{plan_date}')
+            AND kg > 0
+            AND he.week in ({weeks_str})
+            AND (dim_fc.management in ('Karsten', 'Manage') OR fc = 'Y0294')
+            GROUP BY dim_block.id, dim_va.id, week;       
+        """
+
+        df = self.database_dss.select_query(sql)
+        df['plan_date'] = plan_date
+        return df
+
+    def get_he_fc(self):
+        sql="""
+            SELECT DISTINCT Grower as name
+                , dim_fc.id
+            FROM dss.harvest_estimate_0638_data
+            LEFT JOIN dim_fc ON (harvest_estimate_0638_data.Grower = dim_fc.name)
+            WHERE dim_fc.id is NULL
+            AND extract_datetime = (SELECT MAX(extract_datetime) FROM dss.harvest_estimate_0638_data);   
+        """
+        df = self.database_dss.select_query(sql)
+        df['add_datetime'] = datetime.datetime.now()
+        return df
+
+    def get_he_block(self):
+        sql="""
+              SELECT DISTINCT CASE WHEN Orchard = '' THEN concat(Grower,"-",Variety) ELSE Orchard END as name
+				, dim_productionunit.id as pu_id
+                , dim_fc.id as fc_id
+                , dim_va.id as va_id
+            FROM dss.harvest_estimate_0638_data
+            LEFT JOIN dim_fc ON (harvest_estimate_0638_data.Grower = dim_fc.name)
+            LEFT JOIN dim_productionunit ON (harvest_estimate_0638_data.Farm = dim_productionunit.name AND dim_fc.id = dim_productionunit.fc_id)
+            LEFT JOIN dim_block 
+				ON ((CASE WHEN Orchard = '' THEN concat(Grower,"-",Variety) ELSE Orchard END) = dim_block.name AND dim_block.fc_id = dim_fc.id)
+            LEFT JOIN dim_va ON (harvest_estimate_0638_data.Variety = dim_va.name)
+            WHERE dim_block.id is NULL
+            AND extract_datetime = (SELECT MAX(extract_datetime)
+                FROM dss.harvest_estimate_0638_data);
+        """
+        df = self.database_dss.select_query(sql)
+        df['add_datetime'] = datetime.datetime.now()
+        return df
+
+    def get_he_va(self):
+        sql="""
+			SELECT DISTINCT Variety as name
+            FROM dss.harvest_estimate_0638_data
+            LEFT JOIN dim_va ON (harvest_estimate_0638_data.Variety = dim_va.name)
+            WHERE (dim_va.id is NULL and Variety is not NULL)
+            AND extract_datetime = (SELECT MAX(extract_datetime)FROM dss.harvest_estimate_0638_data); 
+        """
+        df = self.database_dss.select_query(sql)
+        df['add_datetime'] = datetime.datetime.now()
+        return df
+
+    def get_dp_client(self):
+        sql="""
+            SELECT DISTINCT targetmarket as name
+            FROM dss.planning_data
+            LEFT JOIN dim_client ON (planning_data.targetmarket = dim_client.name)
+            WHERE dim_client.id is NULL
+            AND extract_datetime = (SELECT MAX(extract_datetime)FROM dss.planning_data)
+            AND recordtype = 'DEMAND';
+        """
+        df = self.database_dss.select_query(sql)
+        df['add_datetime'] = datetime.datetime.now()
+        return df
+
+    def get_local_dp(self, plan_date, weeks_str):
+        sql=f"""
+            SELECT demandid as demand_id
+                , dim_client.id as client_id
+                , dim_vacat.id as vacat_id
+                , dim_pack_type.id as pack_type_id
+                , dim_client.priority
+                -- , IF(priority= "-", 0, priority) as priority
+                , demand_arrivalweek as arrivalweek
+                , dim_time.week as packweek
+                -- , dim_client.transitdays as transitdays
+                , transitdays.transitdays
+                , concat(cartontype, "-", innerpacking, "-", brand) as packaging
+                , round(qty_standardctns) as stdunits
+            FROM dss.planning_data
+            LEFT JOIN dim_client ON (planning_data.targetmarket = dim_client.name)
+            LEFT JOIN dim_vacat ON (planning_data.varietygroup = dim_vacat.name)
+            LEFT JOIN dim_week ON (planning_data.demand_arrivalweek = dim_week.week)
+            LEFT JOIN transitdays ON (planning_data.demandid = transitdays.recordno AND date(extract_datetime) = transitdays.plan_date)
+            LEFT JOIN dim_time ON ((date_sub(dim_week.weekstart,  INTERVAL transitdays.transitdays DAY)) = dim_time.day)
+            LEFT JOIN dim_pack_type ON ((IF((SUBSTR(cartontype, 1, 1) = 'A'),
+                        IF((cartontype = 'A75F'),
+                            'LOOSE',
+                            'PUNNET'),
+                        'LOOSE')) = dim_pack_type.name)
+            WHERE extract_datetime = (SELECT MAX(extract_datetime)
+                                        FROM dss.planning_data WHERE date(extract_datetime)='{plan_date}')
+            AND dim_time.week in ({weeks_str})
+            AND recordtype = 'DEMAND'
+            ;
+        """
+        
+        df = self.database_dss.select_query(sql)
+        df['plan_date'] = plan_date
+        return df
+
+    def get_pc_packhouse(self):
+        sql=f"""
+            SELECT distinct phc as name
+            FROM dss.pack_capacity_data
+            LEFT JOIN dim_packhouse ON (pack_capacity_data.phc = dim_packhouse.name)
+            WHERE dim_packhouse.id is NULL
+            AND extract_datetime = (SELECT MAX(extract_datetime)
+                FROM dss.pack_capacity_data);
+        """
+        df = self.database_dss.select_query(sql)
+        df['add_datetime'] = datetime.datetime.now()
+        return df
+
+    def get_local_pc_TRUNCATE(self, plan_date, weeks_str):
+        sql=f"""
+            SELECT dim_packhouse.id as packhouse_id
+                , dim_pack_type.id as pack_type_id
+                , packweek
+                , noofstdcartons as stdunits
+                , noofstdcartons as stdunits_source
+            FROM dss.pack_capacity_data
+            LEFT JOIN dim_packhouse ON (pack_capacity_data.phc = dim_packhouse.name)
+            LEFT JOIN dim_pack_type ON (pack_capacity_data.packformat = dim_pack_type.name)
+            WHERE extract_datetime = (SELECT MAX(extract_datetime)
+                FROM dss.pack_capacity_data WHERE date(extract_datetime)='{plan_date}')
+            AND pack_capacity_data.packweek in ({weeks_str});
+        """
+        
+        df = self.database_dss.select_query(sql)
+        df['plan_date'] = plan_date
+        return df
+
+    def get_local_pc_day_TRUNCATE(self, plan_date, weeks_str):
+        sql=f"""
+            SELECT dim_packhouse.id as packhouse_id
+                , dim_pack_type.id as pack_type_id
+                , packweek
+                , weekday(dim_time.day) as weekday
+                , if(noofstdcartons>0, ROUND((noofstdcartons / workdays.workdays)  * dim_time.workday), 0)  as stdunits
+                , noofstdcartons as stdunits_source
+            FROM dss.pack_capacity_data
+            LEFT JOIN dim_packhouse ON (pack_capacity_data.phc = dim_packhouse.name)
+            LEFT JOIN dim_pack_type ON (pack_capacity_data.packformat = dim_pack_type.name)
+            LEFT JOIN dim_time ON (dim_time.week = pack_capacity_data.packweek)
+            LEFT JOIN (SELECT week, sum(workday) as workdays
+                FROM dss.dim_time
+                GROUP BY week) workdays ON (workdays.week = pack_capacity_data.packweek)
+            WHERE extract_datetime = (SELECT MAX(extract_datetime)
+                FROM dss.pack_capacity_data WHERE date(extract_datetime)='{plan_date}')
+            AND dim_time.workday > 0
+            AND pack_capacity_data.packweek in ({weeks_str})
+            ORDER BY packhouse_id, pack_type_id, packweek, weekday;
+        """
+
+        df = self.database_dss.select_query(sql)
+        df['plan_date'] = plan_date
+        return df
+
+    def get_local_pc_day(self, plan_date, weeks_str):
+
+        if config.LEVEL == 'DAY':
+            sql=f"""
+                SELECT * FROM (
+                    SELECT dim_packhouse.id as packhouse_id
+                        , dim_pack_type.id as pack_type_id
+                        , packweek
+                        , weekday(dim_time.day) as weekday
+                        , if(noofstdcartons>0, ROUND((noofstdcartons / workdays.workdays)  * dim_time.workday), 0)  as stdunits
+                        , noofstdcartons as stdunits_source
+                    FROM dss.pack_capacity_data
+                    LEFT JOIN dim_packhouse ON (pack_capacity_data.phc = dim_packhouse.name)
+                    LEFT JOIN dim_pack_type ON (pack_capacity_data.packformat = dim_pack_type.name)
+                    LEFT JOIN dim_time ON (dim_time.week = pack_capacity_data.packweek)
+                    LEFT JOIN (SELECT week, sum(workday) as workdays
+                        FROM dss.dim_time
+                        GROUP BY week) workdays ON (workdays.week = pack_capacity_data.packweek)
+                    WHERE extract_datetime = (SELECT MAX(extract_datetime)
+                        FROM dss.pack_capacity_data WHERE date(extract_datetime)='{plan_date}')
+                    AND dim_time.workday > 0
+                    AND pack_capacity_data.packweek in ({weeks_str})
+
+                    UNION ALL
+                    
+                    SELECT DISTINCT 69 as packhouse_id
+                        , dim_pack_type.id as pack_type_id
+                        , packweek
+                        , weekday(dim_time.day) as weekday
+                        , 1000000  as stdunits
+                        , 1000000 as stdunits_source
+                    FROM dss.pack_capacity_data
+                    LEFT JOIN dim_packhouse ON (pack_capacity_data.phc = dim_packhouse.name)
+                    LEFT JOIN dim_pack_type ON (pack_capacity_data.packformat = dim_pack_type.name)
+                    LEFT JOIN dim_time ON (dim_time.week = pack_capacity_data.packweek)
+                    LEFT JOIN (SELECT week, sum(workday) as workdays
+                        FROM dss.dim_time
+                        GROUP BY week) workdays ON (workdays.week = pack_capacity_data.packweek)
+                    WHERE extract_datetime = (SELECT MAX(extract_datetime)
+                        FROM dss.pack_capacity_data WHERE date(extract_datetime)='{plan_date}')
+                    AND dim_time.workday > 0
+                    AND pack_capacity_data.packweek in ({weeks_str})) as pc
+                ORDER BY packhouse_id, pack_type_id, packweek, weekday;
+            """
+
+        else:
+            sql=f"""
+                SELECT dim_packhouse.id as packhouse_id
+                    , dim_pack_type.id as pack_type_id
+                    , packweek
+                    , 0 as weekday
+                    , noofstdcartons as stdunits
+                    , noofstdcartons as stdunits_source
+                FROM dss.pack_capacity_data
+                LEFT JOIN dim_packhouse ON (pack_capacity_data.phc = dim_packhouse.name)
+                LEFT JOIN dim_pack_type ON (pack_capacity_data.packformat = dim_pack_type.name)
+                WHERE extract_datetime = (SELECT MAX(extract_datetime)
+                    FROM dss.pack_capacity_data WHERE date(extract_datetime)='{plan_date}')
+                AND pack_capacity_data.packweek in ({weeks_str})
+                
+                UNION ALL
+                
+                SELECT DISTINCT 69 as packhouse_id
+                    , dim_pack_type.id as pack_type_id
+                    , packweek
+                    , 0 as weekday
+                    , 1000000 as stdunits
+                    , 1000000 as stdunits_source
+                FROM dss.pack_capacity_data
+                LEFT JOIN dim_packhouse ON (pack_capacity_data.phc = dim_packhouse.name)
+                LEFT JOIN dim_pack_type ON (pack_capacity_data.packformat = dim_pack_type.name)
+                WHERE extract_datetime = (SELECT MAX(extract_datetime)
+                    FROM dss.pack_capacity_data WHERE date(extract_datetime)='{plan_date}')
+                AND pack_capacity_data.packweek in ({weeks_str});
+            """
+
+        df = self.database_dss.select_query(sql)
+        df['plan_date'] = plan_date
+        return df
+
+
 class CreateOptions:
     """ Class to generate base of possibiities for demand. """
     logger = logging.getLogger(f"{__name__}.CreateOptions")
     database_instance = DatabaseModelsClass('PHDDATABASE_URL')
 
-    def make_options(self):
-        df_dp = self.get_demand_plan()
-        df_he = self.get_harvest_estimate()
-        df_pc = self.get_pack_capacity()
+    def make_options(self, plan_date):
+        df_dp = self.get_demand_plan(plan_date)
+        df_he = self.get_harvest_estimate(plan_date)
+        df_pc = self.get_pack_capacity(plan_date)
         self.get_from_to()
         self.get_speed()
 
@@ -27,7 +378,6 @@ class CreateOptions:
 
         self.logger.info('- make_options')
         ddic_pc = {}
-        ddic_he = {}
         ddf_he =pd.DataFrame()
         ddf_pc =pd.DataFrame()
         ddic_metadata={}
@@ -35,6 +385,7 @@ class CreateOptions:
 
         # Loop through demands and get he & pc
         for d in range(0,len(df_dp)):
+            self.logger.debug(f'-- make_options: {d}/{len(df_dp)}')
             ddemand_id = df_dp.id[d]
             dclient_id = df_dp.client_id[d]
             dvacat_id = df_dp.vacat_id[d]
@@ -49,7 +400,7 @@ class CreateOptions:
             ddf_het['demand_id'] = ddemand_id
             ddf_het['client_id'] = dclient_id
             ddf_he = pd.concat([ddf_he, ddf_het]).reset_index(drop=True)
-            dlist_he = ddf_het.id.tolist() # FIXME: this was set to list ddf_he???
+            dlist_he = ddf_het.id.tolist()
 
             # find all available pack_capacities for demand    
             ddf_pct = df_pc[df_pc['time_id']==dtime_id]
@@ -75,7 +426,7 @@ class CreateOptions:
                                             'priority': dpriority,
                                             'ready': ready}})
 
-        ### RULES EXCLUDE he_deamnd options
+        ### RULES EXCLUDE he_demand options
         # Filter out options that are not feasible according to rules engine
         # 26 January 2022 Conversation with Kobus Jonas
         # https://www.evernote.com/shard/s187/sh/18e91ca0-a95b-b02d-865a-0b676523ce27/34794bda0a8bffb9835819f539b4b729
@@ -107,12 +458,9 @@ class CreateOptions:
         pickle.dump(dlist_ready,outfile)
         outfile.close()
 
-        self.database_instance.insert_table(ddf_he,'interim_options_he','dss','replace')
-        self.database_instance.insert_table(ddf_pc,'interim_options_pc','dss','replace')
-
         return 
-
-    def get_demand_plan(self): 
+    
+    def get_demand_plan(self, plan_date): 
         """ Extract demand requirement from database. """
         self.logger.info('- get_demand_plan')
 
@@ -133,8 +481,7 @@ class CreateOptions:
                     LEFT JOIN
                 dim_week w ON (fdp.packweek = w.week)
                 WHERE stdunits > 100
-                -- AND packweek in ('22-01','22-02','22-03','22-04','22-05','22-06')
-                AND packweek in ('21-51','21-52','22-01','22-02')
+                AND plan_date = '{plan_date}'
                 ORDER BY fdp.priority
                 ;
             """
@@ -145,7 +492,7 @@ class CreateOptions:
 
         return df_dp
 
-    def get_harvest_estimate(self): 
+    def get_harvest_estimate(self, plan_date): 
         """ Get harvest estimate. """
         self.logger.info('- get_harvest_estimate')
 
@@ -155,6 +502,7 @@ class CreateOptions:
                 , va.vacat_id
                 , he.block_id
                 , w.id AS time_id
+                , dim_fc.packtopackplans
                 , he.kg_raw as kg
             FROM dss.f_harvest_estimate he
             LEFT JOIN dim_week w ON (he.packweek = w.week)
@@ -162,7 +510,9 @@ class CreateOptions:
             LEFT JOIN dim_block ON (he.block_id = dim_block.id)
             LEFT JOIN dim_fc ON (dim_block.fc_id=dim_fc.id)
             WHERE kg_raw>0
-            AND dim_fc.packtopackplans=1;
+            AND plan_date = '{plan_date}'
+            AND dim_fc.packtopackplans=1
+            ;
             """
 
         df_he = self.database_instance.select_query(query_str=s)
@@ -179,7 +529,7 @@ class CreateOptions:
         outfile.close()
         return df_he
 
-    def get_pack_capacity(self): 
+    def get_pack_capacity(self, plan_date): 
         """ Get pack capacities. """
         self.logger.info('- get_pack_capacity')
 
@@ -193,8 +543,9 @@ class CreateOptions:
             (pc.stdunits / (5.5 * 8)) * 12 / 60 as stdunits_hour
         FROM
             dss.f_pack_capacity pc
-                LEFT JOIN
-            dim_week w ON pc.packweek = w.week;
+        LEFT JOIN
+            dim_week w ON pc.packweek = w.week
+        WHERE plan_date = '{plan_date}';
             """
 
         df_pc = self.database_instance.select_query(query_str=s)
@@ -206,7 +557,6 @@ class CreateOptions:
         
         pc_dic = df_pc.to_dict(orient='index')
         path = os.path.join(config.ROOTDIR,'data','processed','pc_dic')
-        #outfile = open('data/processed/pc_dic','wb')
         outfile = open(path,'wb')
         pickle.dump(pc_dic,outfile)
         outfile.close()
@@ -218,9 +568,8 @@ class CreateOptions:
 
         s = """
         SELECT packhouse_id,
-                -- f_from_to.fc_id,
                 dim_block.id as block_id,
-                km 
+                IF(packhouse_id=69, 0, km) as km 
             FROM dss.f_from_to
             LEFT JOIN dim_block ON (dim_block.fc_id = f_from_to.fc_id)
             WHERE allowed=1
@@ -230,9 +579,7 @@ class CreateOptions:
 
         df_ft = self.database_instance.select_query(query_str=s)
         path = os.path.join(config.ROOTDIR,'data','processed','ft_df')
-        df_ft.to_pickle(path)
-        #df_ft.to_pickle('data/processed/ft_df')
-        
+        df_ft.to_pickle(path)       
         return  
 
     def get_speed(self):
@@ -267,7 +614,6 @@ class CreateOptions:
 
         path = os.path.join(config.ROOTDIR,'data','processed','dic_speed')
         outfile = open(path,'wb')
-        #outfile = open('data/processed/dic_speed','wb')
         pickle.dump(dic_speed,outfile)
         outfile.close()
         return
@@ -306,7 +652,6 @@ class ImportOptions:
     path = os.path.dirname(path)
 
     def demand_harvest(self):
-        #infile = open(f"{self.path}/data/processed/ddf_he",'rb')
         path=os.path.join(config.ROOTDIR,'data','processed','ddf_he')
         infile = open(path,'rb')
         data = pickle.load(infile)
@@ -316,7 +661,6 @@ class ImportOptions:
     def demand_capacity(self):
         path=os.path.join(config.ROOTDIR,'data','processed','ddf_pc')
         infile = open(path,'rb')
-        #infile = open(f"{self.path}/data/processed/ddf_pc",'rb')
         data = pickle.load(infile)
         infile.close()
         return data
@@ -338,7 +682,6 @@ class ImportOptions:
     def demand_ready(self):
         path=os.path.join(config.ROOTDIR,'data','processed','dlist_ready')
         infile = open(path,'rb')
-        #infile = open(f"{self.path}/data/processed/dlist_ready",'rb')
         data = pickle.load(infile)
         infile.close()
         return data
@@ -346,7 +689,6 @@ class ImportOptions:
     def harvest_estimate(self):
         path=os.path.join(config.ROOTDIR,'data','processed','he_dic')
         infile = open(path,'rb')
-        #infile = open(f"{self.path}/data/processed/he_dic",'rb')
         data = pickle.load(infile)
         infile.close()
         return data
@@ -354,13 +696,11 @@ class ImportOptions:
     def pack_capacity(self):
         path=os.path.join(config.ROOTDIR,'data','processed','pc_dic')
         infile = open(path,'rb')
-        #infile = open(f"{self.path}/data/processed/pc_dic",'rb')
         data = pickle.load(infile)
         infile.close()
         return data
 
     def from_to(self):
-        #infile = open(f"{self.path}/data/processed/ft_df",'rb')
         path=os.path.join(config.ROOTDIR,'data','processed','ft_df')
         infile = open(path,'rb')
         data = pickle.load(infile)
@@ -368,7 +708,6 @@ class ImportOptions:
         return data
 
     def speed(self):
-        #infile = open(f"{self.path}/data/processed/dic_speed",'rb')
         path=os.path.join(config.ROOTDIR,'data','processed','dic_speed')
         infile = open(path,'rb')
         data = pickle.load(infile)
@@ -389,205 +728,42 @@ class ImportOptions:
         infile.close()
         return data
 
-class GetLocalData:
-    """ Class to extract planning data from local backups
-        into model structures.
-    """
-    logger = logging.getLogger(f"{__name__}.GetLocalData")
-    database_dss = DatabaseModelsClass('PHDDATABASE_URL')
-
-    def get_local_he(self):
-        sql1="""
-            SELECT dim_block.id as block_id
-                , dim_va.id as va_id
-                , Week as packweek
-                , ROUND(SUM(GrossEstimate * 1000),1) as kg_raw
-            FROM dss.harvest_estimate_data
-            LEFT JOIN dim_fc ON (harvest_estimate_data.Grower = dim_fc.name)
-            LEFT JOIN dim_block ON (harvest_estimate_data.ProductionUnit = dim_block.name AND dim_block.fc_id = dim_fc.id)
-            LEFT JOIN dim_va ON (harvest_estimate_data.Variety = dim_va.name)
-            WHERE extract_datetime = (SELECT MAX(extract_datetime)FROM dss.harvest_estimate_data)
-            AND estimatetype = 'BUDGET2'
-            GROUP BY dim_fc.id, dim_block.id, dim_va.id, Week;        
-        """
-        sql="""
-            SELECT dim_block.id as block_id
-                , dim_va.id as va_id
-                , Week as packweek
-                -- , ROUND(SUM(GrossEstimate * 1000),1) as kg_raw
-                , SUM(kgGross) as kg_raw
-            FROM dss.harvest_estimate_0638_data as he
-            LEFT JOIN dim_fc ON (he.Grower = dim_fc.name)
-            LEFT JOIN dim_block 
-				ON ((CASE WHEN Orchard = '' THEN concat(Grower,"-",Variety) ELSE Orchard END) = dim_block.name 
-					AND dim_block.fc_id = dim_fc.id)
-            LEFT JOIN dim_va ON (he.Variety = dim_va.name)
-            WHERE extract_datetime = (SELECT MAX(extract_datetime) FROM dss.harvest_estimate_0638_data)
-            AND estimatetype = 'ADJUSTMENT'
-            AND kgGross > 0
-            GROUP BY dim_fc.id, dim_block.id, dim_va.id, Week
-            ;         
-        """
-        df = self.database_dss.select_query(sql)
-        return df
-
-    def get_he_fc(self):
-        sql1="""
-            SELECT DISTINCT Grower as name
-                , dim_fc.id
-            FROM dss.harvest_estimate_data
-            LEFT JOIN dim_fc ON (harvest_estimate_data.Grower = dim_fc.name)
-            WHERE dim_fc.id is NULL
-            AND extract_datetime = (SELECT MAX(extract_datetime) FROM dss.harvest_estimate_data);      
-        """
-        sql="""
-            SELECT DISTINCT Grower as name
-                , dim_fc.id
-            FROM dss.harvest_estimate_0638_data
-            LEFT JOIN dim_fc ON (harvest_estimate_0638_data.Grower = dim_fc.name)
-            WHERE dim_fc.id is NULL
-            AND extract_datetime = (SELECT MAX(extract_datetime) FROM dss.harvest_estimate_0638_data);   
-        """
-        df = self.database_dss.select_query(sql)
-        df['add_datetime'] = datetime.datetime.now()
-        return df
-
-    def get_he_block(self):
-        sql1="""
-            SELECT DISTINCT ProductionUnit as name
-                , dim_fc.id as fc_id
-            FROM dss.harvest_estimate_data
-            LEFT JOIN dim_fc ON (harvest_estimate_data.Grower = dim_fc.name)
-            LEFT JOIN dim_block ON (harvest_estimate_data.ProductionUnit = dim_block.name AND dim_block.fc_id = dim_fc.id)
-            WHERE dim_block.id is NULL
-            AND extract_datetime = (SELECT MAX(extract_datetime)FROM dss.harvest_estimate_data);;   
-        """
-        sql="""
-              SELECT DISTINCT CASE WHEN Orchard = '' THEN concat(Grower,"-",Variety) ELSE Orchard END as name
-				, dim_productionunit.id as pu_id
-                , dim_fc.id as fc_id
-                , dim_va.id as va_id
-            FROM dss.harvest_estimate_0638_data
-            LEFT JOIN dim_fc ON (harvest_estimate_0638_data.Grower = dim_fc.name)
-            LEFT JOIN dim_productionunit ON (harvest_estimate_0638_data.Farm = dim_productionunit.name AND dim_fc.id = dim_productionunit.fc_id)
-            LEFT JOIN dim_block 
-				ON ((CASE WHEN Orchard = '' THEN concat(Grower,"-",Variety) ELSE Orchard END) = dim_block.name AND dim_block.fc_id = dim_fc.id)
-            LEFT JOIN dim_va ON (harvest_estimate_0638_data.Variety = dim_va.name)
-            WHERE dim_block.id is NULL
-            AND extract_datetime = (SELECT MAX(extract_datetime)FROM dss.harvest_estimate_0638_data);
-        """
-        df = self.database_dss.select_query(sql)
-        df['add_datetime'] = datetime.datetime.now()
-        return df
-
-    def get_he_va(self):
-        sql1="""
-             SELECT DISTINCT Variety as name
-            FROM dss.harvest_estimate_data
-            LEFT JOIN dim_va ON (harvest_estimate_data.Variety = dim_va.name)
-            WHERE dim_va.id is NULL
-            AND extract_datetime = (SELECT MAX(extract_datetime)FROM dss.harvest_estimate_data); 
-        """
-        sql="""
-			SELECT DISTINCT Variety as name
-            FROM dss.harvest_estimate_0638_data
-            LEFT JOIN dim_va ON (harvest_estimate_0638_data.Variety = dim_va.name)
-            WHERE (dim_va.id is NULL and Variety is not NULL)
-            AND extract_datetime = (SELECT MAX(extract_datetime)FROM dss.harvest_estimate_0638_data); 
-        """
-        df = self.database_dss.select_query(sql)
-        df['add_datetime'] = datetime.datetime.now()
-        return df
-
-    def get_dp_client(self):
-        sql="""
-            SELECT DISTINCT targetmarket as name
-            FROM dss.planning_data
-            LEFT JOIN dim_client ON (planning_data.targetmarket = dim_client.name)
-            WHERE dim_client.id is NULL
-            AND extract_datetime = (SELECT MAX(extract_datetime)FROM dss.planning_data)
-            AND recordtype = 'DEMAND';
-        """
-        df = self.database_dss.select_query(sql)
-        df['add_datetime'] = datetime.datetime.now()
-        return df
-
-    def get_local_dp(self):
-        # FIXME: transidays needs to be added over time to show
-        # progress of changes by KJ. Currently imported as static table.
-        sql="""
-            SELECT demandid as id
-                , dim_client.id as client_id
-                , dim_vacat.id as vacat_id
-                , dim_pack_type.id as pack_type_id
-                , dim_client.priority
-                -- , IF(priority= "-", 0, priority) as priority
-                , demand_arrivalweek as arrivalweek
-                , dim_time.week as packweek
-                -- , dim_client.transitdays as transitdays
-                , transitdays.transitdays
-                , round(qty_standardctns) as stdunits
-            FROM dss.planning_data
-            LEFT JOIN dim_client ON (planning_data.targetmarket = dim_client.name)
-            LEFT JOIN dim_vacat ON (planning_data.varietygroup = dim_vacat.name)
-            LEFT JOIN dim_week ON (planning_data.demand_arrivalweek = dim_week.week)
-            LEFT JOIN transitdays ON (planning_data.demandid = transitdays.recordno)
-            LEFT JOIN dim_time ON ((date_sub(dim_week.weekstart,  INTERVAL transitdays.transitdays DAY)) = dim_time.day)
-            LEFT JOIN dim_pack_type ON ((IF((SUBSTR(cartontype, 1, 1) = 'A'),
-                        IF((cartontype = 'A75F'),
-                            'LOOSE',
-                            'PUNNET'),
-                        'LOOSE')) = dim_pack_type.name)
-            WHERE extract_datetime = (SELECT MAX(extract_datetime)FROM dss.planning_data)
-            AND recordtype = 'DEMAND'
-            ;
-        """
-        df = self.database_dss.select_query(sql)
-        return df
-
-    def get_pc_packhouse(self):
-        sql="""
-            SELECT distinct phc as name
-            FROM dss.pack_capacity_data
-            LEFT JOIN dim_packhouse ON (pack_capacity_data.phc = dim_packhouse.name)
-            WHERE dim_packhouse.id is NULL
-            AND extract_datetime = (SELECT MAX(extract_datetime)FROM dss.pack_capacity_data);
-        """
-        df = self.database_dss.select_query(sql)
-        df['add_datetime'] = datetime.datetime.now()
-        return df
-
-    def get_local_pc(self):
-        sql="""
-            SELECT dim_packhouse.id as packhouse_id
-                , dim_pack_type.id as pack_type_id
-                , packweek
-                , noofstdcartons as stdunits
-                , noofstdcartons as stdunits_source
-            FROM dss.pack_capacity_data
-            LEFT JOIN dim_packhouse ON (pack_capacity_data.phc = dim_packhouse.name)
-            LEFT JOIN dim_pack_type ON (pack_capacity_data.packformat = dim_pack_type.name)
-            WHERE extract_datetime = (SELECT MAX(extract_datetime)FROM dss.pack_capacity_data);
-        """
-        df = self.database_dss.select_query(sql)
-        return df
-
 
 class AdjustPlanningData:
     """ Class to manipulate planning data to match 
         Kobus Jonas for comparison"""
     logger = logging.getLogger(f"{__name__}.GetLocalData")
     database_dss = DatabaseModelsClass('PHDDATABASE_URL')
+    
+    def adjust_pack_capacities(self, week_str, plan_date):
+        """
+        1. Adjust according to % split; consider tw pcs in week
+            - Capacity for specific pack type < planned; 
+            - Total capacity > planned; 
+            - Two pcs in week (packtype pc != week pc)
 
-    def adjust_pack_capacities(self):
+        2. Adjust upwards capcity two pcs for week
+            - Capacity for specific pack type < planned; 
+            - Total capacity < planned; 
+            - Two pcs in week (packtype pc != week pc)
+
+        3. Adjust upwards capcity one pc for week
+            - Capacity for specific pack type < planned; 
+            - Total capacity < planned; 
+            - One pc in week (packtype pc == week pc)
+
+        4. Add additional pcs for pactype, packhouse, week
+            - No pc register for 
+                - week
+                - packtype
+                - packhouse
+        """
         self.logger.info('- Adjusting pack cpacities according to Kobus plan')
-        sql="""
+
+        sql=f"""
             SELECT dim_packhouse.id as packhouse_id
-                    -- , dim_week.id as time_id
                     , pack_type.id as pack_type_id
-                    -- , pd.format
                     , pd.packweek
-                    -- , pd.packsite
                     , SUM(ROUND(pd.qty_standardctns * -1)) as stdunits
             FROM dss.planning_data pd
             LEFT JOIN dim_packhouse ON (pd.packsite = dim_packhouse.name)
@@ -595,129 +771,230 @@ class AdjustPlanningData:
                 ON (pd.format = pack_type.name)
             LEFT JOIN dim_week ON (pd.packweek = dim_week.week)
             WHERE recordtype = 'PLANNED'
-            AND extract_datetime = (SELECT MAX(extract_datetime) FROM dss.planning_data)
-            -- AND pd.packweek in ('22-01','22-02','22-03','22-04')
+            AND extract_datetime = (SELECT MAX(extract_datetime) 
+                FROM dss.planning_data WHERE date(extract_datetime)='{plan_date}')
+            AND pd.packweek in ({week_str})
             AND dim_packhouse.id > 0
             GROUP BY dim_packhouse.id
-                    -- , dim_week.id
                     , pack_type.id
-                    -- , pd.format
-                    , pd.packweek
-                    -- , pd.packsite 
+                    , pd.packweek 
                     ;
         """
         # get Kobus Jonas plan for each packhouse
-        df = self.database_dss.select_query(sql)
-        for k in range(0,len(df)):
-            packhouse_id = df.packhouse_id[k]
-            packweek = df.packweek[k]
-            pack_type_id = df.pack_type_id[k]
-            stdunits_kj = df.stdunits[k]
+        df_kj = self.database_dss.select_query(sql)
+        df_kjsum=df_kj.groupby(['packhouse_id', 'packweek'])['stdunits'].sum().reset_index(drop=False)
+        df_kjsum=df_kjsum.rename(columns={'stdunits':'weektotal'})
+        df_kj2=pd.merge(df_kj, df_kjsum, on=['packhouse_id', 'packweek'], how='left')
+
+        s=f"""
+        SELECT a.packhouse_id, a.packweek, a.pack_type_id, a.stdunits_source, b.stdunits as weektotal
+        FROM dss.f_pack_capacity a
+        LEFT JOIN (SELECT packhouse_id, packweek, sum(stdunits_source) as stdunits 
+            FROM dss.f_pack_capacity
+            WHERE plan_date='{plan_date}'
+            GROUP BY packhouse_id, packweek) b ON (a.packhouse_id=b.packhouse_id AND a.packweek=b.packweek)
+        WHERE a.plan_date='{plan_date}'
+        """
+        df_pc = self.database_dss.select_query(s)
+
+        for k in range(0,len(df_kj2)):
+            packhouse_id = df_kj2.packhouse_id[k]
+            packweek = df_kj2.packweek[k]
+            pack_type_id = df_kj2.pack_type_id[k]
+            stdunits_kj = df_kj2.stdunits[k]
+            weektotal_kj = df_kj2.weektotal[k]
             now=datetime.datetime.now()
 
-            s=f"""
-            SELECT * FROM dss.f_pack_capacity
-            WHERE (packhouse_id = {packhouse_id} 
-            AND pack_type_id = {pack_type_id} 
-            AND packweek = '{packweek}');
-            """
-            pc = self.database_dss.select_query(s)
+            if pack_type_id == 1:
+                pack_type_idb = 2
 
-            if len(pc) > 0:
-                stdunits_cap = pc.stdunits[0]
+            if pack_type_id == 2:
+                pack_type_idb = 1
 
-                if stdunits_kj > stdunits_cap:
-                    s1=f"""
+            df_pct=df_pc[(df_pc['packhouse_id']==packhouse_id) & \
+                (df_pc['packweek']==packweek) & \
+                (df_pc['pack_type_id']==pack_type_id)].reset_index(drop=True)
+
+            # Check if any pc is logged for this combination
+            if len(df_pct) > 0:
+                stdunits_cap = df_pct.stdunits_source[0]
+                weektotal_cap = df_pct.weektotal[0]
+
+                ######## Two packtypes for week ########
+                # Where kj has more cap for packtype, not weektotal
+                if (weektotal_cap > weektotal_kj) & \
+                    (stdunits_cap < stdunits_kj) & \
+                    (weektotal_cap != stdunits_cap):
+                    self.logger.info('-- Rule1')
+
+                    a = stdunits_kj
+                    b = weektotal_cap - stdunits_kj
+
+                    sa=f"""
                     UPDATE `dss`.`f_pack_capacity` 
-                    SET `stdunits` = '{stdunits_kj}'
+                    SET `stdunits` = '{a}'
                         , `adjusted` = '1'
                         , `add_datetime` = '{now}' 
                     WHERE (packhouse_id = {packhouse_id} 
                         AND pack_type_id = {pack_type_id} 
-                        AND packweek = '{packweek}');
+                        AND packweek = '{packweek}'
+                        AND plan_date = '{plan_date}');
                     """
-                    self.database_dss.execute_query(s1)
+                    self.database_dss.execute_query(sa)
 
+                    sb=f"""
+                    UPDATE `dss`.`f_pack_capacity` 
+                    SET `stdunits` = '{b}'
+                        , `adjusted` = '1'
+                        , `add_datetime` = '{now}' 
+                    WHERE (packhouse_id = {packhouse_id} 
+                        AND pack_type_id = {pack_type_idb} 
+                        AND packweek = '{packweek}'
+                        AND plan_date = '{plan_date}');
+                    """
+                    self.database_dss.execute_query(sb)
+
+                # Where kj has more cap for packtype and weektotal
+                if (weektotal_cap < weektotal_kj) & \
+                    (stdunits_cap < stdunits_kj) & \
+                    (weektotal_cap != stdunits_cap):
+                    self.logger.info('-- Rule2')
+
+                    a = stdunits_kj
+                    b = weektotal_kj - stdunits_kj
+
+                    sa=f"""
+                    UPDATE `dss`.`f_pack_capacity` 
+                    SET `stdunits` = '{a}'
+                        , `adjusted` = '2'
+                        , `add_datetime` = '{now}' 
+                    WHERE (packhouse_id = {packhouse_id} 
+                        AND pack_type_id = {pack_type_id} 
+                        AND packweek = '{packweek}'
+                        AND plan_date = '{plan_date}');
+                    """
+                    self.database_dss.execute_query(sa)
+
+                    sb=f"""
+                    UPDATE `dss`.`f_pack_capacity` 
+                    SET `stdunits` = '{b}'
+                        , `adjusted` = '2'
+                        , `add_datetime` = '{now}' 
+                    WHERE (packhouse_id = {packhouse_id} 
+                        AND pack_type_id = {pack_type_idb} 
+                        AND packweek = '{packweek}'
+                        AND plan_date = '{plan_date}');
+                    """
+                    self.database_dss.execute_query(sb)
+
+                ######## Only one packtype for week ########
+                # Where kj has more cap for packtype and weektotal,
+                if (weektotal_cap < weektotal_kj) & \
+                    (stdunits_cap < stdunits_kj) & \
+                    (weektotal_cap == stdunits_cap):
+                    self.logger.info('-- Rule3')
+
+                    a = stdunits_kj
+                    b = weektotal_kj - stdunits_kj
+
+                    sa=f"""
+                    UPDATE `dss`.`f_pack_capacity` 
+                    SET `stdunits` = '{a}'
+                        , `adjusted` = '3'
+                        , `add_datetime` = '{now}' 
+                    WHERE (packhouse_id = {packhouse_id} 
+                        AND pack_type_id = {pack_type_id} 
+                        AND packweek = '{packweek}'
+                        AND plan_date = '{plan_date}');
+                    """
+                    self.database_dss.execute_query(sa)
+
+
+            # Else add pc for this combination
             else:
                 s2=f"""
                     INSERT INTO `dss`.`f_pack_capacity` 
                     (`packhouse_id`, `pack_type_id`, `packweek`, 
-                    `stdunits`, `stdunits_source`, `adjusted`, `add_datetime`) 
+                    `stdunits`, `stdunits_source`, `adjusted`, `add_datetime`, `plan_date`) 
                     VALUES ({packhouse_id},{pack_type_id},'{packweek}', 
-                    {stdunits_kj},0,'2','{now}');
+                    {stdunits_kj},0,'4','{now}', '{plan_date}');
                 """
+                self.logger.info('-- Rule4')
                 self.database_dss.execute_query(s2)
 
         return 
-
+    
     def adjust_harvest_estimates(self):
         # TODO: This cannot be updated as KJ planning data not at orchard level
         self.logger.info('- Adjusting harvest estimates according to Kobus plan')
-        sql="""
-            SELECT dim_packhouse.id as packhouse_id
-                    -- , dim_week.id as time_id
-                    , pack_type.id as pack_type_id
-                    -- , pd.format
-                    , pd.packweek
-                    -- , pd.packsite
-                    , SUM(ROUND(pd.qty_standardctns * -1)) as stdunits
-            FROM dss.planning_data pd
-            LEFT JOIN dim_packhouse ON (pd.packsite = dim_packhouse.name)
-            LEFT JOIN (SELECT id, upper(name) as name FROM dss.dim_pack_type) pack_type  
-                ON (pd.format = pack_type.name)
-            LEFT JOIN dim_week ON (pd.packweek = dim_week.week)
-            WHERE recordtype = 'PLANNED'
-            AND extract_datetime = (SELECT MAX(extract_datetime) FROM dss.planning_data)
-            -- AND pd.packweek in ('22-01','22-02','22-03','22-04')
-            AND dim_packhouse.id > 0
-            GROUP BY dim_packhouse.id
-                    -- , dim_week.id
-                    , pack_type.id
-                    -- , pd.format
-                    , pd.packweek
-                    -- , pd.packsite 
-                    ;
-        """
-        # get Kobus Jonas plan for each packhouse
-        df = self.database_dss.select_query(sql)
-        for k in range(0,len(df)):
-            packhouse_id = df.packhouse_id[k]
-            packweek = df.packweek[k]
-            pack_type_id = df.pack_type_id[k]
-            stdunits_kj = df.stdunits[k]
-            now=datetime.datetime.now()
-
-            s=f"""
-            SELECT * FROM dss.f_pack_capacity
-            WHERE (packhouse_id = {packhouse_id} 
-            AND pack_type_id = {pack_type_id} 
-            AND packweek = '{packweek}');
-            """
-            pc = self.database_dss.select_query(s)
-
-            if len(pc) > 0:
-                stdunits_cap = pc.stdunits[0]
-
-                if stdunits_kj > stdunits_cap:
-                    s1=f"""
-                    UPDATE `dss`.`f_pack_capacity` 
-                    SET `stdunits` = '{stdunits_kj}'
-                        , `adjusted` = '1'
-                        , `add_datetime` = '{now}' 
-                    WHERE (packhouse_id = {packhouse_id} 
-                        AND pack_type_id = {pack_type_id} 
-                        AND packweek = '{packweek}');
-                    """
-                    self.database_dss.execute_query(s1)
-
-            else:
-                s2=f"""
-                    INSERT INTO `dss`.`f_pack_capacity` 
-                    (`packhouse_id`, `pack_type_id`, `packweek`, 
-                    `stdunits`, `stdunits_source`, `adjusted`, `add_datetime`) 
-                    VALUES ({packhouse_id},{pack_type_id},'{packweek}', 
-                    {stdunits_kj},0,'2','{now}');
-                """
-                self.database_dss.execute_query(s2)
 
         return
+
+
+class GetOperationalData:
+    """ Class to generate data for operational model. """
+    logger = logging.getLogger(f"{__name__}.GetOperationalData")
+    database_instance = DatabaseModelsClass('PHDDATABASE_URL')    
+
+    def get_chosen_individual(self): 
+        """ Get from to data. """
+        self.logger.info('- get_chosen_individual')
+
+        s = """
+            SELECT sol_pareto_individuals.demand_id
+                -- , sol_pareto_individuals.he 
+                , sol_pareto_individuals.pc 
+                , f_demand_plan.packaging
+                , ROUND(SUM(sol_pareto_individuals.kg), 1) as kg
+            FROM dss.sol_pareto_individuals
+            LEFT JOIN f_demand_plan ON (f_demand_plan.id = sol_pareto_individuals.demand_id)
+            LEFT JOIN sol_fitness ON (sol_pareto_individuals.indiv_id = sol_fitness.indiv_id 
+                AND sol_pareto_individuals.alg = sol_fitness.alg 
+                AND sol_pareto_individuals.plan_date = sol_fitness.plan_date
+                AND sol_fitness.result = 'final result')
+            WHERE kg > 0
+            AND sol_pareto_individuals.plan_date = '2021-12-08'
+            AND sol_pareto_individuals.time_id = 1076
+            AND sol_fitness.id = 387
+            -- AND pc = 4722
+            GROUP BY sol_pareto_individuals.demand_id, 
+            f_demand_plan.packaging,
+            -- sol_pareto_individuals.he, 
+            sol_pareto_individuals.pc;
+            """
+
+        df = self.database_instance.select_query(query_str=s)
+        path = os.path.join(config.ROOTDIR,'data','raw','operational_individual')
+        df.to_pickle(path)       
+        return  df
+
+    def get_daily_capacity(self): 
+        """ Get daily capacity. """
+        self.logger.info('- get_daily_capacity')
+
+        s = """
+            SELECT f_pack_capacity.id as pc
+            -- , f_pack_capacity.packhouse_id
+            -- , f_pack_capacity.pack_type_id
+            -- , f_pack_capacity.stdunits
+            , dim_time.id as day_id
+            , IF(stdunits>0, ROUND((stdunits / dim_week.workdays)  * dim_time.workday), 0)  as stdunits_day
+            , IF(stdunits>0, ROUND((stdunits / dim_week.workdays)  * dim_time.workday), 0) * 4.5  as kg_day
+            -- , dim_week.id as time_id
+            FROM dss.f_pack_capacity
+            LEFT JOIN dim_week on (dim_week.week = f_pack_capacity.packweek)
+            LEFT JOIN dim_time on (dim_time.week = f_pack_capacity.packweek)
+            WHERE f_pack_capacity.plan_date = '2021-12-08'
+            AND dim_time.workday > 0
+            AND dim_week.id = 1076
+            -- AND f_pack_capacity.id = 4722
+            ORDER BY packhouse_id, pack_type_id
+            ;
+            """
+
+        df = self.database_instance.select_query(query_str=s)
+
+
+        path = os.path.join(config.ROOTDIR,'data','raw','operational_daily_capacity')
+        df.to_pickle(path)       
+        return df

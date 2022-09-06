@@ -13,6 +13,9 @@ for i in range(N):
     solution = plat.Solution(problem)
     solution.variables = np.random.rand(D)
     solution.evaluate()
+    
     solutions.append(solution)
 
 x = solutions[0]
+
+print(x)
