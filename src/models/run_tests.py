@@ -37,7 +37,7 @@ class RunTests:
             population[p] = individual[1]
 
             pop = pd.DataFrame.from_dict(individual[0], orient='index', columns=['obj1','obj2'])
-            fitness_df = pd.concat([fitness_df,pop])
+            fitness_df = pd.concat([fitness_df, pop])
 
         fitness_df['id'] = fitness_df.index
         return fitness_df, population
@@ -63,7 +63,7 @@ class RunTests:
         population = pop[1]
         hyperarea = pd.DataFrame()
         for i in range(config.ITERATIONS):
-            self.logger.info(f"ITERATION {i}")
+            self.logger.debug(f"ITERATION {i}")
             new_life = self.gag.make_children(fitness_df, alg_path, test=True, 
                                                 test_name=test_name, population=population)
 
@@ -81,8 +81,8 @@ class RunTests:
 
             if i % config.SHOWRATE == 0:
                 filename_html=f"{test_name}_{alg}"
+                fitness_df['population'] = 'yes'
                 if config.SHOW:
-                    fitness_df['population'] = 'yes'
                     self.graph.scatter_plot2(fitness_df, filename_html, 'population', f"{alg_path}-{i}")
                     hyperareat = self.pt.calculate_hyperarea(fitness_df)
                     hyperarea = pd.concat([hyperarea, hyperareat])
@@ -92,43 +92,55 @@ class RunTests:
                     hyperareat = self.pt.calculate_hyperarea(fitness_df)
                     self.logger.info(f"- CURRENT HYPERAREA: {hyperareat.hyperarea[0]}")
 
+        fitness_df['population'] = 'yes'
         max_id = fitness_df.id.max() + 1
         t=Tests()
 
+        p_true = t.get_pareto_true(test_name)
         # Get pareto optimal set
-        for pp in range(config.POPUATION):
+        #for pp in range(config.POPUATION):
+        for pp in range(len(p_true)):
             x = np.random.rand(t.variables(test_name))
             pareto_indivst=pd.DataFrame(data=x,columns=['value'])
             pareto_indivst['time_id']=pareto_indivst.index
             pareto_indivst['id']=max_id + pp
-            #path=os.path.join(alg_path,f"id_{max_id + pp}")
-            #pareto_indivst.to_pickle(path, protocol=5)
 
             # Choose which test to use
             if test_name == 'zdt1':
-                fitness = t.ZDT1_pareto(x)
+                #fitness = t.ZDT1_pareto(x)
+                fitness = [list(p_true[pp])]
 
             elif test_name == 'zdt2':
-                fitness = t.ZDT2_pareto(x)
+                fitness = [list(p_true[pp])]
 
             elif test_name == 'zdt3':
-                fitness = t.ZDT3_pareto(x)
+                #fitness = t.ZDT3_pareto(x)
+                fitness = [list(p_true[pp])]
 
             elif test_name == 'zdt4':
-                fitness = t.ZDT4_pareto(x)
+                #fitness = t.ZDT4_pareto(x)
+                fitness = [list(p_true[pp])]
+
+            elif test_name == 'zdt5':
+                #fitness = t.ZDT5_pareto(x)
+                fitness = [list(p_true[pp])]
+                
 
             elif test_name == 'zdt6':
-                fitness = t.ZDT6_pareto(x)
+                #fitness = t.ZDT6_pareto(x)
+                fitness = [list(p_true[pp])]
 
-            pareto = pd.DataFrame(fitness, columns=['obj1', 'obj2'])
+            pareto = pd.DataFrame(data = fitness, columns=['obj1', 'obj2'])
             pareto['population'] = 'pareto'
+            pareto['front'] = 1
             pareto['id'] = max_id + pp
 
-            fitness_df=fitness_df.append(pareto).reset_index(drop=True)
+            fitness_df = fitness_df.append(pareto).reset_index(drop=True)
         
         init_pop['population'] = 'initial'
         
         if config.SHOW:
+            print(fitness_df)
             self.graph.scatter_plot2(fitness_df, filename_html, 'population', f"{alg_path}-final")
             
 
@@ -136,7 +148,6 @@ class RunTests:
 
     def run_tests(self, alg, test, monitor):
         ga = RunTests()
-        #pt = ParetoFeatures()
 
         alg_path=os.path.join(config.ROOTDIR,'data','interim','tests',test,alg)
         if not os.path.exists(alg_path):
@@ -145,6 +156,7 @@ class RunTests:
         hyperarea = pd.DataFrame()
         for s in range(config.SAMPLESTART, config.SAMPLEEND):
             start=datetime.datetime.now()
+            self.logger.info(f"{test}: {s}")
             fitness_df=ga.make_ga_test(alg_path, test)
             filepath=os.path.join(alg_path,f"fitness_{alg}_{s}.xlsx")
             fitness_df.to_excel(filepath, index=False)
@@ -198,6 +210,7 @@ class StatsTests:
         else:
             print('Different distributions (reject H0)')
 
-        pgRes.to_excel(f"data/interim/tests/{test}/{alg}/result_friedman_{alg}.xlsx")
+        path=os.path.join(config.ROOTDIR, 'data', 'interim', 'tests', test, alg, f"result_friedman_{alg}.xlsx")
+        pgRes.to_excel(path)
 
         return

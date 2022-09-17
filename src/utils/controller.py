@@ -25,9 +25,9 @@ class MainController:
     development=False
     test_fxn = False
      
-    tests = ['zdt1', 'zdt2', 'zdt3']
-    tests = ['zdt2', 'zdt3', 'zdt4', 'zdt6']
-    #tests = ['zdt1']
+    tests = ['zdt1', 'zdt2', 'zdt3', 'zdt4', 'zdt5', 'zdt6']
+    #tests = ['zdt3', 'zdt4', 'zdt6', 'zdt1']
+    #tests = ['zdt2']
 
     def pipeline_control(self):
         monitor = pd.DataFrame()
@@ -52,9 +52,9 @@ class MainController:
             #dss=self.run_dss(plan_date, weeks_str)
             #dss=self.run_dss(plan_date, weeks_str,adjust_planning_data=False)
             dss=self.run_dss(plan_date, weeks_str,
-                    synch_data=True,
-                    adjust_planning_data=True,
-                    make_data=True,
+                    synch_data=False,
+                    adjust_planning_data=False,
+                    make_data=False,
                     clearold=False)
             manplan.prep_results(dss[0], dss[1], dss[2], plan_date, weeks_str)
 

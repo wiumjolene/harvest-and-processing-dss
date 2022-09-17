@@ -103,6 +103,7 @@ class PrepModelData:
 class Individual:
     """ Class to generate an individual solution. """
     logger = logging.getLogger(f"{__name__}.Individual")
+    t=Tests()
     individual_df = pd.DataFrame()
     dlistt=[]
 
@@ -111,31 +112,39 @@ class Individual:
                     test_name='zdt1'):
 
         """ Function to define indiv and fitness """
-        self.logger.debug(f"- individual: {number}")
+        self.logger.info(f"- individual: {number}")
         if test:
-            t=Tests()
+            #t=Tests()
             if get_indiv:
-                x = np.random.rand(t.variables(test_name))
-                indiv = dict(enumerate(x))
+                if test_name == 'zdt5':
+                    x = self.t.ZDT5_indiv()
+                    indiv = dict(enumerate(x))
+
+                else:    
+                    x = np.random.rand(self.t.variables(test_name))
+                    indiv = dict(enumerate(x))
 
             else:
                 x = list(indiv.values())
 
             # Choose which test to use
             if test_name == 'zdt1':
-                fitness = t.ZDT1(x)
+                fitness = self.t.ZDT1(x)
 
             elif test_name == 'zdt2':
-                fitness = t.ZDT2(x)
+                fitness = self.t.ZDT2(x)
 
             elif test_name == 'zdt3':
-                fitness = t.ZDT3(x)
+                fitness = self.t.ZDT3(x)
 
             elif test_name == 'zdt4':
-                fitness = t.ZDT4(x)
+                fitness = self.t.ZDT4(x)
+
+            elif test_name == 'zdt5':
+                fitness = self.t.ZDT5(x)
 
             elif test_name == 'zdt6':
-                fitness = t.ZDT6(x)
+                fitness = self.t.ZDT6(x)
 
             ind_fitness = {number: fitness[0]}
 
@@ -357,7 +366,6 @@ class Individual:
         ddf_metadata = options.demand_metadata_df()
         ddf_metadata.rename(columns={'kg':'dkg'},inplace=True)
 
-        # Fixme: Only use karsten data
         individualdf1['kg2'] = 0
         individualdf1.loc[(individualdf1['kgkm']>0), 'kg2'] = individualdf1['kg']
         total_cost = individualdf1.kgkm.sum() / individualdf1.kg2.sum()
@@ -389,20 +397,23 @@ class Population:
     def population(self, size, alg_path):
         self.logger.debug(f"population ({size})")
         pop=pd.DataFrame()
+        fitness_df=pd.DataFrame()
         
         for i in range(size):
             ind = self.indv.individual(i, alg_path)
-            pop=pop.append(ind).reset_index(drop=True)
+            pop = pd.DataFrame.from_dict(ind[0], orient='index', columns=['obj1','obj2'])
+            fitness_df = pd.concat([fitness_df, pop])
 
-        pop['population'] = 'population'
+        fitness_df['population'] = 'population'
+        fitness_df['id'] = fitness_df.index
 
-        return pop    
+        return fitness_df    
 
 
 class GeneticAlgorithmGenetics:
     logger = logging.getLogger(f"{__name__}.GeneticAlgorithmGenetics")
     ix = Individual()
-
+    t=Tests()
 
     def selection(self, fitness_df, alg_path, test, population):
 
@@ -472,11 +483,11 @@ class GeneticAlgorithmGenetics:
 
         return parent
 
-    def mutation(self, df_mutate, times, test):
+    def mutation(self, df_mutate, times, test, test_name=''):
         """ GA mutation function to diversify gene pool. """
         
         self.logger.debug(f"-- mutation check")
-        ix = Individual()
+        #ix = Individual()
 
         if random.random() <= config.MUTATIONRATE:
             self.logger.debug(f"--- mutation activated")
@@ -488,13 +499,11 @@ class GeneticAlgorithmGenetics:
                     self.logger.debug(f"---- mutation for {m}")
 
                     if random.random() < config.MUTATIONRATE2:
-                        df_mutate[m] = np.random.rand()
-                        #als.append(np.random.rand())
-                                    
-                    #else:
-                    #    vals.append(values[count])
-                
-                #df_mutate1 = pd.DataFrame({'time_id': times, 'value': vals})
+                        if test_name == 'zdt5':
+                            df_mutate = self.t.ZDT5_mutate(df_mutate, m)
+                        
+                        else:
+                            df_mutate[m] = np.random.rand()
             
             else:
                 times.sort()
@@ -509,7 +518,7 @@ class GeneticAlgorithmGenetics:
                         update = False
                         df_gener =  df_mutate[df_mutate['time_id']==m]
                         demand_list = list(df_gener.demand_id.unique())
-                        df_gene = ix.make_individual(get_dlist=False, dlist=demand_list)
+                        df_gene = self.ix.make_individual(get_dlist=False, dlist=demand_list)
                         df_mutate1 = pd.concat([df_mutate1, df_gene]).reset_index(drop=True)
                 
                     mutates.append([update, m])
@@ -563,8 +572,8 @@ class GeneticAlgorithmGenetics:
             child2a = parent2[parent2["crossover"]]
             child2b = parent2[~parent2["crossover"]]
 
-            child1 = pd.concat([child1a,child2b])
-            child2 = pd.concat([child1b,child2a])
+            child1 = pd.concat([child1a,child2b]).reset_index(drop=True)
+            child2 = pd.concat([child1b,child2a]).reset_index(drop=True)
 
             child1=child1.drop(columns=['crossover'])
             child2=child2.drop(columns=['crossover'])
@@ -572,8 +581,8 @@ class GeneticAlgorithmGenetics:
         # If test then make new test individual gene
         if test:
             # Bring mutatation opportunity in
-            child1 = self.mutation(child1, times, test=test)
-            child2 = self.mutation(child2, times, test=test)
+            child1 = self.mutation(child1, times, test=test, test_name=test_name)
+            child2 = self.mutation(child2, times, test=test, test_name=test_name)
 
             # Register child on fitness_df
             child1_id = self.ix.individual(ids[0], alg_path, get_indiv=False, indiv=child1, 
@@ -593,8 +602,8 @@ class GeneticAlgorithmGenetics:
             child2 = self.mutation(child2, times, test=False)
 
             # Register child on fitness_df
-            child1_id = self.ix.individual(ids[0], alg_path, get_indiv=False, indiv=child1)[0]
-            child2_id = self.ix.individual(ids[1], alg_path, get_indiv=False, indiv=child2)[0]
+            child1_id = self.ix.individual(ids[0], alg_path, get_indiv=False, indiv=child1)
+            child2_id = self.ix.individual(ids[1], alg_path, get_indiv=False, indiv=child2)
 
             #fitness = pd.concat([fitness, child1_f, child2_f]).reset_index(drop=True)
             fitness[ids[0]] = child1_id[0][ids[0]]
@@ -603,8 +612,9 @@ class GeneticAlgorithmGenetics:
         self.logger.debug(f"2. crossover finish")
         return fitness, population
 
-    def make_children(self, fitness_df, alg_path, test, test_name, population={}):
+    def make_children(self, fitness_df, alg_path, test=False, test_name='', population={}):
         """ GA crossover genetic material for diversification"""
+        self.logger.info(f" Making children")
 
         used_ids = list(fitness_df.id)
         poplist = list(range(0, config.POPUATION + config.CHILDREN + 1))
@@ -709,16 +719,9 @@ class GeneticAlgorithmGenetics:
     def get_domcount(self, fitness_df):
         front1 = []
 
-        #fitness_df = fitness_df.sort_values(by=['id']).reset_index(drop=True)
-        #fitness_df['population'] = 'none'
-        #fitness_df['domcount'] = 0 
-
         dominating_fits = [0] * len(fitness_df)  # n (The number of people that dominate you)
         dominated_fits = defaultdict(list)  # Sp (The people you dominate)
         
-        #fitness_df=fitness_df.set_index('id')
-        #fitness_df['id'] = fitness_df.index
-
         fits = list(fitness_df.id)
         obj1s = fitness_df['obj1'].values
         obj2s = fitness_df['obj2'].values
@@ -730,22 +733,23 @@ class GeneticAlgorithmGenetics:
                 obj1x = obj1s[i + ix + 1]
                 obj2x = obj2s[i + ix + 1]
                 
-                #if build_features.GeneticAlgorithmGenetics.dominates((obj1, obj2), (obj1x, obj2x)):
                 if (obj1 <= obj1x and obj2 < obj2x):
                     dominating_fits[i + ix + 1] += 1 
                     dominated_fits[id].append(idx) 
 
-                #if build_features.GeneticAlgorithmGenetics.dominates((obj1x, obj2x), (obj1, obj2)):
-                if (obj1 >= obj1x and obj2 > obj2x):
+                elif (obj1 >= obj1x and obj2 > obj2x):
                     dominating_fits[i] += 1
                     dominated_fits[idx].append(id)    
+
+                elif (obj1 == obj1x and obj2 == obj2x):
+                    # prevent duplicates
+                    dominating_fits[i + ix + 1] += 100
+                    #dominated_fits[idx].append(id) 
 
             if dominating_fits[i] == 0:
                 front1.append(id)
 
-        #fitness_df['domcount'] = dominating_fits
-        #fitness_df.loc[(fitness_df.domcount==0), 'front'] = 1
-        return front1 #fitness_df
+        return front1
 
     def crossover_BITFLIP_DEPRICATE(self, fitness_df, ids, alg_path, test, test_name, population):
         """ GA crossover genetic material for diversification"""
@@ -1070,7 +1074,7 @@ class ParetoFeatures:
             set_df = fitness_df[fitness_df['population'] == set]
             
             df = self.non_dominated_sort(set_df)
-            df = df[df['front'] == 1].reset_index(drop=True)
+            #df = df[df['front'] >= 1].reset_index(drop=True)
             df = df.sort_values(by=['obj1','obj2'], ascending=[True,False]).reset_index(drop=True)
 
             objs1 = df.obj1.values
@@ -1177,47 +1181,36 @@ class PrepManPlan:
         popdf['plan_date'] = plan_date
 
         kobus_plan = self.kobus_plan(plan_date, week_str)
+        
         kobus_fit = self.indiv.individual(1000000, 
                     alg_path = alg_path, 
                     get_indiv=False, 
                     indiv=kobus_plan, 
                     test=False)
+        kobus_fit = pd.DataFrame.from_dict(kobus_fit[0], orient='index', columns=['obj1','obj2'])
+        kobus_fit['id'] = kobus_fit.index
+        print(kobus_fit)
+
         kobus_fit['population'] = 'manplan'
         kobus_fit['result'] = 'manplan'
-
-        #actual_plan = self.actual(plan_date, week_str)
-        #actual_fit = self.indiv.individual(1000001, 
-        #            alg_path = alg_path, 
-        #            get_indiv=False, 
-        #            indiv=actual_plan, 
-        #            test=False)
-        #actual_fit['population'] = 'actualplan'
-        #actual_fit['result'] = 'actualplan'
 
         init_pop['result'] = 'init pop'
         fitness_df['result'] = 'final result'
         
-        #fitness_df = pd.concat([fitness_df, init_pop, kobus_fit, actual_fit])   
         fitness_df = pd.concat([fitness_df, init_pop, kobus_fit])
+        print(fitness_df)
    
         fitness_df['alg'] = alg
         fitness_df['plan_date'] = plan_date
         kobus_plan['plan_date'] = plan_date
-        #actual_plan['plan_date'] = plan_date
 
         fitness_df = fitness_df.rename(columns={"id": "indiv_id"})
         fitness_df = fitness_df[['indiv_id', 'obj1', 'obj2', 
                 'population', 'result', 'alg', 'plan_date']]
         
         self.database_instance.insert_table(fitness_df, 'sol_fitness', 'dss', if_exists='append')
-        #self.database_instance.insert_table(popdf, 'sol_pareto_individuals', 'dss', if_exists='append')
         self.database_instance.insert_table_chunks(popdf, 'sol_pareto_individuals', 'dss', if_exists='append', chunk_size=5000)
         self.database_instance.insert_table(kobus_plan, 'sol_kobus_plan', 'dss', if_exists='append')
-        #self.database_instance.insert_table(actual_plan, 'sol_actual_plan', 'dss', if_exists='append')
-
-        #filename_html=f"{alg}"
-        #self.graph.scatter_plot2(fitness_df, filename_html, 'result', 
-        #        alg_path)
         
         return
 

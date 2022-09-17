@@ -8,21 +8,26 @@ import datetime
 
 from src.features.build_features import ParetoFeatures
 
+pt = ParetoFeatures()
 
-path = r"C:\Users\Jolene Wium\Documents\personal\studies\phd\model\model\data\interim\zdt1\fitness_nsga2.xlsx"
-path = r"C:\Users\Jolene Wium\Documents\personal\studies\phd\model\model\data\interim\zdt1\fitness_nsga2_real.xlsx"
-path = r"C:\Users\Jolene Wium\Documents\personal\studies\phd\model\model\data\external\20220901\fitness_nsga2_0.xlsx"
+test = 'zdt1'
+folder = 'thesis'
 
+base_path = os.path.join(r"C:\Users\Jolene Wium\Documents\personal\studies\phd\model\model\data\external", folder)
+
+dir_list = os.listdir(os.path.join(base_path, test))
 
 huperarea = pd.DataFrame()
-for i in range(0,13):
-    path = os.path.join(r"C:\Users\Jolene Wium\Documents\personal\studies\phd\model\model\data\external","20220904","zdt1",f"fitness_nsga2_{i}.xlsx")
+for count, i in enumerate(dir_list):
 
-    fitness_df = pd.read_excel(path)
-    pt = ParetoFeatures()
-    hyperareas = pt.calculate_hyperarea(fitness_df)
-    hyperareas['sample'] = i
-    huperarea=pd.concat([huperarea,hyperareas])
+    if i[:7] == 'fitness':
+        path = os.path.join(base_path, test, i)
+        fitness_df = pd.read_excel(path)
+        
+        hyperareas = pt.calculate_hyperarea(fitness_df)
+        hyperareas['sample'] = count
+        huperarea=pd.concat([huperarea,hyperareas])
 
-huperarea.to_excel('hyperareas.xlsx')    
-    
+huperarea.to_excel(os.path.join(base_path, f"hyperarea_{test}.xlsx"), index=False)    
+
+

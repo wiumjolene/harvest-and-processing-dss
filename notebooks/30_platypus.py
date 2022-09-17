@@ -21,11 +21,11 @@ t=Tests()
 
 
 def result(i):
-    test_name = 'zdt3'
+    test_name = 'zdt2'
 
-    problem = plat.ZDT3()
+    problem = plat.ZDT2()
     algorithm = plat.NSGAII(problem)
-    algorithm.run(15000)
+    algorithm.run(25000)
 
     objective_values = np.empty((0, 2))
     for solution in algorithm.result:
@@ -36,7 +36,6 @@ def result(i):
     objective_values['population'] = 'yes'
     objective_values['id'] = objective_values.index
     print(objective_values)
-
 
     max_id = objective_values['id'].max()
     for pp in range(config.POPUATION):
@@ -67,12 +66,12 @@ def result(i):
     pt = ParetoFeatures()
     hyperareas = pt.calculate_hyperarea(objective_values)
     hyperareas['sample'] = i
-    print(hyperareas)
     return hyperareas
 
 
 all_hyperareas = pd.DataFrame()
-for i in range(30):
+for i in range(100):
+    print(i)
     hyperarea = result(i)
 
     all_hyperareas = pd.concat([all_hyperareas,hyperarea])

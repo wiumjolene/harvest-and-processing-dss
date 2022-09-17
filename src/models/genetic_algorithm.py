@@ -88,17 +88,13 @@ class GeneticAlgorithmNsga2:
         alg_path=os.path.join(config.ROOTDIR,'data','interim','nsga2')
         
         p = Population()
-        init_pop = p.population(config.POPUATION, alg_path)[0]
-
-        while len(init_pop) < config.POPUATION * 2:
-            self.logger.info(f"Creating additional indivs for init_pop {len(init_pop)} / {config.POPUATION * 2}")
-            init_pop = self.gag.make_children(init_pop, alg_path)[0]
+        init_pop = p.population(config.POPUATION, alg_path)
+        init_pop = self.gag.make_children(init_pop, alg_path)[0]
             
         fitness_df = self.pareto_nsga2(init_pop)
         self.logger.info(f"starting NSGA2 search")
         for _ in range(config.ITERATIONS):
             self.logger.info(f"ITERATION {_}")
-            fitness_df = fitness_df[fitness_df['front']==1].reset_index(drop=True)
             fitness_df = self.gag.make_children(fitness_df, alg_path)[0]
             fitness_df = self.pareto_nsga2(fitness_df)
 
@@ -156,7 +152,7 @@ class GeneticAlgorithmNsga2:
             fitness_df['cdist'] = cdists
                         
         fitness_df = fitness_df.sort_values(by=['cdist'], ascending=False).reset_index(drop=True)
-        fitness_df=fitness_df[fitness_df.index < (space - 1)]
+        fitness_df=fitness_df[fitness_df.index < (space)]
 
         return fitness_df
 
