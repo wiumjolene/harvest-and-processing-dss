@@ -121,7 +121,8 @@ class GetLocalData:
                FROM dss.harvest_estimate_budget WHERE date(extract_datetime)='{plan_date}')
             AND kg > 0
             AND he.week in ({weeks_str})
-            AND (dim_fc.management in ('Karsten', 'Manage') OR fc = 'Y0294')
+            AND (dim_fc.management in ('Karsten', 'Manage'))
+            -- AND (dim_fc.management in ('Karsten', 'Manage') OR fc = 'Y0294')
             GROUP BY dim_block.id, dim_va.id, week;       
         """
 
@@ -486,7 +487,7 @@ class CreateOptions:
             for s in range(len(df_ftb)):
                 #block_id = int(df_ftb.block_id[s])
                 packsite = int(df_ftb.packhouse_id[s])
-                km = int(df_ftb.km[s])
+                km = df_ftb.km[s]
                 sites_l.append([packsite, km])
 
 
@@ -554,7 +555,6 @@ class CreateOptions:
 
         return 
   
-
     def make_options(self, plan_date):
         df_dp = self.get_demand_plan(plan_date)
         df_he = self.get_harvest_estimate(plan_date)
@@ -675,7 +675,7 @@ class CreateOptions:
             """
 
         df_dp = self.database_instance.select_query(query_str=s)
-        df_dp['kg'] = df_dp['stdunits'] * config.STDUNIT * (1 + config.GIVEAWAY)
+        df_dp['kg'] = df_dp['stdunits']  * config.STDUNIT #* (1 + config.GIVEAWAY)
         df_dp = df_dp.sort_values(by=['time_id', 'priority']).reset_index(drop=True)
 
         return df_dp

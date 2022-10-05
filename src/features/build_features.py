@@ -114,7 +114,7 @@ class Individual:
                     test_name='zdt1'):
 
         """ Function to define indiv and fitness """
-        self.logger.info(f"- individual: {number}")
+        self.logger.debug(f"- individual: {number}")
         if test:
             #t=Tests()
             if get_indiv:
@@ -180,7 +180,6 @@ class Individual:
         week_pc = self.options.easy_pc()
         from_to = self.options.easy_ft()
 
-        #preference = self.options.easy_preference()
         refuse = self.options.easy_refuse()
         refuse_keys = refuse.keys()
 
@@ -352,7 +351,7 @@ class Individual:
         total_cost = individualdf1.kgkm.sum() / individualdf1.kg2.sum()
 
 
-        individualdf2 = individualdf.groupby('demand_id')['kg'].sum()
+        individualdf2 = individualdf.groupby('demand_id', sort=False)['kg'].sum()
         individualdf2 = individualdf2.reset_index(drop=False)
 
         

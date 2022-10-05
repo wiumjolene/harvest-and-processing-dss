@@ -86,14 +86,8 @@ class MainController:
         sr.update_horizon_complete()
         return 
 
-    #def run_dss(self, plan_date, weeks_str,
-    #                synch_data=True,
-    #                adjust_planning_data=False,
-    #                make_data=True,
-    #                clearold=False):
-
     def run_dss(self, plan_date, weeks_str,
-                    synch_data=False,
+                    synch_data=True,
                     adjust_planning_data=False,
                     make_data=True,
                     clearold=False):
@@ -122,13 +116,19 @@ class MainController:
             self.logger.info('MAKE DATA')
             v = CreateOptions()
             v.make_options(plan_date)
-            v.make_easy(plan_date)
 
         if clearold:
             self.logger.info('CLEAR OLD DATA')
             pp = PrepManPlan()
             pp.clear_old_result()
 
+        if self.vega:
+            self.logger.info('--- GENETIC ALGORITHM: VEGA ---')
+            if not os.path.exists('data/interim/vega'):
+                os.makedirs('data/interim/vega')
+            
+            ga = GeneticAlgorithmVega()
+            plan = ga.vega()
 
         if self.nsga2:
             self.logger.info('--- GENETIC ALGORITHM: NSGA2 ---')
@@ -138,6 +138,13 @@ class MainController:
             ga = GeneticAlgorithmNsga2()
             plan = ga.nsga2()
 
+        if self.moga:
+            self.logger.info('--- GENETIC ALGORITHM: MOGA ---')
+            if not os.path.exists('data/interim/moga'):
+                os.makedirs('data/interim/moga')
+
+            ga = GeneticAlgorithmMoga()
+            plan = ga.moga()
 
         return plan
 

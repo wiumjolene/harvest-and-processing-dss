@@ -1,6 +1,6 @@
 import logging
 import os
-from src.utils.controller_test import MainController
+from src.utils.controller import MainController
 from src.utils import config
 
 
