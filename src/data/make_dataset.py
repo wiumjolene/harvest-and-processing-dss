@@ -404,12 +404,35 @@ class CreateOptions:
                     dpack_type_id = df_dptp.pack_type_id[d]
                     dkg = df_dptp.kg[d]
 
+                    if dclient_id in list(df_prioritise.client_id):
+                        df_prioritisec = df_prioritise[df_prioritise['client_id'] == dclient_id].reset_index(drop=True)
+
+                        if dvacat_id in list(df_prioritisec.vacat_id):
+                            df_prioritisecva = df_prioritisec[df_prioritisec['vacat_id'] == dvacat_id].reset_index(drop=True)
+                            pref_list = list(df_prioritisecva.va_id)
+
+                            hepref_lis = df_het[(df_het['time_id'] == dtime_id)]
+                            hepref_lis = hepref_lis[(hepref_lis['va_id'].isin(pref_list))].reset_index(drop=True)
+
+                            hepref_lis = pd.merge(hepref_lis, df_prioritisecva, on=['va_id'], how='left')
+                            hepref_lis=hepref_lis.sort_values(by='priority')
+
+                            pref_lis = list(hepref_lis.id)
+                        
+                        else:
+                            pref_lis = []
+
+                    else:
+                        pref_lis = []
+
+
                     dt1.update({int(ddemand_id):{'vacat_id': int(dvacat_id),
                                             'time_id': int(dtime_id),
                                             'pack_type_id': int(dpack_type_id),
                                             'client_id': int(dclient_id),
                                             'kg': int(dkg),
-                                            'kg_rem': int(dkg)}})
+                                            'kg_rem': int(dkg),
+                                            'preference': pref_lis}})
                 if prior == 0:
                     dt.update({1000: dt1})
                 
@@ -802,8 +825,9 @@ class CreateOptions:
         """ Rules that determine client must prioritise cultivar """
         self.logger.info('- get_rules_exlude')
 
-        s = f"""SELECT client_id, va_id, priority
-                FROM dss.rules_prioritse_client_va;
+        s = f"""SELECT rules_prioritse_client_va.client_id, rules_prioritse_client_va.va_id, rules_prioritse_client_va.priority, dim_va.vacat_id
+                FROM dss.rules_prioritse_client_va
+                LEFT JOIN dim_va ON (va_id = dim_va.id);
             """
         df = self.database_instance.select_query(query_str=s)
         path = os.path.join(config.ROOTDIR,'data','processed','rules_prioritise')

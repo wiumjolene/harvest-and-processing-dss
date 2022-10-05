@@ -180,7 +180,7 @@ class Individual:
         week_pc = self.options.easy_pc()
         from_to = self.options.easy_ft()
 
-        preference = self.options.easy_preference()
+        #preference = self.options.easy_preference()
         refuse = self.options.easy_refuse()
         refuse_keys = refuse.keys()
 
@@ -192,10 +192,8 @@ class Individual:
         else:
             weeks = [dlist]
         
-        #print(weeks)
         
         individualdf = pd.DataFrame()
-        #genes_dic = {}
         genes = []
         for week in weeks:
             priorities = list(week_demand[week].keys())
@@ -208,24 +206,36 @@ class Individual:
             for prior in priorities:
                 demands = list(week_demand[week][prior].keys())
 
-                gene_d = {}
-                gene_dlist = []
                 while len(demands)> 0:
                     d = random.choice(demands)
                     vacat_id = week_demand[week][prior][d]['vacat_id']
                     pack_type_id = week_demand[week][prior][d]['pack_type_id']
                     client_id = week_demand[week][prior][d]['client_id']
                     dkg = week_demand[week][prior][d]['kg_rem']
+                    preference = week_demand[week][prior][d]['preference']
 
                     try:
                         hes = list(week_he[week][vacat_id].keys())
+
+                        if len(preference) > 0:
+                            hes = [x for x in preference if x in hes]
+                            pref = True
+
+                        else:
+                            pref = False
                     
                     except:
                         break
 
                     while dkg > 0:                   
                         if len(hes) > 0:
-                            he = random.choice(hes)
+
+                            if pref:
+                                he = hes[0]
+
+                            else:
+                                he = random.choice(hes)
+                            
                             block_id = week_he[week][vacat_id][he]['block_id']
                             va_id = week_he[week][vacat_id][he]['va_id']
                             he_kg_rem = week_he[week][vacat_id][he]['kg_rem']
