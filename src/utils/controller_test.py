@@ -93,7 +93,7 @@ class MainController:
     #                clearold=False):
 
     def run_dss(self, plan_date, weeks_str,
-                    synch_data=True,
+                    synch_data=False,
                     adjust_planning_data=False,
                     make_data=True,
                     clearold=False):
@@ -121,7 +121,7 @@ class MainController:
         if make_data:
             self.logger.info('MAKE DATA')
             v = CreateOptions()
-            #v.make_options(plan_date)
+            v.make_options(plan_date)
             v.make_easy(plan_date)
 
         if clearold:

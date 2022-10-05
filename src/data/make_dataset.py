@@ -388,7 +388,6 @@ class CreateOptions:
             df_het = df_he[df_he['time_id']==time].reset_index(drop=True)
             df_pct = df_pc[df_pc['time_id']==time].reset_index(drop=True)
 
-        
             # Loop through demands and get he & pc
             dt = {}
             priors = list(df_dpt.priority.unique())
@@ -421,10 +420,6 @@ class CreateOptions:
             vagrps = list(df_het.vacat_id.unique())
             for vagrp in vagrps:
                 df_hetvag = df_het[df_het['vacat_id']==vagrp].reset_index(drop=True)
-
-                #he2 = {}
-                #vas = list(df_hetvag.va_id.unique())
-                #for va in vas:
                     
                 he1 = {}
                 #df_hetvagva = df_hetvag[df_hetvag['va_id']==va].reset_index(drop=True)
@@ -475,7 +470,36 @@ class CreateOptions:
             ft2.update({int(block): sites_l})
 
 
+        # EXCLUDE RULES
+        c_refuse = df_exclude.client_id.unique()
+        ref_rule={}
+        for client in c_refuse:
+            ccref = df_exclude[df_exclude['client_id']==client].reset_index(drop=True)
+            vas = list(ccref.va_id)
+
+            ref_rule.update({client: vas})
+
+        # PREFERENCE
+        c_pref = df_prioritise.client_id.unique()
+        pref_rule={}
+        for client in c_pref:
+            ccpref = df_prioritise[df_prioritise['client_id']==client].reset_index(drop=True)
+            ccpref=ccpref.sort_values(by=['priority'])
+            vas = list(ccpref.va_id)
+
+            pref_rule.update({client: vas})
+
+
+
         path = os.path.join(config.ROOTDIR,'data','processed')
+
+        outfile = open(os.path.join(path, "easy_refuse"),'wb')
+        pickle.dump(ref_rule, outfile)
+        outfile.close()
+
+        outfile = open(os.path.join(path, "easy_preference"),'wb')
+        pickle.dump(pref_rule, outfile)
+        outfile.close()
 
         outfile = open(os.path.join(path, "week_demand"),'wb')
         pickle.dump(dic_demand, outfile)
@@ -792,6 +816,20 @@ class ImportOptions:
     logger = logging.getLogger(f"{__name__}.CreateOptions")
     path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
     path = os.path.dirname(path)
+
+    def easy_preference(self):
+        path=os.path.join(config.ROOTDIR,'data','processed','easy_preference')
+        infile = open(path,'rb')
+        data = pickle.load(infile)
+        infile.close()
+        return data
+
+    def easy_refuse(self):
+        path=os.path.join(config.ROOTDIR,'data','processed','easy_refuse')
+        infile = open(path,'rb')
+        data = pickle.load(infile)
+        infile.close()
+        return data
 
     def easy_ft(self):
         path=os.path.join(config.ROOTDIR,'data','processed','easy_ft')

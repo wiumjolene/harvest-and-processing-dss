@@ -152,13 +152,13 @@ class Individual:
         else:
             if get_indiv:
                 indiv = self.make_individual()
-                print(indiv)
+                #print(indiv)
 
             path=os.path.join(alg_path, f"id_{number}")
             indiv.to_pickle(path, protocol=5)
 
-            path=os.path.join(alg_path, f"id_{number}.xlsx")
-            indiv.to_excel(path)
+            #path=os.path.join(alg_path, f"id_{number}.xlsx")
+            #indiv.to_excel(path)
 
             fitness = self.make_fitness(indiv)
 
@@ -177,6 +177,12 @@ class Individual:
         week_demand = options.easy_demand()
         week_he = options.easy_harvest()
         week_pc = options.easy_pc()
+        from_to = options.easy_ft()
+
+        preference = options.easy_preference()
+        refuse = options.easy_refuse()
+        refuse_keys = refuse.keys()
+
         from_to = options.easy_ft()
 
         if get_dlist:
@@ -199,6 +205,7 @@ class Individual:
                     d = random.choice(demands)
                     vacat_id = week_demand[week][prior][d]['vacat_id']
                     pack_type_id = week_demand[week][prior][d]['pack_type_id']
+                    client_id = week_demand[week][prior][d]['client_id']
                     dkg = week_demand[week][prior][d]['kg_rem']
 
                     try:
@@ -216,7 +223,15 @@ class Individual:
                         if len(hes) > 0:
                             he = random.choice(hes)
                             block_id = week_he[week][vacat_id][he]['block_id']
+                            va_id = week_he[week][vacat_id][he]['va_id']
                             he_kg_rem = week_he[week][vacat_id][he]['kg_rem']
+
+                            if client_id in refuse_keys:
+
+                                if va_id in refuse[client_id]:
+                                    #hes.remove(he)
+                                    pass
+
 
                             # Calculate kg potential that can be packed
                             if he_kg_rem > dkg:
@@ -232,7 +247,6 @@ class Individual:
                                 pass
                             
                             while to_pack > 0:
-
                                 if len(sites_available) > 0:
                                     sites_ft = from_to[block_id]
                                     siteav = [x for x in sites_ft if x[0] in sites_available]
@@ -260,6 +274,7 @@ class Individual:
                                             
                                         # Update demand tables with updated capacity
                                         he_kg_rem=he_kg_rem-packed
+                                        week_he[week][vacat_id][he]['kg_rem'] = he_kg_rem
                                         
                                         sites_available.remove(s)
                                         
@@ -269,20 +284,17 @@ class Individual:
                                         indd_pc.append(pc)
                                         indd_kg.append(packed)
                                         indd_kgkm.append(packed*km)
-                                        #print('next pc')
 
                                     else:
-                                        hes.remove(he)
                                         break                                   
 
                                 else:
-                                    hes.remove(he)
                                     break
 
-                            #print('next he')
-                            if week_he[week][vacat_id][he]['kg_rem'] < 100:
+                            hes.remove(he)
+                            if week_he[week][vacat_id][he]['kg_rem'] < 10:
                                 del week_he[week][vacat_id][he]
-
+                                
                         else:
                             if dkg == week_demand[week][prior][d]['kg']:
                                 indd_he.append(0)
