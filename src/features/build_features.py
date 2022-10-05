@@ -105,6 +105,7 @@ class Individual:
     """ Class to generate an individual solution. """
     logger = logging.getLogger(f"{__name__}.Individual")
     t=Tests()
+    options = ImportOptions()
     individual_df = pd.DataFrame()
     dlistt=[]
 
@@ -173,17 +174,17 @@ class Individual:
 
         # Import all data sets from pickel files.
         self.logger.debug('--> get demand options')
-        options = ImportOptions()
-        week_demand = options.easy_demand()
-        week_he = options.easy_harvest()
-        week_pc = options.easy_pc()
-        from_to = options.easy_ft()
+        
+        week_demand = self.options.easy_demand()
+        week_he = self.options.easy_harvest()
+        week_pc = self.options.easy_pc()
+        from_to = self.options.easy_ft()
 
-        preference = options.easy_preference()
-        refuse = options.easy_refuse()
+        preference = self.options.easy_preference()
+        refuse = self.options.easy_refuse()
         refuse_keys = refuse.keys()
 
-        from_to = options.easy_ft()
+        from_to = self.options.easy_ft()
 
         if get_dlist:
             weeks = list(week_demand.keys())
@@ -191,16 +192,24 @@ class Individual:
         else:
             weeks = [dlist]
         
-        print(weeks)
+        #print(weeks)
         
         individualdf = pd.DataFrame()
+        #genes_dic = {}
+        genes = []
         for week in weeks:
-            #print(week)
             priorities = list(week_demand[week].keys())
+
+            indd_he = []
+            indd_pc = []
+            indd_kg = []
+            indd_kgkm = []
 
             for prior in priorities:
                 demands = list(week_demand[week][prior].keys())
 
+                gene_d = {}
+                gene_dlist = []
                 while len(demands)> 0:
                     d = random.choice(demands)
                     vacat_id = week_demand[week][prior][d]['vacat_id']
@@ -212,13 +221,8 @@ class Individual:
                         hes = list(week_he[week][vacat_id].keys())
                     
                     except:
-                        #print('exit')
                         break
 
-                    indd_he = []
-                    indd_pc = []
-                    indd_kg = []
-                    indd_kgkm = []
                     while dkg > 0:                   
                         if len(hes) > 0:
                             he = random.choice(hes)
@@ -285,6 +289,8 @@ class Individual:
                                         indd_kg.append(packed)
                                         indd_kgkm.append(packed*km)
 
+                                        genes.append([week, d, he, pc, packed, packed*km])
+
                                     else:
                                         break                                   
 
@@ -296,26 +302,29 @@ class Individual:
                                 del week_he[week][vacat_id][he]
                                 
                         else:
-                            if dkg == week_demand[week][prior][d]['kg']:
-                                indd_he.append(0)
-                                indd_pc.append(0)
-                                indd_kg.append(0)
-                                indd_kgkm.append(0)
+                            #if dkg == week_demand[week][prior][d]['kg']:
+                            indd_he.append(0)
+                            indd_pc.append(0)
+                            indd_kg.append(0)
+                            indd_kgkm.append(0)
+                            genes.append([week, d, 0, 0, 0, 0])
                             
                             break
 
-                    demands.remove(d)        
-                    dindividual = {'he':indd_he, 'pc':indd_pc, 'kg': indd_kg,
-                                    'kgkm': indd_kgkm} 
+                    demands.remove(d)  
+                    #gene_d.update({d: gene_dlist})      
+                    #dindividual = {'he':indd_he, 'pc':indd_pc, 'kg': indd_kg,
+                    #                'kgkm': indd_kgkm} 
 
-                    individualdft = pd.DataFrame(data=dindividual)      
-                    individualdft['demand_id'] = d
-                    individualdft['time_id'] = week
-                    individualdf = pd.concat([individualdf,individualdft])
+                    #individualdft = pd.DataFrame(data=dindividual)      
+                    #individualdft['demand_id'] = d
+                    #individualdft['time_id'] = week
+                    #individualdf = pd.concat([individualdf, individualdft])
 
+            #genes_dic.update({week: gene_d})
 
+        individualdf = pd.DataFrame(genes, columns=['time_id', 'demand_id', 'he', 'pc', 'kg', 'kgkm'])
         individualdf = individualdf.reset_index(drop=True)
-        #print()
 
         return individualdf
 
@@ -348,7 +357,6 @@ class Individual:
         total_dev = individualdf3.deviation.sum()
 
         return [[total_cost, total_dev]]
-
 
 
 class Individual_BACKUP:
@@ -659,6 +667,7 @@ class Population:
 class GeneticAlgorithmGenetics:
     logger = logging.getLogger(f"{__name__}.GeneticAlgorithmGenetics")
     ix = Individual()
+    options = ImportOptions()
     t=Tests()
 
     def selection(self, fitness_df, alg_path, test, population):
@@ -736,7 +745,7 @@ class GeneticAlgorithmGenetics:
         #ix = Individual()
 
         if random.random() <= config.MUTATIONRATE:
-            self.logger.debug(f"--- mutation activated")
+            self.logger.info(f"--- mutation activated")
                        
             if test:
                 times = df_mutate.keys()
@@ -778,7 +787,7 @@ class GeneticAlgorithmGenetics:
 
         return df_mutate
 
-    def crossover_BITFLIP(self, pareto_set, ids, alg_path, test, test_name, population):
+    def crossover_BITFLIP(self, pareto_set, ids, alg_path, test, test_name, population, times):
         """ GA crossover genetic material for diversification"""
         self.logger.debug(f"2. crossover start")
 
@@ -800,7 +809,10 @@ class GeneticAlgorithmGenetics:
                     child1[_] = parent1[_]
                     child2[_] = parent2[_]
         else:
-            times = list(parent1.time_id.unique())          
+            #times = list(parent1.time_id.unique()) 
+            #week_demand = self.options.easy_demand() 
+            #times =  list(week_demand.keys())
+            #print(times)       
             crossover = []      
             for _ in times:
                 if random.random() < config.CROSSOVERRATE:
@@ -810,16 +822,16 @@ class GeneticAlgorithmGenetics:
                     crossover.append([False, _])
                     
             crossoverd = pd.DataFrame(data=crossover, columns=['crossover', 'time_id'])
-            parent1 = pd.merge(parent1, crossoverd, on=['time_id'], how='left')
-            parent2 = pd.merge(parent2, crossoverd, on=['time_id'], how='left')
+            parent1 = pd.merge(crossoverd, parent1, on=['time_id'], how='left')
+            parent2 = pd.merge(crossoverd, parent2, on=['time_id'], how='left')
 
             child1a = parent1[parent1["crossover"]]
             child1b = parent1[~parent1["crossover"]]
             child2a = parent2[parent2["crossover"]]
             child2b = parent2[~parent2["crossover"]]
 
-            child1 = pd.concat([child1a,child2b]).reset_index(drop=True)
-            child2 = pd.concat([child1b,child2a]).reset_index(drop=True)
+            child1 = pd.concat([child1a, child2b]).reset_index(drop=True)
+            child2 = pd.concat([child1b, child2a]).reset_index(drop=True)
 
             child1=child1.drop(columns=['crossover'])
             child2=child2.drop(columns=['crossover'])
@@ -858,9 +870,12 @@ class GeneticAlgorithmGenetics:
         self.logger.debug(f"2. crossover finish")
         return fitness, population
 
-    def make_children(self, fitness_df, alg_path, test=False, test_name='', population={}):
+    def make_children(self, fitness_df, alg_paths, test=False, test_name='', population={}):
         """ GA crossover genetic material for diversification"""
         self.logger.info(f" Making children")
+
+        week_demand = self.options.easy_demand() 
+        times =  list(week_demand.keys())
 
         used_ids = list(fitness_df.id)
         poplist = list(range(0, config.POPUATION + config.CHILDREN + 1))
@@ -870,7 +885,7 @@ class GeneticAlgorithmGenetics:
         alloc_id = 0
         for _ in range(int(config.CHILDREN/2)):
             ids = [available_ids[alloc_id], available_ids[alloc_id+1]]
-            crossover=self.crossover(used_ids, ids, alg_path, test, test_name, population)
+            crossover=self.crossover(used_ids, ids, alg_paths, times, test, test_name, population)
             fitness.update(crossover[0])
             population = crossover[1]
 
@@ -951,9 +966,9 @@ class GeneticAlgorithmGenetics:
         fitness_df = pd.concat([fitness_df, child1_f, child2_f]).reset_index(drop=True)
         return fitness_df
 
-    def crossover(self, fitness_df, ids, alg_path, test=False, test_name='zdt1', population={}):
+    def crossover(self, fitness_df, ids, alg_path, times, test=False, test_name='zdt1', population={}):
         if config.CROSSOVERTYPE == 'crossover_BITFLIP':
-            new_life=self.crossover_BITFLIP(fitness_df, ids, alg_path, test, test_name, population)
+            new_life=self.crossover_BITFLIP(fitness_df, ids, alg_path, test, test_name, population, times)
             fitness_df = new_life[0]
             population = new_life[1]
 
