@@ -2,6 +2,7 @@
 import logging
 import os
 import pickle
+import json
 import sys
 import datetime
 
@@ -366,6 +367,147 @@ class CreateOptions:
     logger = logging.getLogger(f"{__name__}.CreateOptions")
     database_instance = DatabaseModelsClass('PHDDATABASE_URL')
 
+    def make_easy(self, plan_date):
+        df_dp = self.get_demand_plan(plan_date)
+        df_dp.loc[(df_dp['priority']==0), 'priority'] = 1000
+        df_he = self.get_harvest_estimate(plan_date)
+        df_pc = self.get_pack_capacity(plan_date)
+        
+        df_ft = self.get_from_to()
+        df_exclude = self.get_rules_exlude()
+        df_prioritise = self.get_rules_prioritise()
+
+        dic_pc = {}
+        dic_he = {}
+        dic_demand = {}
+
+        times = list(df_dp.time_id.unique())
+
+        for time in times:
+            df_dpt = df_dp[df_dp['time_id']==time].reset_index(drop=True)
+            df_het = df_he[df_he['time_id']==time].reset_index(drop=True)
+            df_pct = df_pc[df_pc['time_id']==time].reset_index(drop=True)
+
+        
+            # Loop through demands and get he & pc
+            dt = {}
+            priors = list(df_dpt.priority.unique())
+            priors.sort()
+            for prior in priors:
+                df_dptp = df_dpt[df_dpt['priority']==prior].reset_index(drop=True)
+
+                dt1 = {}
+                for d in range(0,len(df_dptp)):
+                    ddemand_id = df_dptp.id[d]
+                    dclient_id = df_dptp.client_id[d]
+                    dvacat_id = df_dptp.vacat_id[d]
+                    dtime_id = int(df_dptp.time_id[d])
+                    dpack_type_id = df_dptp.pack_type_id[d]
+                    dkg = df_dptp.kg[d]
+
+                    dt1.update({int(ddemand_id):{'vacat_id': int(dvacat_id),
+                                            'time_id': int(dtime_id),
+                                            'pack_type_id': int(dpack_type_id),
+                                            'client_id': int(dclient_id),
+                                            'kg': int(dkg),
+                                            'kg_rem': int(dkg)}})
+                if prior == 0:
+                    dt.update({1000: dt1})
+                
+                else:
+                    dt.update({int(prior): dt1})
+
+            he3 = {}
+            vagrps = list(df_het.vacat_id.unique())
+            for vagrp in vagrps:
+                df_hetvag = df_het[df_het['vacat_id']==vagrp].reset_index(drop=True)
+
+                #he2 = {}
+                #vas = list(df_hetvag.va_id.unique())
+                #for va in vas:
+                    
+                he1 = {}
+                #df_hetvagva = df_hetvag[df_hetvag['va_id']==va].reset_index(drop=True)
+                for he in range(len(df_hetvag)):
+                    id = df_hetvag.id[he]
+                    block_id = df_hetvag.block_id[he]
+                    va_id = df_hetvag.va_id[he]
+                    kg = df_hetvag.kg[he]
+                
+                    he1.update({int(id):{'va_id': int(va_id), 'block_id': int(block_id), 'kg': int(kg), 'kg_rem': int(kg)}})                
+                    
+                    #he2.update({int(va):he1})
+
+                he3.update({int(vagrp):he1})
+
+            pc2 = {}
+            pcktyps = list(df_pct.pack_type_id.unique())
+            for pcktyp in pcktyps:
+                df_pctpt = df_pct[df_pct['pack_type_id']==pcktyp].reset_index(drop=True)
+
+                pc1 = {}
+                for pc in range(len(df_pctpt)):
+                    id = df_pctpt.id[pc]
+                    packhouse_id = df_pctpt.packhouse_id[pc]
+                    kg = df_pctpt.kg[pc]
+                    pc1.update({int(packhouse_id):{'pc_id': int(id), 'kg': int(kg), 'kg_rem': int(kg)}})
+                
+                pc2.update({int(pcktyp): pc1})
+
+            dic_demand.update({int(time): dt})
+            dic_he.update({int(time): he3})
+            dic_pc.update({int(time): pc2})
+
+        ft2 = {}
+        blocks = list(df_ft.block_id.unique())
+        for block in blocks:
+            df_ftb = df_ft[df_ft['block_id'] == block].reset_index(drop=True)
+
+            #ft1 = {}
+            sites_l = []
+            for s in range(len(df_ftb)):
+                #block_id = int(df_ftb.block_id[s])
+                packsite = int(df_ftb.packhouse_id[s])
+                km = int(df_ftb.km[s])
+                sites_l.append([packsite, km])
+
+
+            ft2.update({int(block): sites_l})
+
+
+        path = os.path.join(config.ROOTDIR,'data','processed')
+
+        outfile = open(os.path.join(path, "week_demand"),'wb')
+        pickle.dump(dic_demand, outfile)
+        outfile.close()
+
+        with open(os.path.join(path, "week_demand.json"), "w") as outfile:
+            json.dump(dic_demand, outfile)
+
+        outfile = open(os.path.join(path, "week_he"),'wb')
+        pickle.dump(dic_he, outfile)
+        outfile.close()
+
+        with open(os.path.join(path, "week_he.json"), "w") as outfile:
+            json.dump(dic_he, outfile)
+
+        outfile = open(os.path.join(path, "week_pc"),'wb')
+        pickle.dump(dic_pc, outfile)
+        outfile.close()
+
+        with open(os.path.join(path, "week_pc.json"), "w") as outfile:
+            json.dump(dic_pc, outfile)
+
+        outfile = open(os.path.join(path, "easy_ft"),'wb')
+        pickle.dump(ft2, outfile)
+        outfile.close()
+
+        with open(os.path.join(path, "easy_ft.json"), "w") as outfile:
+            json.dump(ft2, outfile)
+
+        return 
+  
+
     def make_options(self, plan_date):
         df_dp = self.get_demand_plan(plan_date)
         df_he = self.get_harvest_estimate(plan_date)
@@ -437,7 +579,6 @@ class CreateOptions:
         ### RULES PRIORITISE
         ddf_he=pd.merge(ddf_he, df_prioritise, on=['client_id', 'va_id'], how='left')
         ddf_he=ddf_he.sort_values(by=['priority'])
-
 
         path = os.path.join(config.ROOTDIR,'data','processed','ddic_metadata')
         outfile = open(path,'wb')
@@ -545,7 +686,8 @@ class CreateOptions:
             dss.f_pack_capacity pc
         LEFT JOIN
             dim_week w ON pc.packweek = w.week
-        WHERE plan_date = '{plan_date}';
+        WHERE plan_date = '{plan_date}'
+            AND pc.stdunits > 0;
             """
 
         df_pc = self.database_instance.select_query(query_str=s)
@@ -580,7 +722,7 @@ class CreateOptions:
         df_ft = self.database_instance.select_query(query_str=s)
         path = os.path.join(config.ROOTDIR,'data','processed','ft_df')
         df_ft.to_pickle(path)       
-        return  
+        return  df_ft
 
     def get_speed(self):
         self.logger.info('- get_speed')
@@ -650,6 +792,34 @@ class ImportOptions:
     logger = logging.getLogger(f"{__name__}.CreateOptions")
     path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
     path = os.path.dirname(path)
+
+    def easy_ft(self):
+        path=os.path.join(config.ROOTDIR,'data','processed','easy_ft')
+        infile = open(path,'rb')
+        data = pickle.load(infile)
+        infile.close()
+        return data
+
+    def easy_harvest(self):
+        path=os.path.join(config.ROOTDIR,'data','processed','week_he')
+        infile = open(path,'rb')
+        data = pickle.load(infile)
+        infile.close()
+        return data
+
+    def easy_pc(self):
+        path=os.path.join(config.ROOTDIR,'data','processed','week_pc')
+        infile = open(path,'rb')
+        data = pickle.load(infile)
+        infile.close()
+        return data
+
+    def easy_demand(self):
+        path=os.path.join(config.ROOTDIR,'data','processed','week_demand')
+        infile = open(path,'rb')
+        data = pickle.load(infile)
+        infile.close()
+        return data
 
     def demand_harvest(self):
         path=os.path.join(config.ROOTDIR,'data','processed','ddf_he')

@@ -5,6 +5,7 @@ import os
 import pickle
 import random
 from collections import defaultdict
+from operator import itemgetter
 
 import numpy as np
 import pandas as pd
@@ -101,6 +102,244 @@ class PrepModelData:
 
 
 class Individual:
+    """ Class to generate an individual solution. """
+    logger = logging.getLogger(f"{__name__}.Individual")
+    t=Tests()
+    individual_df = pd.DataFrame()
+    dlistt=[]
+
+    def individual(self, number, alg_path, get_indiv=True, 
+                    indiv=individual_df, test=False, 
+                    test_name='zdt1'):
+
+        """ Function to define indiv and fitness """
+        self.logger.info(f"- individual: {number}")
+        if test:
+            #t=Tests()
+            if get_indiv:
+                if test_name == 'zdt5':
+                    x = self.t.ZDT5_indiv()
+                    indiv = dict(enumerate(x))
+
+                else:    
+                    x = np.random.rand(self.t.variables(test_name))
+                    indiv = dict(enumerate(x))
+
+            else:
+                x = list(indiv.values())
+
+            # Choose which test to use
+            if test_name == 'zdt1':
+                fitness = self.t.ZDT1(x)
+
+            elif test_name == 'zdt2':
+                fitness = self.t.ZDT2(x)
+
+            elif test_name == 'zdt3':
+                fitness = self.t.ZDT3(x)
+
+            elif test_name == 'zdt4':
+                fitness = self.t.ZDT4(x)
+
+            elif test_name == 'zdt5':
+                fitness = self.t.ZDT5(x)
+
+            elif test_name == 'zdt6':
+                fitness = self.t.ZDT6(x)
+
+            ind_fitness = {number: fitness[0]}
+
+        else:
+            if get_indiv:
+                indiv = self.make_individual()
+                print(indiv)
+
+            path=os.path.join(alg_path, f"id_{number}")
+            indiv.to_pickle(path, protocol=5)
+
+            path=os.path.join(alg_path, f"id_{number}.xlsx")
+            indiv.to_excel(path)
+
+            fitness = self.make_fitness(indiv)
+
+            ind_fitness = {number: fitness[0]}
+
+        return ind_fitness, indiv
+
+    def make_individual(self, get_dlist=True, dlist=dlistt):
+        """ Function to make problem specific individual solution """
+
+        self.logger.debug('-> make_individual')
+
+        # Import all data sets from pickel files.
+        self.logger.debug('--> get demand options')
+        options = ImportOptions()
+        week_demand = options.easy_demand()
+        week_he = options.easy_harvest()
+        week_pc = options.easy_pc()
+        from_to = options.easy_ft()
+
+        if get_dlist:
+            weeks = list(week_demand.keys())
+
+        else:
+            weeks = [dlist]
+        
+        print(weeks)
+        
+        individualdf = pd.DataFrame()
+        for week in weeks:
+            #print(week)
+            priorities = list(week_demand[week].keys())
+
+            for prior in priorities:
+                demands = list(week_demand[week][prior].keys())
+
+                while len(demands)> 0:
+                    d = random.choice(demands)
+                    vacat_id = week_demand[week][prior][d]['vacat_id']
+                    pack_type_id = week_demand[week][prior][d]['pack_type_id']
+                    dkg = week_demand[week][prior][d]['kg_rem']
+
+                    try:
+                        hes = list(week_he[week][vacat_id].keys())
+                    
+                    except:
+                        #print('exit')
+                        break
+
+                    indd_he = []
+                    indd_pc = []
+                    indd_kg = []
+                    indd_kgkm = []
+                    while dkg > 0:                   
+                        if len(hes) > 0:
+                            he = random.choice(hes)
+                            block_id = week_he[week][vacat_id][he]['block_id']
+                            he_kg_rem = week_he[week][vacat_id][he]['kg_rem']
+
+                            # Calculate kg potential that can be packed
+                            if he_kg_rem > dkg:
+                                to_pack = dkg
+
+                            else:
+                                to_pack = he_kg_rem
+                                
+                            try:
+                                sites_available = list(week_pc[week][pack_type_id].keys())
+
+                            except:
+                                pass
+                            
+                            while to_pack > 0:
+
+                                if len(sites_available) > 0:
+                                    sites_ft = from_to[block_id]
+                                    siteav = [x for x in sites_ft if x[0] in sites_available]
+
+                                    if len(siteav) > 0:
+                                        sortedl = sorted(siteav, key=itemgetter(1))
+                                        s = sortedl[0][0]
+                                        km = sortedl[0][1]
+
+                                        pc = week_pc[week][pack_type_id][s]['pc_id']
+                                        pckg_rem = week_pc[week][pack_type_id][s]['kg_rem']
+
+                                        if pckg_rem > to_pack:
+                                            packed = to_pack
+                                            pckg_rem = pckg_rem - to_pack
+                                            to_pack = 0
+                                            week_pc[week][pack_type_id][s]['kg_rem'] = pckg_rem
+
+                                        else:
+                                            packed = pckg_rem
+                                            to_pack = to_pack - pckg_rem
+                                            pckg_rem = 0
+                                            del week_pc[week][pack_type_id][s]
+                                            
+                                            
+                                        # Update demand tables with updated capacity
+                                        he_kg_rem=he_kg_rem-packed
+                                        
+                                        sites_available.remove(s)
+                                        
+                                        dkg = dkg - packed
+
+                                        indd_he.append(he)
+                                        indd_pc.append(pc)
+                                        indd_kg.append(packed)
+                                        indd_kgkm.append(packed*km)
+                                        #print('next pc')
+
+                                    else:
+                                        hes.remove(he)
+                                        break                                   
+
+                                else:
+                                    hes.remove(he)
+                                    break
+
+                            #print('next he')
+                            if week_he[week][vacat_id][he]['kg_rem'] < 100:
+                                del week_he[week][vacat_id][he]
+
+                        else:
+                            if dkg == week_demand[week][prior][d]['kg']:
+                                indd_he.append(0)
+                                indd_pc.append(0)
+                                indd_kg.append(0)
+                                indd_kgkm.append(0)
+                            
+                            break
+
+                    demands.remove(d)        
+                    dindividual = {'he':indd_he, 'pc':indd_pc, 'kg': indd_kg,
+                                    'kgkm': indd_kgkm} 
+
+                    individualdft = pd.DataFrame(data=dindividual)      
+                    individualdft['demand_id'] = d
+                    individualdft['time_id'] = week
+                    individualdf = pd.concat([individualdf,individualdft])
+
+
+        individualdf = individualdf.reset_index(drop=True)
+        #print()
+
+        return individualdf
+
+    def make_fitness(self, individualdf):
+        self.logger.debug('-> make_fitness')
+        options = ImportOptions()
+
+        individualdf1 = individualdf.copy()
+
+        ddf_metadata = options.demand_metadata_df()
+        ddf_metadata.rename(columns={'kg':'dkg'},inplace=True)
+
+        individualdf1['kg2'] = 0
+        individualdf1.loc[(individualdf1['kgkm']>0), 'kg2'] = individualdf1['kg']
+        total_cost = individualdf1.kgkm.sum() / individualdf1.kg2.sum()
+
+
+        individualdf2 = individualdf.groupby('demand_id')['kg'].sum()
+        individualdf2 = individualdf2.reset_index(drop=False)
+
+        
+        individualdf3 = pd.merge(ddf_metadata, individualdf2, how='left', \
+                            left_on='id', right_on='demand_id')
+        individualdf3['kg'].fillna(0, inplace=True)
+
+        #individualdf3['deviation'] =  abs(individualdf3['dkg']-individualdf3['kg'])
+        individualdf3['deviation'] =  individualdf3['dkg']-individualdf3['kg']
+        individualdf3.loc[(individualdf3['deviation'] < 0), 'deviation'] == 0
+        
+        total_dev = individualdf3.deviation.sum()
+
+        return [[total_cost, total_dev]]
+
+
+
+class Individual_BACKUP:
     """ Class to generate an individual solution. """
     logger = logging.getLogger(f"{__name__}.Individual")
     t=Tests()
@@ -319,8 +558,6 @@ class Individual:
                             indd_pc.append(pc)
                             indd_kg.append(packed)
                             indd_kgkm.append(packed*km)
-                            #indd_hrs.append(packed*(1*config.GIVEAWAY)*speed/60)
-
 
                         else:
                             ddf_hed.at[he, 'evaluated'] = 1
@@ -334,12 +571,9 @@ class Individual:
                         indd_pc.append(0)
                         indd_kg.append(0)
                         indd_kgkm.append(0)
-                        #indd_hrs.append(0)
+
                     break
                         
-            #dindividual = {'he':indd_he, 'pc':indd_pc, 'kg': indd_kg,
-            #                'kgkm': indd_kgkm, 'packhours': indd_hrs} 
-
             dindividual = {'he':indd_he, 'pc':indd_pc, 'kg': indd_kg,
                             'kgkm': indd_kgkm} 
 
@@ -516,9 +750,9 @@ class GeneticAlgorithmGenetics:
 
                     if random.random() < config.MUTATIONRATE2:
                         update = False
-                        df_gener =  df_mutate[df_mutate['time_id']==m]
-                        demand_list = list(df_gener.demand_id.unique())
-                        df_gene = self.ix.make_individual(get_dlist=False, dlist=demand_list)
+                        #df_gener =  df_mutate[df_mutate['time_id']==m]
+                        #demand_list = list(df_gener.demand_id.unique())
+                        df_gene = self.ix.make_individual(get_dlist=False, dlist=m)
                         df_mutate1 = pd.concat([df_mutate1, df_gene]).reset_index(drop=True)
                 
                     mutates.append([update, m])
