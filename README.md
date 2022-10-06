@@ -19,27 +19,23 @@ Project Organization
     │
     ├── references         <- Data dictionaries, manuals, and all other explanatory materials.
     │
-    ├── reports            <- Generated analysis as HTML, PDF, LaTeX, etc.
-    │   └── figures        <- Generated graphics and figures to be used in reporting
-    │
     ├── requirements.txt   <- The requirements file for reproducing the analysis environment, e.g.
     │                         generated with `pip freeze > requirements.txt`
     │
-    ├── src                <- Source code for use in this project.
-    │   ├── __init__.py    <- Python module
-    │   │
-    │   ├── data           <- Scripts to generate and manipulate data
-    │   │   └── make_dataset.py
-    │   │
-    │   ├── features       <- Scripts to turn raw data into features for modeling
-    │   │   ├── build_features.py
-    │   |   └── make_tests.py
-    │   │
-    │   └── models         <- Algorithm specific classes and functions
-    │       ├── genetic_algorithm.py
-    │       └── run_tests.py
-    │   
-    └── tox.ini            <- tox file with settings for running tox; see tox.readthedocs.io
+    └── src                <- Source code for use in this project.
+        ├── __init__.py    <- Python module
+        │
+        ├── data           <- Scripts to generate and manipulate data
+        │   └── make_dataset.py
+        │
+        ├── features       <- Scripts to turn raw data into features for modeling
+        │   ├── build_features.py
+        |   └── make_tests.py
+        │
+        └── models         <- Algorithm specific classes and functions
+            ├── genetic_algorithm.py
+            └── run_tests.py
+        
 
 
 --------
