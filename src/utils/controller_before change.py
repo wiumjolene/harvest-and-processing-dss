@@ -7,7 +7,7 @@ import pandas as pd
 from src.data.make_dataset import (AdjustPlanningData, 
                                     CreateOptions,
                                     ManageSeasonRun)
-from src.features.build_features import PrepManPlan, PrepModelData
+from src.features.build_features import PrepManPlan, PrepModelData, MakeOperational
 from src.models.genetic_algorithm import (GeneticAlgorithmMoga,
                                           GeneticAlgorithmNsga2,
                                           GeneticAlgorithmVega)
@@ -22,9 +22,12 @@ class MainController:
     nsga2 = True
     moga = False
 
+    development=False
     test_fxn = False
+     
     tests = ['zdt1', 'zdt2', 'zdt3', 'zdt4', 'zdt5', 'zdt6']
-
+    #tests = ['zdt3', 'zdt4', 'zdt6', 'zdt1']
+    #tests = ['zdt2']
 
     def pipeline_control(self):
         monitor = pd.DataFrame()
@@ -42,9 +45,21 @@ class MainController:
                 for t in self.tests:
                     monitor = rt.run_tests('moga', t, monitor)
 
+        elif self.development:    
+            manplan = PrepManPlan()
+            plan_date = '2021-12-22'
+            weeks_str = "'21-51','21-52','22-01','22-02','22-03','22-04'"
+            #dss=self.run_dss(plan_date, weeks_str)
+            #dss=self.run_dss(plan_date, weeks_str,adjust_planning_data=False)
+            dss=self.run_dss(plan_date, weeks_str,
+                    synch_data=False,
+                    adjust_planning_data=False,
+                    make_data=False,
+                    clearold=False)
+            manplan.prep_results(dss[0], dss[1], dss[2], plan_date, weeks_str)
+
         else:    
             self.manage_season_run()
-            self.logger.info('DONE!!')
 
     def manage_season_run(self):
         sr = ManageSeasonRun()
@@ -71,7 +86,6 @@ class MainController:
         sr.update_horizon_complete()
         return 
 
-
     def run_dss(self, plan_date, weeks_str,
                     synch_data=True,
                     adjust_planning_data=False,
@@ -94,19 +108,27 @@ class MainController:
         
         if adjust_planning_data:
             self.logger.info('ADJUST DATA')
+            #FIXME: Beware of pack capacities that are by day!!!!!!!
             apd = AdjustPlanningData()
             apd.adjust_pack_capacities(weeks_str, plan_date)
 
         if make_data:
             self.logger.info('MAKE DATA')
             v = CreateOptions()
-            #v.make_options(plan_date)
-            v.make_easy(plan_date)
+            v.make_options(plan_date)
 
         if clearold:
             self.logger.info('CLEAR OLD DATA')
             pp = PrepManPlan()
             pp.clear_old_result()
+
+        if self.vega:
+            self.logger.info('--- GENETIC ALGORITHM: VEGA ---')
+            if not os.path.exists('data/interim/vega'):
+                os.makedirs('data/interim/vega')
+            
+            ga = GeneticAlgorithmVega()
+            plan = ga.vega()
 
         if self.nsga2:
             self.logger.info('--- GENETIC ALGORITHM: NSGA2 ---')
@@ -115,6 +137,14 @@ class MainController:
 
             ga = GeneticAlgorithmNsga2()
             plan = ga.nsga2()
+
+        if self.moga:
+            self.logger.info('--- GENETIC ALGORITHM: MOGA ---')
+            if not os.path.exists('data/interim/moga'):
+                os.makedirs('data/interim/moga')
+
+            ga = GeneticAlgorithmMoga()
+            plan = ga.moga()
 
         return plan
 

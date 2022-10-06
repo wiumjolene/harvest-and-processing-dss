@@ -13,6 +13,7 @@ from src.features.build_features import (GeneticAlgorithmGenetics, Individual,
 from src.utils import config
 from src.utils.visualize import Visualize
 
+from operator import itemgetter
 
 class GeneticAlgorithmVega:
     logger = logging.getLogger(f"{__name__}.GeneticAlgorithmVega")
@@ -77,7 +78,6 @@ class GeneticAlgorithmVega:
 class GeneticAlgorithmNsga2:
     logger = logging.getLogger(f"{__name__}.GeneticAlgorithmNsga2")
     gag = GeneticAlgorithmGenetics()
-    #graph = Visualize()
     manplan = PrepManPlan()
     indiv = Individual()
 
@@ -89,23 +89,13 @@ class GeneticAlgorithmNsga2:
         
         p = Population()
         init_pop = p.population(config.POPUATION, alg_path)
-        init_pop['front'] = 1
-
-        while len(init_pop) < config.POPUATION * 2:
-            self.logger.info(f"Creating additional indivs for init_pop {len(init_pop)} / {config.POPUATION * 2}")
-            init_pop = self.gag.crossover(init_pop, alg_path)
-            init_pop['front'] = 1
-
+        init_pop = self.gag.make_children(init_pop, alg_path)[0]
             
         fitness_df = self.pareto_nsga2(init_pop)
-        fitness_df['population'] = 'yes'
-
         self.logger.info(f"starting NSGA2 search")
         for _ in range(config.ITERATIONS):
             self.logger.info(f"ITERATION {_}")
-            fitness_df = fitness_df[fitness_df['front']==1].reset_index(drop=True)
-            fitness_df = self.gag.make_children(fitness_df, alg_path)
-            #fitness_df = self.gag.crossover(fitness_df, alg_path)
+            fitness_df = self.gag.make_children(fitness_df, alg_path)[0]
             fitness_df = self.pareto_nsga2(fitness_df)
 
         return [alg_path, fitness_df, init_pop]
@@ -113,8 +103,119 @@ class GeneticAlgorithmNsga2:
     def crowding_distance(self, fitness_df, fc, size):
         """ Crowding distance sorting """ 
         self.logger.debug(f"-- crowding distance activated")
+        fitness_df['population']='yes'
+        fitness_df['cdist'] = 0
+
+        vals_obj1 = np.array(fitness_df['obj1'])
+        vals_obj2 = np.array(fitness_df['obj2'])
+
+        # Evaluate how much space is available for the crowding distance
+        if fc==1:
+            space = config.POPUATION
+
+        else:
+            space = config.POPUATION - size
+
+        objs = ['obj1', 'obj2']
+        for m in objs:
+            # Sort by objective (m) 
+            fitness_df = fitness_df.sort_values(by=m, ascending=True).reset_index(drop=True)
+            vals = np.array(fitness_df[m])
+            cdists = list(fitness_df['cdist'])
+            
+            if m == 'obj1':
+                min = np.min(vals_obj1)
+                max = np.max(vals_obj1)
+
+            else:
+                min = np.min(vals_obj2)
+                max = np.max(vals_obj2)
+
+            for i in range(len(fitness_df)):
+
+                if i == 0 or i == len(fitness_df)-1:
+                    cdists[0] = np.inf
+                    cdists[-1] = np.inf
+
+                else:
+                    oneup = vals[i-1]
+                    onedown = vals[i+1]
+
+                    if (max - min) > 0:
+                        distance = (onedown - oneup) / (max - min)
+                    
+                    else:
+                        distance = (onedown - oneup) / (min)
+
+                    cdists[i] = cdists[i] + distance
+
+            fitness_df['cdist'] = cdists
+                        
+        fitness_df = fitness_df.sort_values(by=['cdist'], ascending=False).reset_index(drop=True)
+        fitness_df=fitness_df[fitness_df.index < (space)]
+
+        return fitness_df
+
+    def pareto_nsga2(self, fitness_df):
+        """ Decide if new child is worthy of pareto membership 
+        Deb 2002
+        """        
+        # Initiate domination count and dominated by list
+        fitness_df = fitness_df[['id','obj1','obj2']]
+        front1 = self.gag.get_domcount(fitness_df)
+        fitness_df = fitness_df[fitness_df['id'].isin(front1)].reset_index(drop=True)
+
+        ###################################################
+        # Get front count and determine population status #
+        ###################################################
+        # Size of selected solutions
+        size = len(front1)
+
+        # Check if set of sols in front 1 will fit into new population?
+        if size > config.POPUATION:
+            fitness_df=self.crowding_distance(fitness_df, 1, size)
+
+        return fitness_df
+
+    def pareto_nsga2_DEPRICATED(self, fitness_df):
+        """ Decide if new child is worthy of pareto membership 
+        Deb 2002
+        """
+        self.logger.debug(f"- getting NSGA2 fitness")
+        
+        # Initiate domination count and dominated by list
+        self.logger.debug(f"-- getting domcount")
+
+        fitness_df = fitness_df[['id','obj1','obj2']]
+        fitness_df=fitness_df.drop_duplicates(subset=['obj1','obj2'], keep='last')
+        fitness_df = self.gag.get_domcount(fitness_df)
+
+        ###################################################
+        # Get front count and determine population status #
+        ###################################################
+        self.logger.debug(f"-- getting front count")
+
+        # Size of selected solutions
+        size = len(fitness_df[fitness_df['front'] == 1])
+
+        # Check if set of sols in front 1 will fit into new population?
+        if size > config.POPUATION:
+            fitness_df=self.crowding_distance(fitness_df, 1, size)
+
+        else: # size == config.POPUATION:
+            fitness_df.loc[(fitness_df['front']==1), 'population'] = 'yes'
+
+
+        fitness_df=fitness_df[fitness_df['population']=='yes'].reset_index(drop=True)
+        return fitness_df
+
+    def crowding_distance_DEPRICATED(self, fitness_df, fc, size):
+        """ Crowding distance sorting """ 
+        self.logger.debug(f"-- crowding distance activated")
+        fitness_df['front']=1
+        fitness_df['population']='yes'
+        fitness_df['cdist'] = 0
         fitness_dff = fitness_df[fitness_df['front']==fc].reset_index(drop=True)
-        fitness_dff['cdist'] = 0
         
         # Evaluate how much space is available for the crowding distance
         if fc==1:
@@ -155,7 +256,7 @@ class GeneticAlgorithmNsga2:
             fitness_dff['cdist'] = cdists
                         
         fitness_dff = fitness_dff.sort_values(by=['cdist'], ascending=False).reset_index(drop=True)
-        fitness_dff.loc[(fitness_dff.index < (space - 1)),'population'] = 'yes'
+        fitness_dff.loc[(fitness_dff.index > space),'population'] = 'no'
         fitness_dff=fitness_dff[fitness_dff.index < (space - 1)]
 
         fitness_df2 = fitness_df[fitness_df['front']!=fc].reset_index(drop=True)
@@ -166,12 +267,20 @@ class GeneticAlgorithmNsga2:
 
         return fitness_df3
 
-    def crowding_distance_DEPRICATED(self, fitness_df, fc, size):
+    def crowding_distance_DEPRICATED2(self, fitness_df, fc, size):
         """ Crowding distance sorting """ 
         self.logger.debug(f"-- crowding distance activated")
+        
+        fitness_df['population']='yes'
+        fitness_df['cdist'] = 0
 
-        fitness_dff = fitness_df[fitness_df['front']==fc].reset_index(drop=True)
-
+        cols = list(fitness_df.columns)
+        
+        dist_pos = cols.index('cdist')
+        fitness = fitness_df.to_numpy().tolist()
+        vals_obj1 = np.array(fitness_df['obj1'])
+        vals_obj2 = np.array(fitness_df['obj2'])
+        
         # Evaluate how much space is available for the crowding distance
         if fc==1:
             space = config.POPUATION
@@ -180,189 +289,41 @@ class GeneticAlgorithmNsga2:
             space = config.POPUATION - size
 
         objs = ['obj1', 'obj2']
-        fitness_df['cdist'] = 0
-        for m in objs:
-            df = fitness_dff.sort_values(by=m, ascending=True).reset_index(drop=True) 
+        for obj in objs:
+            m = cols.index(obj)
+            # Sort by objective (m) 
+            fitness=sorted(fitness, key=itemgetter(m))
+            
+            if obj == 'obj1':
+                min = np.min(vals_obj1)
+                max = np.max(vals_obj1)
 
-            for i in range(len(df)):
-                id = df.id[i]
+            else:
+                min = np.min(vals_obj2)
+                max = np.max(vals_obj2)
 
-                if i == 0 or i == len(df)-1:
-                    fitness_df.loc[(fitness_df['id']==id),'cdist']= np.inf
-                
+            for i in range(len(fitness)):
+
+                if i == 0 or i == len(fitness)-1:
+                    fitness[0][dist_pos] = np.inf
+                    fitness[-1][dist_pos] = np.inf
+
                 else:
-                    min = df[m][df.index == 0].iloc[0]
-                    max = df[m][df.index == len(df) - 1].iloc[0]
+                    oneup = fitness[i-1][m]
+                    onedown = fitness[i+1][m]
 
-                    oneup = df[m][df.index == (i-1)].iloc[0]
-                    onedown = df[m][df.index == (i+1)].iloc[0]
-                    distance = (onedown - oneup) / (max - min) 
+                    if (max - min) > 0:
+                        distance = (onedown - oneup) / (max - min)
+                    
+                    else:
+                        distance = (onedown - oneup) / (min)
 
-                    fitness_df.loc[(fitness_df['id']==id),'cdist']=fitness_df['cdist']+distance
+                    fitness[i][dist_pos] = fitness[i][dist_pos] + distance
 
-        fitness_df = fitness_df.sort_values(by=['cdist'], ascending=False).reset_index(drop=True)
-        fitness_df.loc[(fitness_df.index < space),'population']='yes'
-        fitness_df = fitness_df.set_index('id')
-        fitness_df['id'] = fitness_df.index
-        return fitness_df
+        fitness=sorted(fitness, key=itemgetter(dist_pos))
+        fitness=fitness[:space]
+        fitness_df = pd.DataFrame(data=fitness, columns=cols)
 
-    def get_domcount_DEPRICATED(self, fitness_df):
-        print('##### DEPRICATED - SEE GAG #####')
-        front = []
-        fitness_df = fitness_df.sort_values(by=['id']).reset_index(drop=True)
-
-        fits = list(fitness_df.id)
-
-        fitness_df['population'] = 'none'
-        fitness_df['domcount'] = 0 
-
-        dominating_fits = [0] * len(fitness_df)  # n (The number of people that dominate you)
-        dominated_fits = defaultdict(list)  # Sp (The people you dominate)
-        fitness_df=fitness_df.set_index('id')
-        fitness_df['id'] = fitness_df.index
-
-        obj1s = fitness_df['obj1'].values
-        obj2s = fitness_df['obj2'].values
-        for i, id in enumerate(fits):
-            obj1 = obj1s[i]
-            obj2 = obj2s[i]
-
-            for ix, idx in enumerate(fits[i + 1:]):
-                obj1x = obj1s[i + ix + 1]
-                obj2x = obj2s[i + ix + 1]
-                
-                #if build_features.GeneticAlgorithmGenetics.dominates((obj1, obj2), (obj1x, obj2x)):
-                #if ((obj1 <= obj1x and obj2 <= obj2x) and (obj1 < obj1x or obj2 < obj2x)):
-                if (obj1 <= obj1x and obj2 < obj2x):
-                    dominating_fits[i + ix + 1] += 1 
-                    dominated_fits[id].append(idx) 
-
-                #if build_features.GeneticAlgorithmGenetics.dominates((obj1x, obj2x), (obj1, obj2)):
-                #if ((obj1 >= obj1x and obj2 >= obj2x) and (obj1 > obj1x or obj2 > obj2x)):
-                if (obj1 >= obj1x and obj2 > obj2x):
-                    dominating_fits[i] += 1
-                    dominated_fits[idx].append(id)    
-
-            if dominating_fits[i] == 0:
-                front.append(id)
-
-        fitness_df['domcount'] = dominating_fits
-        fitness_df.loc[(fitness_df.domcount==0), 'front'] = 1
-        return fitness_df, front, dominated_fits
-
-    def get_domcount_BEKKER(self, fitness_df):
-        front = []
-        fitness_df = fitness_df.sort_values(by=['obj1'], ascending=[False]).reset_index(drop=True)
-
-        fitness_df['population'] = 'none'
-
-        dominating_fits=[] # n (The number of people that dominate you)
-        dominated_fits = defaultdict(list)  # Sp (The people you dominate)
-
-        ids = fitness_df['id'].values
-        obj2s = fitness_df['obj2'].values
-
-        for i in range(0, len(obj2s)):
-            penalty=0
-            
-            for j in range(i+1, len(obj2s)):
-                id=ids[i]
-                idx=ids[j]
-
-                if obj2s[i] >= obj2s[j]:
-                    penalty=penalty+1
-
-                if obj2s[i] < obj2s[j]:
-                    dominated_fits[id].append(idx)
-
-            dominating_fits.append(penalty)
-
-            if penalty == 0:
-                front.append(id)
-
-        fitness_df['domcount'] = dominating_fits
-        fitness_df.loc[(fitness_df.domcount==0), 'front'] = 1
-        fitness_df = fitness_df.sort_values(by=['domcount'], ascending=[True]).reset_index(drop=True)
-        fitness_df=fitness_df.set_index('id')
-        fitness_df['id'] = fitness_df.index
-        return fitness_df, front, dominated_fits
-
-    def pareto_nsga2(self, fitness_df):
-        """ Decide if new child is worthy of pareto membership 
-        Deb 2002
-        """
-        self.logger.debug(f"- getting NSGA2 fitness")
-        
-        # Initiate domination count and dominated by list
-        self.logger.debug(f"-- getting domcount")
-
-        fitness_df = fitness_df[['id','obj1','obj2']]
-        fitness_df=fitness_df.drop_duplicates(subset=['obj1','obj2'], keep='last')
-        fitness_df = self.gag.get_domcount(fitness_df)[0]
-        #doms = self.gag.get_domcount(fitness_df)
-        #fitness_df = doms[0]
-        #front = doms[1]
-        #dominated_fits = doms[2]
-
-        ###################################################
-        # Get front count and determine population status #
-        ###################################################
-        self.logger.debug(f"-- getting front count")
-
-        # Size of selected solutions
-        size = len(fitness_df[fitness_df['front'] == 1])
-
-        # Check if set of sols in front 1 will fit into new population?
-        if size > config.POPUATION:
-            fitness_df=self.crowding_distance(fitness_df, 1, size)
-
-        else: # size == config.POPUATION:
-            fitness_df.loc[(fitness_df['front']==1), 'population'] = 'yes'
-
-        """
-        # Else continue assigning fronts to solutions
-        else:
-            fitness_df.loc[(fitness_df['front']==1), 'population'] = 'yes'
-            
-            fc=2
-            while len(front) > 0:
-                q1= []  # Solutions in new front
-                # Visit each member of previous front
-                for p in front:
-                    # Visit each member that is dominated by p
-                    for q in dominated_fits[p]:
-                        dc = fitness_df.at[q, 'domcount']
-                        dc = dc - 1
-                        fitness_df.at[q, 'domcount'] = dc
-
-                        # Add to the next front if no further domination
-                        if dc == 0:
-                            q1.append(q)
-                            fitness_df.at[q, 'front'] = fc
-
-                # Only for as many fronts as needed to fill popsize
-                if (size + len(front)) < config.POPUATION:
-                    fitness_df.loc[(fitness_df['front']==fc), 'population'] = 'yes'
-                    fc = fc + 1
-
-                # Only for as many fronts as needed to fill popsize
-                if ((size + len(front)) > config.POPUATION and len(q1) > 0):
-                    fitness_df=self.crowding_distance(fitness_df, fc, size)
-                    front = []
-                    q1 = []
-                    break
-
-                if (size + len(front)) == config.POPUATION:
-                    fitness_df.loc[(fitness_df['front']==fc), 'population'] = 'yes'
-                    front = []
-                    q1 = []
-                    break
-
-                size = size + len(front)
-                front = q1
-                """
-
-        fitness_df=fitness_df[fitness_df['population']=='yes'].reset_index(drop=True)
         return fitness_df
 
 

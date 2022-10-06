@@ -2,6 +2,7 @@
 import logging
 import os
 import pickle
+import json
 import sys
 import datetime
 
@@ -120,7 +121,8 @@ class GetLocalData:
                FROM dss.harvest_estimate_budget WHERE date(extract_datetime)='{plan_date}')
             AND kg > 0
             AND he.week in ({weeks_str})
-            AND (dim_fc.management in ('Karsten', 'Manage') OR fc = 'Y0294')
+            AND (dim_fc.management in ('Karsten', 'Manage'))
+            -- AND (dim_fc.management in ('Karsten', 'Manage') OR fc = 'Y0294')
             GROUP BY dim_block.id, dim_va.id, week;       
         """
 
@@ -366,6 +368,221 @@ class CreateOptions:
     logger = logging.getLogger(f"{__name__}.CreateOptions")
     database_instance = DatabaseModelsClass('PHDDATABASE_URL')
 
+    def make_easy(self, plan_date):
+        df_dp = self.get_demand_plan(plan_date)
+        df_dp.loc[(df_dp['priority']==0), 'priority'] = 1000
+        df_he = self.get_harvest_estimate(plan_date)
+        df_pc = self.get_pack_capacity(plan_date)
+        
+        df_ft = self.get_from_to()
+        df_exclude = self.get_rules_exlude()
+        df_prioritise = self.get_rules_prioritise()
+
+        dic_pc = {}
+        dic_he = {}
+        dic_demand = {}
+        ddic_metadata={}
+
+        times = list(df_dp.time_id.unique())
+
+        for time in times:
+            df_dpt = df_dp[df_dp['time_id']==time].reset_index(drop=True)
+            df_het = df_he[df_he['time_id']==time].reset_index(drop=True)
+            df_pct = df_pc[df_pc['time_id']==time].reset_index(drop=True)
+
+            # Loop through demands and get he & pc
+            dt = {}
+            priors = list(df_dpt.priority.unique())
+            priors.sort()
+            for prior in priors:
+                df_dptp = df_dpt[df_dpt['priority']==prior].reset_index(drop=True)
+
+                dt1 = {}
+                for d in range(0,len(df_dptp)):
+                    ddemand_id = df_dptp.id[d]
+                    dclient_id = df_dptp.client_id[d]
+                    dvacat_id = df_dptp.vacat_id[d]
+                    dtime_id = int(df_dptp.time_id[d])
+                    dpack_type_id = df_dptp.pack_type_id[d]
+                    dkg = df_dptp.kg[d]
+
+                    # Client preference
+                    if dclient_id in list(df_prioritise.client_id):
+                        df_prioritisec = df_prioritise[df_prioritise['client_id'] == dclient_id].reset_index(drop=True)
+
+                        if dvacat_id in list(df_prioritisec.vacat_id):
+                            df_prioritisecva = df_prioritisec[df_prioritisec['vacat_id'] == dvacat_id].reset_index(drop=True)
+                            pref_list = list(df_prioritisecva.va_id)
+
+                            hepref_lis = df_het[(df_het['vacat_id'] == dvacat_id)]
+                            hepref_lis = hepref_lis[(hepref_lis['va_id'].isin(pref_list))].reset_index(drop=True)
+
+                            hepref_lis = pd.merge(hepref_lis, df_prioritisecva, on=['va_id'], how='left')
+                            hepref_lis=hepref_lis.sort_values(by='priority')
+
+                            pref_hes = list(hepref_lis.id)
+                        
+                        else:
+                            pref_hes = []
+
+                    else:
+                        pref_hes = []
+
+                    # Client refuse
+                    if dclient_id in list(df_exclude.client_id):
+                        df_excludec = df_exclude[df_exclude['client_id'] == dclient_id].reset_index(drop=True)
+
+                        if dvacat_id in list(df_excludec.vacat_id):
+                            df_excludecva = df_excludec[df_excludec['vacat_id'] == dvacat_id].reset_index(drop=True)
+                            excl_list = list(df_excludecva.va_id)
+
+                            heexcl_lis = df_het[(df_het['vacat_id'] == dvacat_id)]
+                            heexcl_lis = heexcl_lis[heexcl_lis['va_id'].isin(excl_list)].reset_index(drop=True)
+
+                            exclude_hes = list(heexcl_lis.id)
+                        
+                        else:
+                            exclude_hes = []
+                            
+                    else:
+                        exclude_hes = []
+
+                    dt1.update({int(ddemand_id):{'vacat_id': int(dvacat_id),
+                                            'time_id': int(dtime_id),
+                                            'pack_type_id': int(dpack_type_id),
+                                            'client_id': int(dclient_id),
+                                            'kg': int(dkg),
+                                            'kg_rem': int(dkg),
+                                            'preference': pref_hes,
+                                            'exclude': exclude_hes}})
+
+                    ddic_metadata.update({ddemand_id: {'vacat_id': dvacat_id,
+                                                    'time_id': dtime_id,
+                                                    'pack_type_id': dpack_type_id,
+                                                    'kg':dkg,
+                                                    'priority': prior}})
+
+                if prior == 0:
+                    dt.update({1000: dt1})
+                
+                else:
+                    dt.update({int(prior): dt1})
+
+            he3 = {}
+            vagrps = list(df_het.vacat_id.unique())
+            for vagrp in vagrps:
+                df_hetvag = df_het[df_het['vacat_id']==vagrp].reset_index(drop=True)
+                    
+                he1 = {}
+                #df_hetvagva = df_hetvag[df_hetvag['va_id']==va].reset_index(drop=True)
+                for he in range(len(df_hetvag)):
+                    id = df_hetvag.id[he]
+                    block_id = df_hetvag.block_id[he]
+                    va_id = df_hetvag.va_id[he]
+                    kg = df_hetvag.kg[he]
+                
+                    he1.update({int(id):{'va_id': int(va_id), 'block_id': int(block_id), 'kg': int(kg), 'kg_rem': int(kg)}})                
+                    
+                    #he2.update({int(va):he1})
+
+                he3.update({int(vagrp):he1})
+
+            pc2 = {}
+            pcktyps = list(df_pct.pack_type_id.unique())
+            for pcktyp in pcktyps:
+                df_pctpt = df_pct[df_pct['pack_type_id']==pcktyp].reset_index(drop=True)
+
+                pc1 = {}
+                for pc in range(len(df_pctpt)):
+                    id = df_pctpt.id[pc]
+                    packhouse_id = df_pctpt.packhouse_id[pc]
+                    kg = df_pctpt.kg[pc]
+                    pc1.update({int(packhouse_id):{'pc_id': int(id), 'kg': int(kg), 'kg_rem': int(kg)}})
+                
+                pc2.update({int(pcktyp): pc1})
+
+            dic_demand.update({int(time): dt})
+            dic_he.update({int(time): he3})
+            dic_pc.update({int(time): pc2})
+
+        ft2 = {}
+        blocks = list(df_ft.block_id.unique())
+        for block in blocks:
+            df_ftb = df_ft[df_ft['block_id'] == block].reset_index(drop=True)
+
+            #ft1 = {}
+            sites_l = []
+            for s in range(len(df_ftb)):
+                #block_id = int(df_ftb.block_id[s])
+                packsite = int(df_ftb.packhouse_id[s])
+                km = df_ftb.km[s]
+                sites_l.append([packsite, km])
+
+
+            ft2.update({int(block): sites_l})
+
+
+        # EXCLUDE RULES
+        c_refuse = df_exclude.client_id.unique()
+        ref_rule={}
+        for client in c_refuse:
+            ccref = df_exclude[df_exclude['client_id']==client].reset_index(drop=True)
+            vas = list(ccref.va_id)
+
+            ref_rule.update({client: vas})
+
+        # PREFERENCE
+        c_pref = df_prioritise.client_id.unique()
+        pref_rule={}
+        for client in c_pref:
+            ccpref = df_prioritise[df_prioritise['client_id']==client].reset_index(drop=True)
+            ccpref=ccpref.sort_values(by=['priority'])
+            vas = list(ccpref.va_id)
+
+            pref_rule.update({client: vas})
+
+
+
+        path = os.path.join(config.ROOTDIR,'data','processed')
+
+        outfile = open(os.path.join(path, "easy_refuse"),'wb')
+        pickle.dump(ref_rule, outfile)
+        outfile.close()
+
+        outfile = open(os.path.join(path, "easy_preference"),'wb')
+        pickle.dump(pref_rule, outfile)
+        outfile.close()
+
+        outfile = open(os.path.join(path, "week_demand"),'wb')
+        pickle.dump(dic_demand, outfile)
+        outfile.close()
+
+        with open(os.path.join(path, "week_demand.json"), "w") as outfile:
+            json.dump(dic_demand, outfile)
+
+        outfile = open(os.path.join(path, "week_he"),'wb')
+        pickle.dump(dic_he, outfile)
+        outfile.close()
+
+        with open(os.path.join(path, "week_he.json"), "w") as outfile:
+            json.dump(dic_he, outfile)
+
+        outfile = open(os.path.join(path, "week_pc"),'wb')
+        pickle.dump(dic_pc, outfile)
+        outfile.close()
+
+        with open(os.path.join(path, "week_pc.json"), "w") as outfile:
+            json.dump(dic_pc, outfile)
+
+        outfile = open(os.path.join(path, "easy_ft"),'wb')
+        pickle.dump(ft2, outfile)
+        outfile.close()
+
+        with open(os.path.join(path, "easy_ft.json"), "w") as outfile:
+            json.dump(ft2, outfile)
+
+        return 
+  
     def make_options(self, plan_date):
         df_dp = self.get_demand_plan(plan_date)
         df_he = self.get_harvest_estimate(plan_date)
@@ -438,7 +655,6 @@ class CreateOptions:
         ddf_he=pd.merge(ddf_he, df_prioritise, on=['client_id', 'va_id'], how='left')
         ddf_he=ddf_he.sort_values(by=['priority'])
 
-
         path = os.path.join(config.ROOTDIR,'data','processed','ddic_metadata')
         outfile = open(path,'wb')
         pickle.dump(ddic_metadata,outfile)
@@ -487,7 +703,7 @@ class CreateOptions:
             """
 
         df_dp = self.database_instance.select_query(query_str=s)
-        df_dp['kg'] = df_dp['stdunits'] * config.STDUNIT * (1 + config.GIVEAWAY)
+        df_dp['kg'] = df_dp['stdunits']  * config.STDUNIT #* (1 + config.GIVEAWAY)
         df_dp = df_dp.sort_values(by=['time_id', 'priority']).reset_index(drop=True)
 
         return df_dp
@@ -545,7 +761,8 @@ class CreateOptions:
             dss.f_pack_capacity pc
         LEFT JOIN
             dim_week w ON pc.packweek = w.week
-        WHERE plan_date = '{plan_date}';
+        WHERE plan_date = '{plan_date}'
+            AND pc.stdunits > 0;
             """
 
         df_pc = self.database_instance.select_query(query_str=s)
@@ -580,7 +797,7 @@ class CreateOptions:
         df_ft = self.database_instance.select_query(query_str=s)
         path = os.path.join(config.ROOTDIR,'data','processed','ft_df')
         df_ft.to_pickle(path)       
-        return  
+        return  df_ft
 
     def get_speed(self):
         self.logger.info('- get_speed')
@@ -622,8 +839,9 @@ class CreateOptions:
         """ Rules that determine client may NOT rceive cultivar """
         self.logger.info('- get_rules_exlude')
 
-        s = f"""SELECT client_id, va_id, 1 as exclude
-                FROM dss.rules_refuse_client_va;
+        s = f"""SELECT client_id, va_id, 1 as exclude, dim_va.vacat_id
+                FROM dss.rules_refuse_client_va
+                LEFT JOIN dim_va ON (va_id = dim_va.id);
             """
 
         df = self.database_instance.select_query(query_str=s)
@@ -636,8 +854,9 @@ class CreateOptions:
         """ Rules that determine client must prioritise cultivar """
         self.logger.info('- get_rules_exlude')
 
-        s = f"""SELECT client_id, va_id, priority
-                FROM dss.rules_prioritse_client_va;
+        s = f"""SELECT rules_prioritse_client_va.client_id, rules_prioritse_client_va.va_id, rules_prioritse_client_va.priority, dim_va.vacat_id
+                FROM dss.rules_prioritse_client_va
+                LEFT JOIN dim_va ON (va_id = dim_va.id);
             """
         df = self.database_instance.select_query(query_str=s)
         path = os.path.join(config.ROOTDIR,'data','processed','rules_prioritise')
@@ -650,6 +869,48 @@ class ImportOptions:
     logger = logging.getLogger(f"{__name__}.CreateOptions")
     path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
     path = os.path.dirname(path)
+
+    def easy_preference(self):
+        path=os.path.join(config.ROOTDIR,'data','processed','easy_preference')
+        infile = open(path,'rb')
+        data = pickle.load(infile)
+        infile.close()
+        return data
+
+    def easy_refuse(self):
+        path=os.path.join(config.ROOTDIR,'data','processed','easy_refuse')
+        infile = open(path,'rb')
+        data = pickle.load(infile)
+        infile.close()
+        return data
+
+    def easy_ft(self):
+        path=os.path.join(config.ROOTDIR,'data','processed','easy_ft')
+        infile = open(path,'rb')
+        data = pickle.load(infile)
+        infile.close()
+        return data
+
+    def easy_harvest(self):
+        path=os.path.join(config.ROOTDIR,'data','processed','week_he')
+        infile = open(path,'rb')
+        data = pickle.load(infile)
+        infile.close()
+        return data
+
+    def easy_pc(self):
+        path=os.path.join(config.ROOTDIR,'data','processed','week_pc')
+        infile = open(path,'rb')
+        data = pickle.load(infile)
+        infile.close()
+        return data
+
+    def easy_demand(self):
+        path=os.path.join(config.ROOTDIR,'data','processed','week_demand')
+        infile = open(path,'rb')
+        data = pickle.load(infile)
+        infile.close()
+        return data
 
     def demand_harvest(self):
         path=os.path.join(config.ROOTDIR,'data','processed','ddf_he')
@@ -930,71 +1191,3 @@ class AdjustPlanningData:
 
         return
 
-
-class GetOperationalData:
-    """ Class to generate data for operational model. """
-    logger = logging.getLogger(f"{__name__}.GetOperationalData")
-    database_instance = DatabaseModelsClass('PHDDATABASE_URL')    
-
-    def get_chosen_individual(self): 
-        """ Get from to data. """
-        self.logger.info('- get_chosen_individual')
-
-        s = """
-            SELECT sol_pareto_individuals.demand_id
-                -- , sol_pareto_individuals.he 
-                , sol_pareto_individuals.pc 
-                , f_demand_plan.packaging
-                , ROUND(SUM(sol_pareto_individuals.kg), 1) as kg
-            FROM dss.sol_pareto_individuals
-            LEFT JOIN f_demand_plan ON (f_demand_plan.id = sol_pareto_individuals.demand_id)
-            LEFT JOIN sol_fitness ON (sol_pareto_individuals.indiv_id = sol_fitness.indiv_id 
-                AND sol_pareto_individuals.alg = sol_fitness.alg 
-                AND sol_pareto_individuals.plan_date = sol_fitness.plan_date
-                AND sol_fitness.result = 'final result')
-            WHERE kg > 0
-            AND sol_pareto_individuals.plan_date = '2021-12-08'
-            AND sol_pareto_individuals.time_id = 1076
-            AND sol_fitness.id = 387
-            -- AND pc = 4722
-            GROUP BY sol_pareto_individuals.demand_id, 
-            f_demand_plan.packaging,
-            -- sol_pareto_individuals.he, 
-            sol_pareto_individuals.pc;
-            """
-
-        df = self.database_instance.select_query(query_str=s)
-        path = os.path.join(config.ROOTDIR,'data','raw','operational_individual')
-        df.to_pickle(path)       
-        return  df
-
-    def get_daily_capacity(self): 
-        """ Get daily capacity. """
-        self.logger.info('- get_daily_capacity')
-
-        s = """
-            SELECT f_pack_capacity.id as pc
-            -- , f_pack_capacity.packhouse_id
-            -- , f_pack_capacity.pack_type_id
-            -- , f_pack_capacity.stdunits
-            , dim_time.id as day_id
-            , IF(stdunits>0, ROUND((stdunits / dim_week.workdays)  * dim_time.workday), 0)  as stdunits_day
-            , IF(stdunits>0, ROUND((stdunits / dim_week.workdays)  * dim_time.workday), 0) * 4.5  as kg_day
-            -- , dim_week.id as time_id
-            FROM dss.f_pack_capacity
-            LEFT JOIN dim_week on (dim_week.week = f_pack_capacity.packweek)
-            LEFT JOIN dim_time on (dim_time.week = f_pack_capacity.packweek)
-            WHERE f_pack_capacity.plan_date = '2021-12-08'
-            AND dim_time.workday > 0
-            AND dim_week.id = 1076
-            -- AND f_pack_capacity.id = 4722
-            ORDER BY packhouse_id, pack_type_id
-            ;
-            """
-
-        df = self.database_instance.select_query(query_str=s)
-
-
-        path = os.path.join(config.ROOTDIR,'data','raw','operational_daily_capacity')
-        df.to_pickle(path)       
-        return df

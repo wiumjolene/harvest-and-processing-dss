@@ -2,8 +2,8 @@ import math
 import os
 
 # show graphs
-SHOW=True 
-SHOWRATE = 5000
+SHOW = False 
+SHOWRATE = 1
 
 STDUNIT=4.5 # each stdunit is so many kg of produce
 GIVEAWAY=0.05 # % giveaway
@@ -22,26 +22,18 @@ ZAR_KM=3.16/1000
 SELECTION='nondom'
 TOURSIZE=2  # NB NSGI2 requires binary tournament selection
 
-
-MUTATIONRATE=0.3
-MUTATIONRATE2=0.08
-CROSSOVERRATE=0.39
-
-"""
-MUTATIONRATE=0.12
-MUTATIONRATE2=0.08
-CROSSOVERRATE=0.35
-"""
+MUTATIONRATE=0.08
+MUTATIONRATE2=0.05
+CROSSOVERRATE=0.4
 
 
 CROSSOVERTYPE='crossover_BITFLIP'
 #CROSSOVERTYPE='crossover_CROSSGEN'
 
+POPUATION = 50 #TODO:
+CHILDREN = 25
+ITERATIONS = 100 #TODO:
 
-POPUATION=80 #TODO:
-CHILDREN = 80
-ITERATIONS=25000 #TODO:
-#LEVEL='DAY'
 LEVEL='WEEK'
 
 ########################################################
