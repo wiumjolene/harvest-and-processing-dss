@@ -381,6 +381,7 @@ class CreateOptions:
         dic_pc = {}
         dic_he = {}
         dic_demand = {}
+        ddic_metadata={}
 
         times = list(df_dp.time_id.unique())
 
@@ -405,6 +406,7 @@ class CreateOptions:
                     dpack_type_id = df_dptp.pack_type_id[d]
                     dkg = df_dptp.kg[d]
 
+                    # Client preference
                     if dclient_id in list(df_prioritise.client_id):
                         df_prioritisec = df_prioritise[df_prioritise['client_id'] == dclient_id].reset_index(drop=True)
 
@@ -412,20 +414,38 @@ class CreateOptions:
                             df_prioritisecva = df_prioritisec[df_prioritisec['vacat_id'] == dvacat_id].reset_index(drop=True)
                             pref_list = list(df_prioritisecva.va_id)
 
-                            hepref_lis = df_het[(df_het['time_id'] == dtime_id)]
+                            hepref_lis = df_het[(df_het['vacat_id'] == dvacat_id)]
                             hepref_lis = hepref_lis[(hepref_lis['va_id'].isin(pref_list))].reset_index(drop=True)
 
                             hepref_lis = pd.merge(hepref_lis, df_prioritisecva, on=['va_id'], how='left')
                             hepref_lis=hepref_lis.sort_values(by='priority')
 
-                            pref_lis = list(hepref_lis.id)
+                            pref_hes = list(hepref_lis.id)
                         
                         else:
-                            pref_lis = []
+                            pref_hes = []
 
                     else:
-                        pref_lis = []
+                        pref_hes = []
 
+                    # Client refuse
+                    if dclient_id in list(df_exclude.client_id):
+                        df_excludec = df_exclude[df_exclude['client_id'] == dclient_id].reset_index(drop=True)
+
+                        if dvacat_id in list(df_excludec.vacat_id):
+                            df_excludecva = df_excludec[df_excludec['vacat_id'] == dvacat_id].reset_index(drop=True)
+                            excl_list = list(df_excludecva.va_id)
+
+                            heexcl_lis = df_het[(df_het['vacat_id'] == dvacat_id)]
+                            heexcl_lis = heexcl_lis[heexcl_lis['va_id'].isin(excl_list)].reset_index(drop=True)
+
+                            exclude_hes = list(heexcl_lis.id)
+                        
+                        else:
+                            exclude_hes = []
+                            
+                    else:
+                        exclude_hes = []
 
                     dt1.update({int(ddemand_id):{'vacat_id': int(dvacat_id),
                                             'time_id': int(dtime_id),
@@ -433,7 +453,15 @@ class CreateOptions:
                                             'client_id': int(dclient_id),
                                             'kg': int(dkg),
                                             'kg_rem': int(dkg),
-                                            'preference': pref_lis}})
+                                            'preference': pref_hes,
+                                            'exclude': exclude_hes}})
+
+                    ddic_metadata.update({ddemand_id: {'vacat_id': dvacat_id,
+                                                    'time_id': dtime_id,
+                                                    'pack_type_id': dpack_type_id,
+                                                    'kg':dkg,
+                                                    'priority': prior}})
+
                 if prior == 0:
                     dt.update({1000: dt1})
                 
@@ -811,8 +839,9 @@ class CreateOptions:
         """ Rules that determine client may NOT rceive cultivar """
         self.logger.info('- get_rules_exlude')
 
-        s = f"""SELECT client_id, va_id, 1 as exclude
-                FROM dss.rules_refuse_client_va;
+        s = f"""SELECT client_id, va_id, 1 as exclude, dim_va.vacat_id
+                FROM dss.rules_refuse_client_va
+                LEFT JOIN dim_va ON (va_id = dim_va.id);
             """
 
         df = self.database_instance.select_query(query_str=s)
@@ -1162,71 +1191,3 @@ class AdjustPlanningData:
 
         return
 
-
-class GetOperationalData:
-    """ Class to generate data for operational model. """
-    logger = logging.getLogger(f"{__name__}.GetOperationalData")
-    database_instance = DatabaseModelsClass('PHDDATABASE_URL')    
-
-    def get_chosen_individual(self): 
-        """ Get from to data. """
-        self.logger.info('- get_chosen_individual')
-
-        s = """
-            SELECT sol_pareto_individuals.demand_id
-                -- , sol_pareto_individuals.he 
-                , sol_pareto_individuals.pc 
-                , f_demand_plan.packaging
-                , ROUND(SUM(sol_pareto_individuals.kg), 1) as kg
-            FROM dss.sol_pareto_individuals
-            LEFT JOIN f_demand_plan ON (f_demand_plan.id = sol_pareto_individuals.demand_id)
-            LEFT JOIN sol_fitness ON (sol_pareto_individuals.indiv_id = sol_fitness.indiv_id 
-                AND sol_pareto_individuals.alg = sol_fitness.alg 
-                AND sol_pareto_individuals.plan_date = sol_fitness.plan_date
-                AND sol_fitness.result = 'final result')
-            WHERE kg > 0
-            AND sol_pareto_individuals.plan_date = '2021-12-08'
-            AND sol_pareto_individuals.time_id = 1076
-            AND sol_fitness.id = 387
-            -- AND pc = 4722
-            GROUP BY sol_pareto_individuals.demand_id, 
-            f_demand_plan.packaging,
-            -- sol_pareto_individuals.he, 
-            sol_pareto_individuals.pc;
-            """
-
-        df = self.database_instance.select_query(query_str=s)
-        path = os.path.join(config.ROOTDIR,'data','raw','operational_individual')
-        df.to_pickle(path)       
-        return  df
-
-    def get_daily_capacity(self): 
-        """ Get daily capacity. """
-        self.logger.info('- get_daily_capacity')
-
-        s = """
-            SELECT f_pack_capacity.id as pc
-            -- , f_pack_capacity.packhouse_id
-            -- , f_pack_capacity.pack_type_id
-            -- , f_pack_capacity.stdunits
-            , dim_time.id as day_id
-            , IF(stdunits>0, ROUND((stdunits / dim_week.workdays)  * dim_time.workday), 0)  as stdunits_day
-            , IF(stdunits>0, ROUND((stdunits / dim_week.workdays)  * dim_time.workday), 0) * 4.5  as kg_day
-            -- , dim_week.id as time_id
-            FROM dss.f_pack_capacity
-            LEFT JOIN dim_week on (dim_week.week = f_pack_capacity.packweek)
-            LEFT JOIN dim_time on (dim_time.week = f_pack_capacity.packweek)
-            WHERE f_pack_capacity.plan_date = '2021-12-08'
-            AND dim_time.workday > 0
-            AND dim_week.id = 1076
-            -- AND f_pack_capacity.id = 4722
-            ORDER BY packhouse_id, pack_type_id
-            ;
-            """
-
-        df = self.database_instance.select_query(query_str=s)
-
-
-        path = os.path.join(config.ROOTDIR,'data','raw','operational_daily_capacity')
-        df.to_pickle(path)       
-        return df

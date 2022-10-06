@@ -10,7 +10,7 @@ from operator import itemgetter
 import numpy as np
 import pandas as pd
 from sqlalchemy import column
-from src.data.make_dataset import (GetLocalData, GetOperationalData,
+from src.data.make_dataset import (GetLocalData,
                                    ImportOptions)
 from src.features.make_tests import Tests
 from src.utils import config
@@ -153,13 +153,9 @@ class Individual:
         else:
             if get_indiv:
                 indiv = self.make_individual()
-                #print(indiv)
 
             path=os.path.join(alg_path, f"id_{number}")
             indiv.to_pickle(path, protocol=5)
-
-            #path=os.path.join(alg_path, f"id_{number}.xlsx")
-            #indiv.to_excel(path)
 
             fitness = self.make_fitness(indiv)
 
@@ -180,10 +176,7 @@ class Individual:
         week_pc = self.options.easy_pc()
         from_to = self.options.easy_ft()
 
-        refuse = self.options.easy_refuse()
-        refuse_keys = refuse.keys()
-
-        from_to = self.options.easy_ft()
+        #from_to = self.options.easy_ft()
 
         if get_dlist:
             weeks = list(week_demand.keys())
@@ -191,16 +184,10 @@ class Individual:
         else:
             weeks = [dlist]
         
-        
         individualdf = pd.DataFrame()
         genes = []
         for week in weeks:
             priorities = list(week_demand[week].keys())
-
-            indd_he = []
-            indd_pc = []
-            indd_kg = []
-            indd_kgkm = []
 
             for prior in priorities:
                 demands = list(week_demand[week][prior].keys())
@@ -209,20 +196,25 @@ class Individual:
                     d = random.choice(demands)
                     vacat_id = week_demand[week][prior][d]['vacat_id']
                     pack_type_id = week_demand[week][prior][d]['pack_type_id']
-                    client_id = week_demand[week][prior][d]['client_id']
                     dkg = week_demand[week][prior][d]['kg_rem']
                     preference = week_demand[week][prior][d]['preference']
+                    exclude = week_demand[week][prior][d]['exclude']
 
                     try:
                         hes = list(week_he[week][vacat_id].keys())
 
                         if len(preference) > 0:
-                            hes = [x for x in preference if x in hes]
+                            preference = [i for i in preference if i in hes]
+                            hes = [i for i in hes if i not in preference]
+                            hes = preference + hes
                             pref = True
 
                         else:
                             pref = False
-                    
+
+                        if len(exclude) > 0:
+                            hes = [x for x in hes if x not in exclude]
+
                     except:
                         break
 
@@ -236,15 +228,7 @@ class Individual:
                                 he = random.choice(hes)
                             
                             block_id = week_he[week][vacat_id][he]['block_id']
-                            va_id = week_he[week][vacat_id][he]['va_id']
                             he_kg_rem = week_he[week][vacat_id][he]['kg_rem']
-
-                            if client_id in refuse_keys:
-
-                                if va_id in refuse[client_id]:
-                                    #hes.remove(he)
-                                    pass
-
 
                             # Calculate kg potential that can be packed
                             if he_kg_rem > dkg:
@@ -293,11 +277,6 @@ class Individual:
                                         
                                         dkg = dkg - packed
 
-                                        indd_he.append(he)
-                                        indd_pc.append(pc)
-                                        indd_kg.append(packed)
-                                        indd_kgkm.append(packed*km)
-
                                         genes.append([week, d, he, pc, packed, packed*km])
 
                                     else:
@@ -311,26 +290,11 @@ class Individual:
                                 del week_he[week][vacat_id][he]
                                 
                         else:
-                            #if dkg == week_demand[week][prior][d]['kg']:
-                            indd_he.append(0)
-                            indd_pc.append(0)
-                            indd_kg.append(0)
-                            indd_kgkm.append(0)
                             genes.append([week, d, 0, 0, 0, 0])
                             
                             break
 
                     demands.remove(d)  
-                    #gene_d.update({d: gene_dlist})      
-                    #dindividual = {'he':indd_he, 'pc':indd_pc, 'kg': indd_kg,
-                    #                'kgkm': indd_kgkm} 
-
-                    #individualdft = pd.DataFrame(data=dindividual)      
-                    #individualdft['demand_id'] = d
-                    #individualdft['time_id'] = week
-                    #individualdf = pd.concat([individualdf, individualdft])
-
-            #genes_dic.update({week: gene_d})
 
         individualdf = pd.DataFrame(genes, columns=['time_id', 'demand_id', 'he', 'pc', 'kg', 'kgkm'])
         individualdf = individualdf.reset_index(drop=True)
@@ -359,290 +323,6 @@ class Individual:
                             left_on='id', right_on='demand_id')
         individualdf3['kg'].fillna(0, inplace=True)
 
-        #individualdf3['deviation'] =  abs(individualdf3['dkg']-individualdf3['kg'])
-        individualdf3['deviation'] =  individualdf3['dkg']-individualdf3['kg']
-        individualdf3.loc[(individualdf3['deviation'] < 0), 'deviation'] == 0
-        
-        total_dev = individualdf3.deviation.sum()
-
-        return [[total_cost, total_dev]]
-
-
-class Individual_BACKUP:
-    """ Class to generate an individual solution. """
-    logger = logging.getLogger(f"{__name__}.Individual")
-    t=Tests()
-    individual_df = pd.DataFrame()
-    dlistt=[]
-
-    def individual(self, number, alg_path, get_indiv=True, 
-                    indiv=individual_df, test=False, 
-                    test_name='zdt1'):
-
-        """ Function to define indiv and fitness """
-        self.logger.info(f"- individual: {number}")
-        if test:
-            #t=Tests()
-            if get_indiv:
-                if test_name == 'zdt5':
-                    x = self.t.ZDT5_indiv()
-                    indiv = dict(enumerate(x))
-
-                else:    
-                    x = np.random.rand(self.t.variables(test_name))
-                    indiv = dict(enumerate(x))
-
-            else:
-                x = list(indiv.values())
-
-            # Choose which test to use
-            if test_name == 'zdt1':
-                fitness = self.t.ZDT1(x)
-
-            elif test_name == 'zdt2':
-                fitness = self.t.ZDT2(x)
-
-            elif test_name == 'zdt3':
-                fitness = self.t.ZDT3(x)
-
-            elif test_name == 'zdt4':
-                fitness = self.t.ZDT4(x)
-
-            elif test_name == 'zdt5':
-                fitness = self.t.ZDT5(x)
-
-            elif test_name == 'zdt6':
-                fitness = self.t.ZDT6(x)
-
-            ind_fitness = {number: fitness[0]}
-
-        else:
-            if get_indiv:
-                indiv = self.make_individual()
-
-            path=os.path.join(alg_path, f"id_{number}")
-            indiv.to_pickle(path, protocol=5)
-            fitness = self.make_fitness(indiv)
-
-            ind_fitness = {number: fitness[0]}
-
-        return ind_fitness, indiv
-
-    def make_individual(self, get_dlist=True, dlist=dlistt):
-        """ Function to make problem specific individual solution """
-
-        self.logger.debug('-> make_individual')
-
-        # Import all data sets from pickel files.
-        self.logger.debug('--> get demand options')
-        options = ImportOptions()
-
-        # Get all demands ready for allocation
-        if get_dlist:
-            dlist_allocate = options.demand_ready()
-           
-        else:  # Or use custom list
-            dlist_allocate = dlist
-        
-        self.logger.debug('--> import options')
-        ddf_he = options.demand_harvest()
-        ddf_he['evaluated'] = 0
-        ddf_he = ddf_he.set_index('id')
-        ddf_he['id'] = ddf_he.index
-        
-        ddf_pc = options.demand_capacity()
-        ddic_metadata = options.demand_metadata()
-        ddf_metadata = options.demand_metadata_df()
-        he_dic = options.harvest_estimate()
-        ft_df = options.from_to()
-
-        ddf_pc = ddf_pc.merge(ft_df, on='packhouse_id', how='left')
-        ddf_pc = ddf_pc.set_index('id')
-        ddf_pc['id'] = ddf_pc.index
-
-        ddf_allocate = ddf_metadata[ddf_metadata['id'].isin(dlist_allocate)]
-        ddf_allocate=ddf_allocate[ddf_allocate['priority']>0]
-        ddf_allocate=ddf_allocate.set_index('id')
-
-        individualdf = pd.DataFrame()
-        self.logger.debug(f"--> loop through new dlist_allocate ({len(dlist_allocate)})")
-        while len(dlist_allocate) > 0:
-            #self.logger.debug(f"---> get new allocation")
-
-            # First allocate priority clients
-            # 26 January 2022 Conversation with Kobus Jonas
-            # https://www.evernote.com/shard/s187/sh/18e91ca0-a95b-b02d-865a-0b676523ce27/34794bda0a8bffb9835819f539b4b729
-
-            if len(ddf_allocate) > 0:
-                ddf_allocate=ddf_allocate.sort_values(by=['priority'])
-                d = ddf_allocate.index[0] # TODO: check this!!
-                self.logger.debug(f"---> allocate a priority d")
-
-            # if no further priority clients, allocate others
-            else:
-                # Randomly choose which d to allocate first
-                dpos = random.randint(0, len(dlist_allocate)-1)
-                d = dlist_allocate[dpos]
-                self.logger.debug(f"---> allocate a random d")
-
-
-            dkg = ddic_metadata[d]['kg']
-            ddf_pcd = ddf_pc[(ddf_pc['demand_id']==d)]
-            ddf_pcd = ddf_pcd.copy()
-
-            ddf_hed = ddf_he[(ddf_he['demand_id']==d)]
-            ddf_hed = ddf_hed.copy()
-
-            indd_he = []
-            indd_pc = []
-            indd_kg = []
-            indd_kgkm = []
-            #indd_hrs = []
-            while dkg > 0:
-                self.logger.debug(f"----> finding he and pc for d; dkg ({dkg}) for demand: {d}")
-                # Filter demand_he table according to d and kg.
-                # Check that combination of d_he has not yet been used.
-                ddf_het = ddf_hed[(ddf_hed['kg_rem']>0) \
-                            & (ddf_hed['evaluated']==0) \
-                            & (ddf_hed['packtopackplans']==1)]
-                
-                # Check if harvest estimates exist that are for packplans
-                if len(ddf_het) == 0 : 
-                    ddf_het = ddf_hed[(ddf_hed['kg_rem']>0) \
-                                & (ddf_hed['evaluated']==0)]
-
-                
-                dhes = ddf_het['id'].tolist()
-                dhe_kg_rem = ddf_het['kg_rem'].tolist()
-
-                self.logger.debug(f"----> get harevest estimate")
-                if len(dhes) > 0:
-                    # Randomly choose a he that is suitable
-
-                    # First prioritise rules engine allocations
-                    ddf_hett=ddf_het[ddf_het['priority']>0]
-                    if len(ddf_hett) > 0:
-                        # If there is a priority
-                        minp=ddf_het.priority.min()
-                        ddf_hett=ddf_het[ddf_het['priority']==minp]
-                        dhes = ddf_hett['id'].tolist()
-                        dhe_kg_rem = ddf_hett['kg_rem'].tolist()
-
-                    hepos = random.randint(0, len(dhes)-1)
-                    he = dhes[hepos]
-                    he_kg_rem = dhe_kg_rem[hepos]
-                    self.logger.debug(f"-----> assign he; he = {he}")
-
-                    # Calculate kg potential that can be packed
-                    if he_kg_rem > dkg:
-                        to_pack = dkg
-
-                    else:
-                        to_pack = he_kg_rem
-                    
-                    # Get closest pc for he from available pc's
-                    self.logger.debug(f"-----> get pack capacity")
-                    block_id = he_dic[he]['block_id']
-
-                    # Variables to determine speed -> add calculate the number of hours 
-                    ddf_pcdb = ddf_pcd[(ddf_pcd['block_id']==block_id)]
-                    ddf_pcdb = ddf_pcdb.copy()
-
-                    # Allocate to_pack to pack capacities
-                    while to_pack > 0:
-                        ddf_pct = ddf_pcdb[(ddf_pcdb['kg_rem']>0)]
-
-                        if len(ddf_pct) > 0:
-                            ddf_pct = ddf_pct.sort_values(['km'], ascending=True).reset_index(drop=True)
-
-                            # Allocate closest pc to block                    
-                            pc = ddf_pct.at[0, 'id']
-                            km = ddf_pct.at[0, 'km']
-                            pckg_rem = ddf_pct.at[0, 'kg_rem']
-
-                            if pckg_rem > to_pack:
-                                packed = to_pack
-                                pckg_rem = pckg_rem - to_pack
-                                to_pack = 0
-
-                            else:
-                                packed = pckg_rem
-                                to_pack = to_pack - pckg_rem
-                                pckg_rem = 0
-
-                            speed = 12
-
-                            # Update demand tables with updated capacity
-                            he_kg_rem=he_kg_rem-packed
-                            
-                            ddf_pc.at[pc, 'kg_rem'] = pckg_rem
-                            ddf_pcd.at[pc, 'kg_rem'] = pckg_rem
-                            ddf_pcdb.at[pc, 'kg_rem'] = pckg_rem
-                            ddf_hed.at[he, 'kg_rem'] = he_kg_rem
-                            ddf_he.at[he, 'kg_rem'] = he_kg_rem
-                            
-                            dkg = dkg - packed
-
-                            indd_he.append(he)
-                            indd_pc.append(pc)
-                            indd_kg.append(packed)
-                            indd_kgkm.append(packed*km)
-
-                        else:
-                            ddf_hed.at[he, 'evaluated'] = 1
-                            break
-
-                    self.logger.debug(f"-----> finished with finding pc")   
-
-                else:
-                    if dkg == ddic_metadata[d]['kg']:
-                        indd_he.append(0)
-                        indd_pc.append(0)
-                        indd_kg.append(0)
-                        indd_kgkm.append(0)
-
-                    break
-                        
-            dindividual = {'he':indd_he, 'pc':indd_pc, 'kg': indd_kg,
-                            'kgkm': indd_kgkm} 
-
-            individualdft = pd.DataFrame(data=dindividual)      
-            individualdft['demand_id'] = d
-            individualdft['time_id'] = ddic_metadata[d]['time_id']
-            individualdf = pd.concat([individualdf,individualdft])
-
-            # Remove d from list to not alocate it again
-            dlist_allocate.remove(d)
-            if len(ddf_allocate) > 0:
-                ddf_allocate=ddf_allocate.drop(d)
-
-        individualdf = individualdf.reset_index(drop=True)
-
-        return individualdf
-
-    def make_fitness(self, individualdf):
-        self.logger.debug('-> make_fitness')
-        options = ImportOptions()
-
-        individualdf1 = individualdf.copy()
-
-        ddf_metadata = options.demand_metadata_df()
-        ddf_metadata.rename(columns={'kg':'dkg'},inplace=True)
-
-        individualdf1['kg2'] = 0
-        individualdf1.loc[(individualdf1['kgkm']>0), 'kg2'] = individualdf1['kg']
-        total_cost = individualdf1.kgkm.sum() / individualdf1.kg2.sum()
-
-
-        individualdf2 = individualdf.groupby('demand_id')['kg'].sum()
-        individualdf2 = individualdf2.reset_index(drop=False)
-
-        
-        individualdf3 = pd.merge(ddf_metadata, individualdf2, how='left', \
-                            left_on='id', right_on='demand_id')
-        individualdf3['kg'].fillna(0, inplace=True)
-
-        #individualdf3['deviation'] =  abs(individualdf3['dkg']-individualdf3['kg'])
         individualdf3['deviation'] =  individualdf3['dkg']-individualdf3['kg']
         individualdf3.loc[(individualdf3['deviation'] < 0), 'deviation'] == 0
         
@@ -754,7 +434,7 @@ class GeneticAlgorithmGenetics:
         #ix = Individual()
 
         if random.random() <= config.MUTATIONRATE:
-            self.logger.info(f"--- mutation activated")
+            self.logger.debug(f"--- mutation activated")
                        
             if test:
                 times = df_mutate.keys()
@@ -1681,78 +1361,3 @@ class PrepManPlan:
 
         return df
 
-
-class MakeOperational:
-    """ Class to prepare Manual PackPlan for comparison"""
-    logger = logging.getLogger(f"{__name__}.MakeOperational")
-
-    database_instance = DatabaseModelsClass('PHDDATABASE_URL')
-    get_data = GetOperationalData()
-
-    def make_opindiv(self):
-        self.logger.info(f"make_opindiv")
-        packcap = self.get_data.get_daily_capacity()
-        indiv = self.get_data.get_chosen_individual()
-
-        pcs = list(indiv['pc'].unique())
-
-        dayallocations = []
-        for pc in pcs:
-            indiv_pc = indiv[indiv['pc']==pc]
-            packcap_pc = packcap[(packcap['pc']==pc)].reset_index(drop=True)
-
-            dlist_allocate = list(indiv_pc.demand_id.unique())
-
-            while len(dlist_allocate) > 0:
-                dpos = random.randint(0, len(dlist_allocate)-1)
-                demand_id = dlist_allocate[dpos]  
-
-                indiv_pcd=indiv_pc.set_index('demand_id')
-                dkg = indiv_pcd.at[demand_id, 'kg']
-                packaging = indiv_pcd.at[demand_id, 'packaging']
-                print(f"pc:{pc} - demand:{demand_id}")
-
-                while dkg > 0:
-                    packcap_pc2 = packcap_pc[(packcap_pc['kg_day'] > 0)]
-
-                    days = list(packcap_pc2.day_id.unique())
-                    day_id = days[random.randint(0, len(days)-1)]
-
-                    packcap_pc3=packcap_pc2.set_index('day_id')
-                    kg_day = packcap_pc3.at[day_id, 'kg_day']
-
-                    if kg_day >= dkg:
-                        kg_alloc = dkg
-                        dkg = 0
-                        dlist_allocate.remove(demand_id)
-                    
-                    else:
-                        kg_alloc = kg_day
-                        dkg = dkg - kg_day
-
-                    packcap_pc.loc[(packcap_pc['day_id'] == day_id), 'kg_day'] = kg_day - dkg
-
-                    data = [pc, day_id, packaging, demand_id, kg_alloc, f"{pc}-{day_id}-{packaging}"]
-                    dayallocations.append(data)
-
-                #indiv.loc[(indiv['pc'] == pc) & (indiv['demand_id'] == demand_id), 'dkg'] = dkg
-
-        columns = ['pc', 'day_id', 'packaging', 'demand_id', 'kg_alloc', 'swop_index']
-        df = pd.DataFrame(columns=columns, data=dayallocations)  
-    
-        return df
-
-    def make_opindiv_fitness(self, df):
-        self.logger.info(f"")
-        indiv = self.get_data.get_chosen_individual()
-
-        swops_ton = len(df.swop_index.unique()) / (df.kg_alloc.sum()/1000)
-
-        df2 = df.groupby(['pc','demand_id'],as_index=False, sort=False)['kg_alloc']
-        indiv = pd.merge(indiv, df2, how='left', on=['pc', 'demand_id'])
-
-        indiv['diff'] = indiv['kg'] - indiv['kg_alloc']
-
-        diff = indiv['diff'].sum()
-
-        return [[diff, swops_ton]]
