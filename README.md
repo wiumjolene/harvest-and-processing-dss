@@ -1,7 +1,7 @@
 Jolene PhD
 ==============================
 
-PhD models for Jolene Wium. PhD student  at the University of Stellenbosch
+PhD models for Jolene Wium. PhD student at the University of Stellenbosch.
 
 Project Organization
 ------------
@@ -17,12 +17,6 @@ Project Organization
     │
     ├── docs               <- A default Sphinx project; see sphinx-doc.org for details
     │
-    ├── models             <- Trained and serialized models, model predictions, or model summaries
-    │
-    ├── notebooks          <- Jupyter notebooks. Naming convention is a number (for ordering),
-    │                         the creator's initials, and a short `-` delimited description, e.g.
-    │                         `1.0-jqp-initial-data-exploration`.
-    │
     ├── references         <- Data dictionaries, manuals, and all other explanatory materials.
     │
     ├── reports            <- Generated analysis as HTML, PDF, LaTeX, etc.
@@ -31,24 +25,20 @@ Project Organization
     ├── requirements.txt   <- The requirements file for reproducing the analysis environment, e.g.
     │                         generated with `pip freeze > requirements.txt`
     │
-    ├── setup.py           <- makes project pip installable (pip install -e .) so src can be imported
     ├── src                <- Source code for use in this project.
-    │   ├── __init__.py    <- Makes src a Python module
+    │   ├── __init__.py    <- Python module
     │   │
-    │   ├── data           <- Scripts to download or generate data
+    │   ├── data           <- Scripts to generate and manipulate data
     │   │   └── make_dataset.py
     │   │
     │   ├── features       <- Scripts to turn raw data into features for modeling
-    │   │   └── build_features.py
+    │   │   ├── build_features.py
+    │   |   └── make_tests.py
     │   │
-    │   ├── models         <- Scripts to train models and then use trained models to make
-    │   │   │                 predictions
-    │   │   ├── predict_model.py
-    │   │   └── train_model.py
-    │   │
-    │   └── visualization  <- Scripts to create exploratory and results oriented visualizations
-    │       └── visualize.py
-    │
+    │   └── models         <- Algorithm specific classes and functions
+    │       ├── genetic_algorithm.py
+    │       └── run_tests.py
+    │   
     └── tox.ini            <- tox file with settings for running tox; see tox.readthedocs.io
 
 
