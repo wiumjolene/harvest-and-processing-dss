@@ -6,8 +6,6 @@ PhD models for Jolene Wium. PhD student at the University of Stellenbosch.
 Project Organization
 ------------
 
-    ├── LICENSE
-    ├── Makefile           <- Makefile with commands like `make data` or `make train`
     ├── README.md          <- The top-level README for developers using this project.
     ├── data
     │   ├── external       <- Data from third party sources.
